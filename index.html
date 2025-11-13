@@ -1,177 +1,167 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kai Carb Calculator</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#0f766e">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header>
-    <h1>Kai Carb Calculator</h1>
-    <p>Enter label values per serving, then how much Kai eats, plus BSL and IOB.</p>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kai Carb Calculator</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#00766e" />
+    <link rel="stylesheet" href="style.css?v=3" />
+  </head>
 
-  <nav class="tabs">
-    <button id="tabCurrent" class="active" type="button">Current meal</button>
-    <button id="tabHistory" type="button">History</button>
-  </nav>
+  <body>
+    <header>
+      <h1>Kai Carb Calculator</h1>
+      <p>Enter label values per serving, then how much Kai eats, plus BSL and IOB.</p>
+    </header>
 
-  <main>
-    <!-- CURRENT MEAL VIEW -->
-    <section id="currentView">
-      <div class="grid2">
+    <nav class="tabs">
+      <button id="tabcurrent" class="active" type="button">Current meal</button>
+      <button id="tabhistory" type="button">History</button>
+    </nav>
+
+    <main>
+      <!-- CURRENT MEAL VIEW -->
+      <section id="currentView">
+        <div class="grid2">
+          <section class="card">
+            <h2>STEP 1: Food label per serving</h2>
+
+            <label>Food name
+              <input id="foodName" list="foodNames" placeholder="e.g., Great Value Whole Milk" />
+              <datalist id="foodNames"></datalist>
+            </label>
+
+            <label>Serving size (g or mL)
+              <input id="servingSize" type="number" step="0.01" value="100" />
+            </label>
+
+            <label>Calories
+              <input id="labelCalories" type="number" step="0.1" value="0" />
+            </label>
+
+            <label>Fat (g)
+              <input id="labelFat" type="number" step="0.1" value="0" />
+            </label>
+
+            <label>Sodium (mg)
+              <input id="labelSodium" type="number" step="1" value="0" />
+            </label>
+
+            <label>Carbs (g)
+              <input id="labelCarbs" type="number" step="0.1" value="0" />
+            </label>
+
+            <label>Fiber (g)
+              <input id="labelFiber" type="number" step="0.1" value="0" />
+            </label>
+
+            <label>Sugar (g)
+              <input id="labelSugar" type="number" step="0.1" value="0" />
+            </label>
+
+            <label>Protein (g)
+              <input id="labelProtein" type="number" step="0.1" value="0" />
+            </label>
+          </section>
+
+          <section class="card">
+            <h2>STEP 2: Enter Consumed Information</h2>
+            <label>Having
+              <input id="portionAmount" type="number" step="0.01" placeholder="Enter portion eaten" />
+            </label>
+            <button id="addFoodBtn" class="primary">Click to Add</button>
+          </section>
+
+          <section class="card">
+            <h2>STEP 3: Context</h2>
+            <label>Current BSL (mg/dL)
+              <input id="bsl" type="number" value="120" />
+            </label>
+
+            <label>Insulin on board (u)
+              <input id="iob" type="number" step="0.01" value="0.0" />
+            </label>
+
+            <label>Food type
+              <select id="foodType">
+                <option>Simple Carbs</option>
+                <option>Carbs with Fiber</option>
+                <option>Protein</option>
+                <option>Plant-based Fat</option>
+                <option>Low-Carb Veggies</option>
+              </select>
+            </label>
+          </section>
+        </div>
+
         <section class="card">
-          <h2>STEP 1: Food label per serving</h2>
-
-          <label>Food name
-            <input id="foodName" list="foodNames" placeholder="e.g., Great Value Whole Milk">
-            <datalist id="foodNames"></datalist>
-          </label>
-
-          <label>Serving size (g or mL)
-            <input id="servingSize" type="number" step="0.01" value="100">
-          </label>
-
-          <label>Calories
-            <input id="labelCalories" type="number" step="0.1" value="0">
-          </label>
-
-          <label>Fat (g)
-            <input id="labelFat" type="number" step="0.1" value="0">
-          </label>
-
-          <label>Sodium (mg)
-            <input id="labelSodium" type="number" step="0.1" value="0">
-          </label>
-
-          <label>Carbs (g)
-            <input id="labelCarbs" type="number" step="0.1" value="0">
-          </label>
-
-          <label>Fiber (g)
-            <input id="labelFiber" type="number" step="0.1" value="0">
-          </label>
-
-          <label>Sugar (g)
-            <input id="labelSugar" type="number" step="0.1" value="0">
-          </label>
-
-          <label>Protein (g)
-            <input id="labelProtein" type="number" step="0.1" value="0">
-          </label>
-        </section>
-
-        <section class="card">
-          <h2>STEP 2: Enter consumed information</h2>
-          <label>Having, amount eaten (same unit as serving size)
-            <input id="amountEaten" type="number" step="0.01" value="100">
-          </label>
-          <button id="addBtn">Click to Add</button>
-        </section>
-      </div>
-
-      <section class="card">
-        <h2>STEP 3: Context</h2>
-        <label>Current BSL (mg/dL)
-          <input id="bsl" type="number" step="1" value="120">
-        </label>
-        <label>Insulin on board (u)
-          <input id="iob" type="number" step="0.1" value="0.0">
-        </label>
-      </section>
-
-      <section class="card">
-        <h2>Logged food items</h2>
-        <div class="tableWrap">
-          <table>
+          <h2>Logged Food Items</h2>
+          <table id="loggedFoods">
             <thead>
               <tr>
                 <th>Item Name</th>
                 <th>Calories</th>
-                <th>Fat</th>
-                <th>Sodium</th>
-                <th>Carbs</th>
-                <th>Fiber</th>
-                <th>Sugar</th>
-                <th>Protein</th>
-                <th></th>
+                <th>Fat (g)</th>
+                <th>Sodium (mg)</th>
+                <th>Carbs (g)</th>
+                <th>Fiber (g)</th>
+                <th>Sugar (g)</th>
+                <th>Protein (g)</th>
               </tr>
             </thead>
-            <tbody id="mealBody"></tbody>
+            <tbody></tbody>
             <tfoot>
-              <tr class="totals">
-                <td>TOTALS</td>
-                <td id="tCalories">0</td>
-                <td id="tFat">0g</td>
-                <td id="tSodium">0mg</td>
-                <td id="tCarbs">0g</td>
-                <td id="tFiber">0g</td>
-                <td id="tSugar">0g</td>
-                <td id="tProtein">0g</td>
-                <td></td>
+              <tr>
+                <td><strong>Totals</strong></td>
+                <td id="totalCalories">0</td>
+                <td id="totalFat">0</td>
+                <td id="totalSodium">0</td>
+                <td id="totalCarbs">0</td>
+                <td id="totalFiber">0</td>
+                <td id="totalSugar">0</td>
+                <td id="totalProtein">0</td>
               </tr>
             </tfoot>
           </table>
-        </div>
+        </section>
 
-        <button id="saveHistoryBtn" class="secondary">Save to history, clears current</button>
+        <section class="card">
+          <h2>Results</h2>
+          <p><strong>Pre-bolus:</strong> <span id="preBolus">—</span></p>
+          <p><strong>Split:</strong> <span id="split">—</span></p>
+          <p><strong>Food Type:</strong> <span id="resultFoodType">—</span></p>
+          <p><strong>Reason:</strong> <span id="reason">—</span></p>
+        </section>
+
+        <section class="card actions">
+          <button id="saveHistoryBtn" class="secondary">Save to History</button>
+        </section>
       </section>
 
-      <section class="card">
-        <h2>Results</h2>
-        <div id="results">
-          <p>Total carbs: <strong id="rCarbs">0</strong> g</p>
-          <p>Total fat: <strong id="rFat">0</strong> g</p>
-          <p>Total protein: <strong id="rProtein">0</strong> g</p>
-          <hr>
-          <p>Pre-bolus: <strong id="prebolus">n/a</strong></p>
-          <p>Split: <strong id="splitText">n/a</strong></p>
-          <p>Food type: <strong id="foodTypeOut">n/a</strong></p>
-          <p>Reason: <strong id="reason">n/a</strong></p>
-        </div>
-      </section>
-    </section>
-
-    <!-- HISTORY VIEW -->
-    <section id="historyView" class="hidden">
-      <section class="card">
-        <h2>Saved food templates (per serving)</h2>
-        <div class="tableWrap">
-          <table>
+      <!-- HISTORY VIEW -->
+      <section id="historyView" class="hidden">
+        <section class="card">
+          <h2>History Log</h2>
+          <p>Below are previously saved meals. These are stored locally on your device.</p>
+          <table id="historyTable">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Serving</th>
-                <th>Cal</th>
-                <th>Fat</th>
-                <th>Na</th>
-                <th>Carbs</th>
-                <th>Fiber</th>
-                <th>Sugar</th>
-                <th>Protein</th>
-                <th></th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total Carbs</th>
+                <th>Total Fat</th>
+                <th>Total Protein</th>
+                <th>Pre-bolus</th>
+                <th>Split</th>
               </tr>
             </thead>
-            <tbody id="historyBody"></tbody>
+            <tbody></tbody>
           </table>
-        </div>
-        <button id="clearHistoryBtn" class="danger">Clear history</button>
+        </section>
       </section>
-    </section>
-  </main>
+    </main>
 
-  <footer>
-    <p>Works offline after first load. Add to Home Screen on iPhone.</p>
-  </footer>
-
-  <script src="app.js"></script>
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js"));
-    }
-  </script>
-</body>
+    <script src="app.js?v=3"></script>
+  </body>
 </html>
