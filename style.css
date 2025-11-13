@@ -1,11 +1,108 @@
-/* Mobile table improvements */
-.tableWrap { overflow-x: auto; }
-
-@media (max-width: 480px) {
-  .tableWrap table { min-width: 720px; }   /* ensures scroll instead of crunch */
-  table { font-size: 12px; }
-  th, td { padding: 6px; }
+/* ---------- Base ---------- */
+:root{
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --brand:#0f9d8b;
+  --brand-700:#0a786e;
+  --danger:#c0392b;
+  --border:#e5e7eb;
 }
 
-/* Slightly tighter spacing everywhere for better fit */
-th, td { white-space: nowrap; }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  color:var(--text);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- Header ---------- */
+header{
+  background:linear-gradient(180deg, var(--brand), var(--brand-700));
+  color:#fff;
+  padding:18px 16px;
+}
+header h1{margin:0 0 6px 0;font-size:20px;font-weight:700}
+header p{margin:0;font-size:14px;opacity:.95}
+
+/* ---------- Layout ---------- */
+main{max-width:980px;margin:18px auto;padding:0 12px}
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+@media (max-width:760px){
+  .grid2{grid-template-columns:1fr}
+}
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.card h2{margin:0 0 12px 0;font-size:18px}
+
+/* ---------- Form ---------- */
+label{display:block;font-size:13px;margin:10px 0 8px 0;color:var(--muted)}
+input,select,button{
+  font:inherit;
+}
+input,select{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  color:var(--text);
+}
+input:focus,select:focus{
+  outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(15,157,139,.15);
+}
+button{
+  display:inline-block;
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:#fff;
+  cursor:pointer;
+}
+button.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+button.primary:hover{background:var(--brand-700);border-color:var(--brand-700)}
+button.secondary{background:#eefaf8;color:var(--brand);border-color:#d5f3ef}
+button.danger{background:#fdecea;color:#b02a1e;border-color:#f7c6bf}
+button + button{margin-left:8px}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;gap:8px;padding:10px 12px}
+.tabs button{
+  background:#fff;border:1px solid var(--border);color:var(--text);
+}
+.tabs button.active{
+  background:#0f9d8b;color:#fff;border-color:#0f9d8b;
+}
+
+/* ---------- Tables ---------- */
+.tableWrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+th{font-weight:600;color:#374151;background:#fafafa}
+tbody tr:hover{background:#fcfcfd}
+
+/* Mobile table improvements */
+@media (max-width:480px){
+  .tableWrap table{min-width:720px} /* force horizontal scroll, avoid column crunch */
+  table{font-size:12px}
+  th,td{padding:6px}
+}
+
+/* ---------- Utility ---------- */
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+.hidden{display:none !important}
