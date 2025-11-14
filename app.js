@@ -1,609 +1,553 @@
-// app.js - Type 1 Diabetes Calculator
+"use strict";
 
-// ---------- helpers ----------
+// Simple helper
+const $ = (id) => document.getElementById(id);
 
-function $(id) {
-  return document.getElementById(id);
-}
+// LocalStorage keys
+const STORAGE = {
+  PROFILE: "t1d_profile",
+  MEAL_TYPE: "t1d_meal_type",
+  TEMPLATES: "t1d_templates",
+  CURRENT_MEAL: "t1d_current_meal"
+};
 
-function toNum(value) {
-  const n = parseFloat(value);
-  return isNaN(n) ? 0 : n;
-}
+// State
+let templates = [];     // Per-serving food templates
+let currentMeal = [];   // Items in the current meal
+let totals = { carbs: 0, fat: 0, protein: 0, fiber: 0 };
 
-// Storage keys
-const TEMPLATES_KEY = "t1dTemplates";
-const PROFILE_KEY = "t1dProfileName";
+// ---------- Persistence helpers ----------
 
-let templates = [];
-let mealItems = [];
-
-// ---------- templates and history ----------
-
-function loadTemplates() {
+function loadJson(key, fallback) {
   try {
-    const raw = localStorage.getItem(TEMPLATES_KEY);
-    templates = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    console.error("Error loading templates", e);
-    templates = [];
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
+}
+
+function saveJson(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // ignore quota errors
+  }
+}
+
+function loadState() {
+  // Profile
+  const savedProfile = localStorage.getItem(STORAGE.PROFILE);
+  if (savedProfile && $("profileName")) {
+    $("profileName").value = savedProfile;
+  }
+
+  const savedMealType = localStorage.getItem(STORAGE.MEAL_TYPE);
+  if (savedMealType && $("mealType")) {
+    $("mealType").value = savedMealType;
+  }
+
+  // Templates and current meal
+  templates = loadJson(STORAGE.TEMPLATES, []);
+  currentMeal = loadJson(STORAGE.CURRENT_MEAL, []);
+}
+
+function saveProfile() {
+  if ($("profileName")) {
+    localStorage.setItem(STORAGE.PROFILE, $("profileName").value.trim());
+  }
+}
+
+function saveMealType() {
+  if ($("mealType")) {
+    localStorage.setItem(STORAGE.MEAL_TYPE, $("mealType").value);
   }
 }
 
 function saveTemplates() {
-  try {
-    localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
-  } catch (e) {
-    console.error("Error saving templates", e);
-  }
+  saveJson(STORAGE.TEMPLATES, templates);
 }
 
-function getProfileName() {
-  const val = $("profileName").value.trim();
-  if (!val) {
-    return "default";
-  }
-  return val;
+function saveCurrentMeal() {
+  saveJson(STORAGE.CURRENT_MEAL, currentMeal);
 }
 
-function loadProfile() {
-  const raw = localStorage.getItem(PROFILE_KEY);
-  if (raw) {
-    $("profileName").value = raw;
-  }
+// ---------- Utility formatting ----------
+
+function toNumber(v) {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : 0;
 }
 
-function saveProfile() {
-  const name = $("profileName").value.trim();
-  localStorage.setItem(PROFILE_KEY, name);
+function fmt1(n) {
+  return Number.isFinite(n) ? n.toFixed(1) : "0.0";
 }
 
-// Build the datalist of known foods for the current profile
-function refreshFoodNameDatalist() {
-  const dl = $("foodNames");
-  dl.innerHTML = "";
-  const profile = getProfileName();
-
-  const seen = new Set();
-  templates.forEach(t => {
-    if (t.profile === profile) {
-      if (!seen.has(t.name)) {
-        const opt = document.createElement("option");
-        opt.value = t.name;
-        dl.appendChild(opt);
-        seen.add(t.name);
-      }
-    }
-  });
+function fmt0(n) {
+  return Number.isFinite(n) ? n.toFixed(0) : "0";
 }
 
-// Autofill label fields from templates when food name matches
-function tryAutofillFromHistory() {
-  const name = $("foodName").value.trim();
+// ---------- Template helpers ----------
+
+function findTemplateByName(name) {
+  const trimmed = name.trim().toLowerCase();
+  return templates.find(t => t.name.trim().toLowerCase() === trimmed) || null;
+}
+
+function upsertTemplateFromLabel() {
+  const name = ($("foodName")?.value || "").trim();
   if (!name) return;
 
-  const profile = getProfileName();
-  const match = templates.find(
-    t => t.profile === profile && t.name.toLowerCase() === name.toLowerCase()
-  );
+  const servingSize = toNumber($("servingSize")?.value);
+  const servingPieces = toNumber($("servingPieces")?.value);
 
-  if (!match) return;
+  const labelCalories = toNumber($("labelCalories")?.value);
+  const labelFat = toNumber($("labelFat")?.value);
+  const labelSodium = toNumber($("labelSodium")?.value);
+  const labelCarbs = toNumber($("labelCarbs")?.value);
+  const labelFiber = toNumber($("labelFiber")?.value);
+  const labelSugar = toNumber($("labelSugar")?.value);
+  const labelProtein = toNumber($("labelProtein")?.value);
 
-  $("mealType").value = match.mealType || "Home Meal";
-  $("servingSize").value = match.servingSize || "";
-  $("servingPieces").value = match.servingPieces || "";
-  $("labelCalories").value = match.caloriesPer || "";
-  $("labelFat").value = match.fatPer || "";
-  $("labelSodium").value = match.sodiumPer || "";
-  $("labelCarbs").value = match.carbsPer || "";
-  $("labelFiber").value = match.fiberPer || "";
-  $("labelSugar").value = match.sugarPer || "";
-  $("labelProtein").value = match.proteinPer || "";
+  if (!servingSize || (!labelCarbs && !labelFat && !labelProtein && !labelCalories)) {
+    // Not enough info to make a useful template
+    return;
+  }
+
+  const existing = findTemplateByName(name);
+  const tpl = {
+    name,
+    servingSize,
+    servingPieces,
+    calories: labelCalories,
+    fat: labelFat,
+    sodium: labelSodium,
+    carbs: labelCarbs,
+    fiber: labelFiber,
+    sugar: labelSugar,
+    protein: labelProtein
+  };
+
+  if (existing) {
+    Object.assign(existing, tpl);
+  } else {
+    templates.push(tpl);
+  }
+
+  saveTemplates();
+  refreshFoodNameDatalist();
 }
 
-// Render history tab
-function renderTemplates() {
-  const body = $("templateBody");
-  body.innerHTML = "";
+// Autofill label when user picks a known food
+function tryAutofillFromHistory() {
+  const name = ($("foodName")?.value || "").trim();
+  if (!name) return;
+  const tpl = findTemplateByName(name);
+  if (!tpl) return;
 
-  const profile = getProfileName();
+  $("servingSize").value = tpl.servingSize || "";
+  $("servingPieces").value = tpl.servingPieces || "";
+  $("labelCalories").value = tpl.calories || "";
+  $("labelFat").value = tpl.fat || "";
+  $("labelSodium").value = tpl.sodium || "";
+  $("labelCarbs").value = tpl.carbs || "";
+  $("labelFiber").value = tpl.fiber || "";
+  $("labelSugar").value = tpl.sugar || "";
+  $("labelProtein").value = tpl.protein || "";
+}
 
+function refreshFoodNameDatalist() {
+  const list = $("foodNames");
+  if (!list) return;
+  list.innerHTML = "";
   templates
-    .filter(t => t.profile === profile)
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
     .forEach(t => {
-      const tr = document.createElement("tr");
-
-      const servingText =
-        t.servingPieces && t.servingPieces > 0
-          ? `${t.servingSize} / ${t.servingPieces} pcs`
-          : `${t.servingSize}`;
-
-      tr.innerHTML = `
-        <td>${escapeHtml(t.name)}</td>
-        <td>${servingText}</td>
-        <td>${t.caloriesPer.toFixed(1)}</td>
-        <td>${t.fatPer.toFixed(1)}</td>
-        <td>${t.sodiumPer.toFixed(1)}</td>
-        <td>${t.carbsPer.toFixed(1)}</td>
-        <td>${t.fiberPer.toFixed(1)}</td>
-        <td>${t.sugarPer.toFixed(1)}</td>
-        <td>${t.proteinPer.toFixed(1)}</td>
-      `;
-      body.appendChild(tr);
+      const opt = document.createElement("option");
+      opt.value = t.name;
+      list.appendChild(opt);
     });
 }
 
-// ---------- meal items (current meal) ----------
+// ---------- Current meal logic ----------
 
 function addItem() {
-  const name = $("foodName").value.trim();
-  const profile = getProfileName();
-  const mealType = $("mealType").value || "Home Meal";
+  const nameRaw = $("foodName")?.value || "";
+  const name = nameRaw.trim();
+  const mealType = $("mealType")?.value || "Home Meal";
 
-  const servingSize = toNum($("servingSize").value);
-  const servingPieces = toNum($("servingPieces").value);
+  const servingSize = toNumber($("servingSize")?.value);      // grams or mL per serving
+  const servingPieces = toNumber($("servingPieces")?.value);  // e.g., 5 crackers
 
-  const calPer = toNum($("labelCalories").value);
-  const fatPer = toNum($("labelFat").value);
-  const sodiumPer = toNum($("labelSodium").value);
-  const carbsPer = toNum($("labelCarbs").value);
-  const fiberPer = toNum($("labelFiber").value);
-  const sugarPer = toNum($("labelSugar").value);
-  const proteinPer = toNum($("labelProtein").value);
+  const labelCalories = toNumber($("labelCalories")?.value);
+  const labelFat = toNumber($("labelFat")?.value);
+  const labelSodium = toNumber($("labelSodium")?.value);
+  const labelCarbs = toNumber($("labelCarbs")?.value);
+  const labelFiber = toNumber($("labelFiber")?.value);
+  const labelSugar = toNumber($("labelSugar")?.value);
+  const labelProtein = toNumber($("labelProtein")?.value);
 
-  const amountGrams = toNum($("amountEaten").value);
-  const amountPieces = toNum($("amountPieces").value);
+  const amtGrams = toNumber($("amountGrams")?.value);
+  const amtPieces = toNumber($("amountPieces")?.value);
 
   if (!name) {
     alert("Please enter a food name.");
     return;
   }
 
-  if (!servingSize && !servingPieces) {
-    alert("Please enter a serving size (grams or mL) and optionally pieces.");
+  if (!servingSize) {
+    alert("Please enter the serving size shown on the label.");
     return;
   }
 
-  if (!amountGrams && !amountPieces) {
-    alert("Please enter how much was eaten (grams or pieces).");
+  let portionGrams = 0;
+
+  if (amtGrams) {
+    portionGrams = amtGrams;
+  } else if (amtPieces && servingPieces) {
+    // Convert pieces to grams based on the label
+    portionGrams = servingSize * (amtPieces / servingPieces);
+  } else {
+    alert("Enter how much is eaten in grams/mL or pieces.");
     return;
   }
 
-  // Decide factor based on amount eaten
-  let factor = 0;
-  if (amountGrams && servingSize) {
-    factor = amountGrams / servingSize;
-  } else if (amountPieces && servingPieces) {
-    factor = amountPieces / servingPieces;
-  } else if (amountGrams && !servingSize) {
-    alert("To use grams, please enter serving size in grams.");
-    return;
-  } else if (amountPieces && !servingPieces) {
-    alert("To use pieces, please enter how many pieces are in one serving.");
-    return;
-  }
+  const factor = portionGrams / servingSize;
 
-  if (!factor || factor <= 0) {
-    alert("Amount eaten must be greater than zero.");
-    return;
-  }
-
-  // Portion macros
-  const portion = {
+  const item = {
     name,
-    profile,
     mealType,
-    calories: calPer * factor,
-    fat: fatPer * factor,
-    sodium: sodiumPer * factor,
-    carbs: carbsPer * factor,
-    fiber: fiberPer * factor,
-    sugar: sugarPer * factor,
-    protein: proteinPer * factor,
-    factor,
-    grams: amountGrams,
-    pieces: amountPieces,
-    template: {
-      profile,
-      name,
-      mealType,
-      servingSize,
-      servingPieces,
-      caloriesPer: calPer,
-      fatPer,
-      sodiumPer,
-      carbsPer,
-      fiberPer,
-      sugarPer,
-      proteinPer
-    }
+    portionGrams,
+    portionPieces: amtPieces || 0,
+    calories: labelCalories * factor,
+    fat: labelFat * factor,
+    sodium: labelSodium * factor,
+    carbs: labelCarbs * factor,
+    fiber: labelFiber * factor,
+    sugar: labelSugar * factor,
+    protein: labelProtein * factor
   };
 
-  mealItems.push(portion);
+  currentMeal.push(item);
+  saveCurrentMeal();
+
+  // Keep / update template for this food
+  upsertTemplateFromLabel();
+
+  // Clear inputs for the next item (Phase 2)
+  clearLabelInputs();
+  clearPortionInputs();
+
   renderMeal();
   renderSummary();
-  resetStep1And2();
+  updateGuidance();
 }
 
-// Clear Step 1 and Step 2 fields after adding an item
-function resetStep1And2() {
-  $("foodName").value = "";
-  $("mealType").value = "Home Meal";
-  $("servingSize").value = "";
-  $("servingPieces").value = "";
-  $("labelCalories").value = "";
-  $("labelFat").value = "";
-  $("labelSodium").value = "";
-  $("labelCarbs").value = "";
-  $("labelFiber").value = "";
-  $("labelSugar").value = "";
-  $("labelProtein").value = "";
-  $("amountEaten").value = "";
-  $("amountPieces").value = "";
+function clearLabelInputs() {
+  ["foodName", "servingSize", "servingPieces",
+   "labelCalories", "labelFat", "labelSodium",
+   "labelCarbs", "labelFiber", "labelSugar", "labelProtein"
+  ].forEach(id => {
+    if ($(id)) $(id).value = "";
+  });
 }
 
-// Render main meal table
+function clearPortionInputs() {
+  ["amountGrams", "amountPieces"].forEach(id => {
+    if ($(id)) $(id).value = "";
+  });
+}
+
+function removeItem(index) {
+  currentMeal.splice(index, 1);
+  saveCurrentMeal();
+  renderMeal();
+  renderSummary();
+  updateGuidance();
+}
+
 function renderMeal() {
   const body = $("mealBody");
+  if (!body) return;
   body.innerHTML = "";
 
-  mealItems.forEach((item, index) => {
+  totals = { carbs: 0, fat: 0, protein: 0, fiber: 0 };
+
+  currentMeal.forEach((item, idx) => {
+    totals.carbs += item.carbs;
+    totals.fat += item.fat;
+    totals.protein += item.protein;
+    totals.fiber += item.fiber;
+
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${escapeHtml(item.name)}</td>
-      <td>${item.calories.toFixed(1)}</td>
-      <td>${item.fat.toFixed(1)}</td>
-      <td>${item.sodium.toFixed(1)}</td>
-      <td>${item.carbs.toFixed(1)}</td>
-      <td>${item.fiber.toFixed(1)}</td>
-      <td>${item.sugar.toFixed(1)}</td>
-      <td>${item.protein.toFixed(1)}</td>
-      <td><button class="small danger removeItem" data-index="${index}">Remove</button></td>
-    `;
+
+    function td(text) {
+      const cell = document.createElement("td");
+      cell.textContent = text;
+      return cell;
+    }
+
+    tr.appendChild(td(item.name));
+    tr.appendChild(td(fmt1(item.calories)));
+    tr.appendChild(td(fmt1(item.fat)));
+    tr.appendChild(td(fmt1(item.sodium)));
+    tr.appendChild(td(fmt1(item.carbs)));
+    tr.appendChild(td(fmt1(item.fiber)));
+    tr.appendChild(td(fmt1(item.sugar)));
+    tr.appendChild(td(fmt1(item.protein)));
+
+    const removeTd = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.textContent = "Remove";
+    btn.className = "danger small";
+    btn.addEventListener("click", () => removeItem(idx));
+    removeTd.appendChild(btn);
+    tr.appendChild(removeTd);
+
     body.appendChild(tr);
   });
 
-  updateTotalsDisplay();
+  // Totals in Results block
+  if ($("totalCarbs")) $("totalCarbs").textContent = fmt1(totals.carbs);
+  if ($("totalFat")) $("totalFat").textContent = fmt1(totals.fat);
+  if ($("totalProtein")) $("totalProtein").textContent = fmt1(totals.protein);
 }
 
-// Render summary table (name + carbs + fat + protein)
 function renderSummary() {
   const body = $("summaryBody");
+  if (!body) return;
   body.innerHTML = "";
 
-  mealItems.forEach(item => {
+  currentMeal.forEach(item => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${escapeHtml(item.name)}</td>
-      <td>${item.carbs.toFixed(1)}</td>
-      <td>${item.fat.toFixed(1)}</td>
-      <td>${item.protein.toFixed(1)}</td>
-    `;
+
+    function td(text) {
+      const cell = document.createElement("td");
+      cell.textContent = text;
+      return cell;
+    }
+
+    tr.appendChild(td(item.name));
+    tr.appendChild(td(fmt1(item.carbs)));
+    tr.appendChild(td(fmt1(item.fat)));
+    tr.appendChild(td(fmt1(item.protein)));
+
     body.appendChild(tr);
   });
 }
 
-// Remove item from meal
-function removeItem(index) {
-  mealItems.splice(index, 1);
-  renderMeal();
-  renderSummary();
-}
+// ---------- History (templates) view ----------
 
-// ---------- totals and guidance ----------
+function renderTemplates() {
+  const body = $("templatesBody");
+  if (!body) return;
+  body.innerHTML = "";
 
-function getTotals() {
-  return mealItems.reduce(
-    (acc, item) => {
-      acc.calories += item.calories;
-      acc.fat += item.fat;
-      acc.sodium += item.sodium;
-      acc.carbs += item.carbs;
-      acc.fiber += item.fiber;
-      acc.sugar += item.sugar;
-      acc.protein += item.protein;
-      return acc;
-    },
-    {
-      calories: 0,
-      fat: 0,
-      sodium: 0,
-      carbs: 0,
-      fiber: 0,
-      sugar: 0,
-      protein: 0
+  templates.forEach(t => {
+    const tr = document.createElement("tr");
+    function td(text) {
+      const cell = document.createElement("td");
+      cell.textContent = text;
+      return cell;
     }
-  );
-}
 
-function updateTotalsDisplay() {
-  const totals = getTotals();
-  $("totalCarbs").textContent = totals.carbs.toFixed(1) + " g";
-  $("totalFat").textContent = totals.fat.toFixed(1) + " g";
-  $("totalProtein").textContent = totals.protein.toFixed(1) + " g";
+    const servingDesc = t.servingPieces
+      ? `${fmt0(t.servingSize)} / ${fmt0(t.servingPieces)} pcs`
+      : fmt0(t.servingSize);
 
-  if (mealItems.length === 0) {
-    $("preBolus").textContent = "--";
-    $("split").textContent = "--";
-    $("resultFoodType").textContent = "--";
-    $("reason").textContent = "--";
-    $("foodType").value = "";
-  }
-}
+    tr.appendChild(td(t.name));
+    tr.appendChild(td(servingDesc));
+    tr.appendChild(td(fmt1(t.calories)));
+    tr.appendChild(td(fmt1(t.fat)));
+    tr.appendChild(td(fmt1(t.sodium)));
+    tr.appendChild(td(fmt1(t.carbs)));
+    tr.appendChild(td(fmt1(t.fiber)));
+    tr.appendChild(td(fmt1(t.sugar)));
+    tr.appendChild(td(fmt1(t.protein)));
 
-// Decide food type from macros and meal type
-function determineFoodType(totals, mealType) {
-  const carbs = totals.carbs;
-  const fat = totals.fat;
-  const protein = totals.protein;
-  const fiber = totals.fiber;
-
-  const fiberRatio = carbs > 0 ? fiber / carbs : 0;
-  const fatRatio = carbs > 0 ? fat / carbs : 0;
-
-  const containsPizza = mealItems.some(item =>
-    item.name.toLowerCase().includes("pizza")
-  );
-
-  if (carbs < 8 && fat < 8 && protein < 8) {
-    return "Low-Carb Veggies";
-  }
-
-  if (carbs >= 20 && fiberRatio >= 0.15) {
-    return "Carbs with Fiber";
-  }
-
-  if (carbs >= 25 && fat <= 10) {
-    return "Simple Carbs";
-  }
-
-  if (protein >= 20 && fat <= 15 && carbs <= 25) {
-    return "High-Protein";
-  }
-
-  if (carbs <= 20 && fat >= 18 && protein <= 10) {
-    return "Plant-based Fat";
-  }
-
-  if (carbs <= 25 && fat <= 12 && protein >= 10) {
-    return "Protein";
-  }
-
-  if ((fat >= 18 && carbs >= 25) || fatRatio >= 0.5) {
-    if (containsPizza && (mealType === "Fast Food" || mealType === "Restaurant")) {
-      return "High-Fat Pizza";
-    }
-    return "High-Fat";
-  }
-
-  if (carbs <= 20) {
-    return "Low-Carb";
-  }
-
-  return "Mixed Carbs and Fat";
-}
-
-// Decide pre bolus timing
-function determinePreBolus(bsl, foodType) {
-  if (!bsl || bsl <= 0) return "--";
-
-  if (bsl < 80) {
-    return "0–2 min (consider reducing dose)";
-  }
-  if (bsl >= 80 && bsl <= 110) {
-    if (foodType === "Simple Carbs") return "5–8 min";
-    return "3–6 min";
-  }
-  if (bsl > 110 && bsl <= 160) {
-    return "8–10 min";
-  }
-  if (bsl > 160 && bsl <= 220) {
-    return "10–12 min";
-  }
-  return "12–15 min";
-}
-
-// Decide split recommendation
-function determineSplit(foodType, mealType, totals) {
-  const fat = totals.fat;
-  const carbs = totals.carbs;
-  const containsPizza = mealItems.some(item =>
-    item.name.toLowerCase().includes("pizza")
-  );
-
-  // Default
-  let text = "No split recommended";
-  let reason = "Low to moderate fat and carbs.";
-
-  if (foodType === "Simple Carbs" || foodType === "Carbs with Fiber") {
-    text = "No split recommended";
-    reason = "Fast digesting carbs, let Control-IQ handle corrections.";
-    return { text, reason };
-  }
-
-  // Very high fat or pizza
-  if (
-    containsPizza &&
-    (mealType === "Fast Food" || mealType === "Restaurant") &&
-    fat >= 20
-  ) {
-    text = "35/65 over 2 hours";
-    reason = "High-fat pizza – slow digestion. More insulin on the back end, capped at 2 hours.";
-    return { text, reason };
-  }
-
-  if (fat >= 18 && carbs >= 25) {
-    text = "40/60 over 1.5 hours";
-    reason = "High-fat, higher-carb meal – more insulin to the back end, 1.5 hours total.";
-    return { text, reason };
-  }
-
-  if (foodType === "High-Protein" || foodType === "Protein" || carbs <= 20) {
-    text = "30/70 over 1.5 hours";
-    reason = "Protein-heavy or low-carb meal – slower rise, more insulin later.";
-    return { text, reason };
-  }
-
-  if (fat >= 12 && fat < 18 && carbs >= 25) {
-    text = "40/60 over 1 hour 30 min";
-    reason = "Moderate to high fat – aim for a modest split with short duration.";
-    return { text, reason };
-  }
-
-  return { text, reason };
-}
-
-function calculateGuidance() {
-  if (mealItems.length === 0) {
-    alert("Add at least one food item before calculating.");
-    return;
-  }
-
-  const totals = getTotals();
-  const bsl = toNum($("bsl").value);
-  const mealType = $("mealType").value || "Home Meal";
-
-  const foodType = determineFoodType(totals, mealType);
-  $("foodType").value = foodType;
-
-  const preBolus = determinePreBolus(bsl, foodType);
-  const splitInfo = determineSplit(foodType, mealType, totals);
-
-  $("preBolus").textContent = preBolus;
-  $("split").textContent = splitInfo.text;
-  $("resultFoodType").textContent = foodType;
-  $("reason").textContent = splitInfo.reason;
-
-  updateTotalsDisplay();
-}
-
-// ---------- save to history ----------
-
-function saveCurrentToHistory() {
-  if (mealItems.length === 0) {
-    alert("Nothing to save. Add food items first.");
-    return;
-  }
-
-  const profile = getProfileName();
-
-  mealItems.forEach(item => {
-    const t = item.template;
-    if (!t) return;
-
-    // Upsert by profile + name
-    const idx = templates.findIndex(
-      existing =>
-        existing.profile === profile &&
-        existing.name.toLowerCase() === t.name.toLowerCase()
-    );
-
-    if (idx >= 0) {
-      templates[idx] = t;
-    } else {
-      templates.push(t);
-    }
+    body.appendChild(tr);
   });
-
-  saveTemplates();
-  refreshFoodNameDatalist();
-  renderTemplates();
-
-  // Clear current meal state
-  mealItems = [];
-  renderMeal();
-  renderSummary();
-  resetStep1And2();
 }
-
-// ---------- history clear ----------
 
 function clearHistory() {
-  if (!confirm("Clear all saved food templates for this profile?")) return;
-  const profile = getProfileName();
-  templates = templates.filter(t => t.profile !== profile);
+  if (!confirm("Clear ALL saved food templates?")) return;
+  templates = [];
   saveTemplates();
   renderTemplates();
   refreshFoodNameDatalist();
 }
 
-// ---------- tab handling ----------
+// ---------- Tabs ----------
 
 function showTab(which) {
-  if (which === "current") {
-    $("currentView").style.display = "";
-    $("historyView").style.display = "none";
-    $("tabcurrent").classList.add("active");
-    $("tabhistory").classList.remove("active");
-  } else {
-    $("currentView").style.display = "none";
-    $("historyView").style.display = "";
-    $("tabcurrent").classList.remove("active");
-    $("tabhistory").classList.add("active");
-    renderTemplates();
+  if ($("currentView")) {
+    $("currentView").style.display = which === "current" ? "block" : "none";
   }
+  if ($("historyView")) {
+    $("historyView").style.display = which === "history" ? "block" : "none";
+  }
+  if ($("tabcurrent")) $("tabcurrent").classList.toggle("active", which === "current");
+  if ($("tabhistory")) $("tabhistory").classList.toggle("active", which === "history");
 }
 
-// ---------- html escaping ----------
+// ---------- Guidance / food type logic ----------
 
-function escapeHtml(s) {
-  if (s == null) return "";
-  return String(s).replace(/[&<>"']/g, m => {
-    return {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[m];
-  });
+function classifyMeal(totalsObj, mealType, items) {
+  const carbs = totalsObj.carbs;
+  const fat = totalsObj.fat;
+  const protein = totalsObj.protein;
+  const fiber = totalsObj.fiber;
+
+  const hasPizza = items.some(i => /pizza/i.test(i.name));
+  const isFast = mealType === "Fast Food" || mealType === "Restaurant";
+
+  let foodType = "Mixed meal";
+  let split = "40/60 over ~1.5 hours";
+  let reasonParts = [];
+
+  const lowCarbVeg = carbs < 10 && fat < 5 && protein < 5;
+  const highProteinOnly = protein >= 20 && carbs < 10;
+  const highFat = fat >= 25;
+  const carbsWithGoodFiber = carbs >= 30 && fiber >= 5;
+  const mostlySimpleCarbs = carbs >= 40 && fat <= 10 && fiber < 5;
+
+  if (lowCarbVeg) {
+    foodType = "Low-Carb Veggies";
+    split = "No split, standard bolus";
+    reasonParts.push("Very low carbs with minimal fat.");
+  } else if (highProteinOnly) {
+    foodType = "Protein";
+    split = "No split, standard bolus";
+    reasonParts.push("Mostly protein with very few carbs.");
+  } else if (carbsWithGoodFiber && !highFat) {
+    foodType = "Carbs with Fiber";
+    split = "40/60 over ~1–1.5 hours";
+    reasonParts.push("Higher carbs with good fiber and moderate fat.");
+  } else if (mostlySimpleCarbs) {
+    foodType = "Simple Carbs";
+    split = "No split, standard bolus";
+    reasonParts.push("High carbs with low fat and low fiber.");
+  } else if (hasPizza && isFast) {
+    foodType = "High-Fat (Pizza)";
+    split = "35/65 over ~2 hours";
+    reasonParts.push("Pizza from fast food / restaurant, very fat-heavy.");
+  } else if (highFat && isFast) {
+    foodType = "High-Fat";
+    split = "35/65 over ~1.5–2 hours";
+    reasonParts.push("High fat fast-food / restaurant meal.");
+  } else if (highFat && !isFast) {
+    foodType = "Plant-based Fat";
+    split = "40/60 over ~1.5–2 hours";
+    reasonParts.push("Higher fat meal, slower digestion.");
+  } else if (protein >= 25 && carbs <= 30) {
+    foodType = "High-Protein";
+    split = "No split or small 30/70 over ~1 hour";
+    reasonParts.push("Protein dominant with moderate carbs.");
+  }
+
+  if (!reasonParts.length) {
+    reasonParts.push("Mixed carbs, fat, and protein.");
+  }
+
+  return { foodType, split, reason: reasonParts.join(" ") };
 }
 
-// ---------- init ----------
+function computePrebolus(bslValue) {
+  const bsl = toNumber(bslValue);
+  if (!bsl) return "0–2 min (no BSL entered)";
 
-function init() {
-  loadProfile();
-  loadTemplates();
-  refreshFoodNameDatalist();
-  renderTemplates();
+  if (bsl < 80) return "0–2 min, consider a small snack first";
+  if (bsl < 140) return "2–5 min";
+  if (bsl < 200) return "5–7 min";
+  return "7–10 min (higher BSL)";
+}
+
+function updateGuidance() {
+  const hasItems = currentMeal.length > 0 && totals.carbs > 0;
+  const preSpan = $("resultPrebolus");
+  const splitSpan = $("resultSplit");
+  const typeSpan = $("resultFoodType");
+  const reasonSpan = $("resultReason");
+  const autoInput = $("foodTypeAuto");
+
+  if (!hasItems) {
+    if (preSpan) preSpan.textContent = "--";
+    if (splitSpan) splitSpan.textContent = "--";
+    if (typeSpan) typeSpan.textContent = "--";
+    if (reasonSpan) reasonSpan.textContent = "--";
+    if (autoInput) autoInput.value = "";
+    return;
+  }
+
+  const mealType = $("mealType")?.value || "Home Meal";
+  const guidance = classifyMeal(totals, mealType, currentMeal);
+  const prebolus = computePrebolus($("bsl")?.value);
+
+  if (preSpan) preSpan.textContent = prebolus;
+  if (splitSpan) splitSpan.textContent = guidance.split;
+  if (typeSpan) typeSpan.textContent = guidance.foodType;
+  if (reasonSpan) reasonSpan.textContent = guidance.reason;
+  if (autoInput) autoInput.value = guidance.foodType;
+}
+
+// ---------- Save to history (templates) button ----------
+
+function saveToHistoryAndClearCurrent() {
+  if (!currentMeal.length) return;
+
+  // Templates are already upserted as each item is added,
+  // so here we only need to clear the current meal.
+  currentMeal = [];
+  saveCurrentMeal();
   renderMeal();
   renderSummary();
-
-  // Buttons
-  $("addBtn").addEventListener("click", addItem);
-  $("calcBtn").addEventListener("click", calculateGuidance);
-  $("saveHistory").addEventListener("click", saveCurrentToHistory);
-  $("clearHistory").addEventListener("click", clearHistory);
-
-  // Tabs
-  $("tabcurrent").addEventListener("click", () => showTab("current"));
-  $("tabhistory").addEventListener("click", () => showTab("history"));
-
-  // Autofill from templates
-  $("foodName").addEventListener("change", tryAutofillFromHistory);
-  $("foodName").addEventListener("blur", tryAutofillFromHistory);
-
-  // Profile change
-  $("profileName").addEventListener("blur", () => {
-    saveProfile();
-    refreshFoodNameDatalist();
-    renderTemplates();
-  });
-
-  // Remove buttons in meal table
-  $("mealBody").addEventListener("click", e => {
-    if (e.target && e.target.classList.contains("removeItem")) {
-      const idx = parseInt(e.target.getAttribute("data-index"), 10);
-      if (!isNaN(idx)) {
-        removeItem(idx);
-      }
-    }
-  });
-
-  showTab("current");
+  updateGuidance();
+  renderTemplates();
 }
 
-// Ensure init runs even if DOM is already loaded
+// ---------- Init ----------
+
+function init() {
+  loadState();
+
+  refreshFoodNameDatalist();
+  renderMeal();
+  renderSummary();
+  renderTemplates();
+  updateGuidance();
+  showTab("current");
+
+  // Buttons
+  if ($("addBtn")) $("addBtn").addEventListener("click", addItem);
+  if ($("calcBtn")) $("calcBtn").addEventListener("click", updateGuidance);
+  if ($("saveHistory")) $("saveHistory").addEventListener("click", saveToHistoryAndClearCurrent);
+  if ($("clearHistory")) $("clearHistory").addEventListener("click", clearHistory);
+
+  // Tabs
+  if ($("tabcurrent")) $("tabcurrent").addEventListener("click", () => showTab("current"));
+  if ($("tabhistory")) $("tabhistory").addEventListener("click", () => showTab("history"));
+
+  // Autofill on food name change/blur
+  if ($("foodName")) {
+    $("foodName").addEventListener("change", tryAutofillFromHistory);
+    $("foodName").addEventListener("blur", tryAutofillFromHistory);
+  }
+
+  // Profile + meal type
+  if ($("profileName")) $("profileName").addEventListener("blur", saveProfile);
+  if ($("mealType")) $("mealType").addEventListener("change", () => {
+    saveMealType();
+    updateGuidance();
+  });
+
+  // BSL / IOB changes should refresh guidance
+  if ($("bsl")) $("bsl").addEventListener("blur", updateGuidance);
+  if ($("iob")) $("iob").addEventListener("blur", updateGuidance);
+}
+
+// Run init when DOM is ready (handles PWA / cached loads)
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
