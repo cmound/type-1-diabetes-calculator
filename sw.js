@@ -1,4 +1,4 @@
-const CACHE = "t1d-pwa-v15";
+const CACHE = "t1d-pwa-v17";
 
 const ASSETS = [
   "./",
