@@ -25,8 +25,8 @@ function round1(value) {
 function showCurrentScreen() {
   const current = $("screen-current");
   const history = $("screen-history");
-  const tabCurrent = "tab-current" ? $("tab-current") : null;
-  const tabHistory = "tab-history" ? $("tab-history") : null;
+  const tabCurrent = $("tab-current");
+  const tabHistory = $("tab-history");
   if (!current || !history) return;
 
   current.classList.remove("hidden");
@@ -38,8 +38,8 @@ function showCurrentScreen() {
 function showHistoryScreen() {
   const current = $("screen-current");
   const history = $("screen-history");
-  const tabCurrent = "tab-current" ? $("tab-current") : null;
-  const tabHistory = "tab-history" ? $("tab-history") : null;
+  const tabCurrent = $("tab-current");
+  const tabHistory = $("tab-history");
   if (!current || !history) return;
 
   current.classList.add("hidden");
@@ -55,6 +55,9 @@ function handleAddItem() {
     (nameInput && nameInput.value.trim()) ||
     `Item ${loggedItems.length + 1}`;
 
+  const mealTypeSelect = $("mealType");
+  const mealType = mealTypeSelect ? mealTypeSelect.value : "";
+
   const servingSize = num("servingSize");
   const servingPieces = num("servingPieces");
 
@@ -69,7 +72,7 @@ function handleAddItem() {
   const amountEaten = num("amountEaten");
   const piecesEaten = num("piecesEaten");
 
-  // Decide factor used to scale from per-serving to eaten amount
+  // Decide factor used to scale from per serving to eaten amount
   let factor = 1;
 
   if (amountEaten > 0 && servingSize > 0) {
@@ -80,6 +83,7 @@ function handleAddItem() {
 
   const item = {
     name,
+    mealType,
     servingSize,
     servingPieces,
     calories,
@@ -111,12 +115,17 @@ function renderLoggedItems() {
   if (!tbody) return;
   tbody.innerHTML = "";
 
-  loggedItems.forEach((item) => {
+  loggedItems.forEach((item, index) => {
     const f = item.factor || 1;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
+      <td class="actions-cell">
+        <button type="button" class="icon-btn edit-btn" data-index="${index}" aria-label="Edit item">✏</button>
+        <button type="button" class="icon-btn delete-btn" data-index="${index}" aria-label="Delete item">🗑</button>
+      </td>
       <td>${item.name}</td>
+      <td>${item.servingSize > 0 ? round1(item.servingSize) : ""}</td>
       <td>${round1(item.calories * f)}</td>
       <td>${round1(item.fat * f)}</td>
       <td>${round1(item.sodium * f)}</td>
@@ -127,6 +136,70 @@ function renderLoggedItems() {
     `;
     tbody.appendChild(tr);
   });
+
+  // Wire up edit buttons
+  tbody.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const index = parseInt(e.currentTarget.getAttribute("data-index"), 10);
+      if (!Number.isNaN(index)) {
+        editLoggedItem(index);
+      }
+    });
+  });
+
+  // Wire up delete buttons
+  tbody.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const index = parseInt(e.currentTarget.getAttribute("data-index"), 10);
+      if (!Number.isNaN(index)) {
+        deleteLoggedItem(index);
+      }
+    });
+  });
+}
+
+// Edit an existing logged item by loading it back into the form
+function editLoggedItem(index) {
+  const item = loggedItems[index];
+  if (!item) return;
+
+  const setVal = (id, value) => {
+    const el = $(id);
+    if (el) el.value = value !== undefined && value !== null ? value : "";
+  };
+
+  setVal("foodName", item.name);
+  const mealTypeSelect = $("mealType");
+  if (mealTypeSelect) mealTypeSelect.value = item.mealType || "";
+
+  setVal("servingSize", item.servingSize);
+  setVal("servingPieces", item.servingPieces);
+  setVal("calories", item.calories);
+  setVal("fat", item.fat);
+  setVal("sodium", item.sodium);
+  setVal("carbs", item.carbs);
+  setVal("fiber", item.fiber);
+  setVal("sugar", item.sugar);
+  setVal("protein", item.protein);
+  setVal("amountEaten", item.amountEaten);
+  setVal("piecesEaten", item.piecesEaten);
+
+  // Remove the original so the updated one can be added as a fresh item
+  loggedItems.splice(index, 1);
+  renderLoggedItems();
+  renderSummaryTable();
+  calculateGuidance();
+}
+
+// Delete a logged item
+function deleteLoggedItem(index) {
+  if (index < 0 || index >= loggedItems.length) return;
+  if (!confirm("Remove this item from the current meal?")) return;
+
+  loggedItems.splice(index, 1);
+  renderLoggedItems();
+  renderSummaryTable();
+  calculateGuidance();
 }
 
 // Render summary table for carbs, fat, protein per item
@@ -199,7 +272,6 @@ function getPrebolusSuggestion(bsl, iob, totalCarbs) {
 
 // Less aggressive split logic
 function getSplitSuggestion(totalCarbs, totalFat) {
-  // Default
   let split = "--";
   let reason =
     "Low fat or low carb load. Normal bolus is usually fine. Adjust based on your provider guidance.";
