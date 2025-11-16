@@ -411,4 +411,4 @@ if (addBtn) addBtn.addEventListener("click", handleAddItem);
   registerServiceWorker();
 }
 
-document.addEventListener("DOMContentLoaded", init);
+init();
