@@ -23,34 +23,34 @@ function round1(value) {
 
 // Tab handling
 function showCurrentScreen() {
-  const current = $("#screen-current");
-  const history = $("#screen-history");
-  const tabCurrent = $("#tab-current");
-  const tabHistory = $("#tab-history");
-  if (!current || !history || !tabCurrent || !tabHistory) return;
+  const current = $("screen-current");
+  const history = $("screen-history");
+  const tabCurrent = "tab-current" ? $("tab-current") : null;
+  const tabHistory = "tab-history" ? $("tab-history") : null;
+  if (!current || !history) return;
 
   current.classList.remove("hidden");
   history.classList.add("hidden");
-  tabCurrent.classList.add("active");
-  tabHistory.classList.remove("active");
+  if (tabCurrent) tabCurrent.classList.add("active");
+  if (tabHistory) tabHistory.classList.remove("active");
 }
 
 function showHistoryScreen() {
-  const current = $("#screen-current");
-  const history = $("#screen-history");
-  const tabCurrent = $("#tab-current");
-  const tabHistory = $("#tab-history");
-  if (!current || !history || !tabCurrent || !tabHistory) return;
+  const current = $("screen-current");
+  const history = $("screen-history");
+  const tabCurrent = "tab-current" ? $("tab-current") : null;
+  const tabHistory = "tab-history" ? $("tab-history") : null;
+  if (!current || !history) return;
 
   current.classList.add("hidden");
   history.classList.remove("hidden");
-  tabCurrent.classList.remove("active");
-  tabHistory.classList.add("active");
+  if (tabCurrent) tabCurrent.classList.remove("active");
+  if (tabHistory) tabHistory.classList.add("active");
 }
 
 // Add current food item to logged list
 function handleAddItem() {
-  const nameInput = $("#foodName");
+  const nameInput = $("foodName");
   const name =
     (nameInput && nameInput.value.trim()) ||
     `Item ${loggedItems.length + 1}`;
@@ -99,15 +99,15 @@ function handleAddItem() {
   renderSummaryTable();
   calculateGuidance();
 
-  const amountEatenInput = $("#amountEaten");
-  const piecesEatenInput = $("#piecesEaten");
+  const amountEatenInput = $("amountEaten");
+  const piecesEatenInput = $("piecesEaten");
   if (amountEatenInput) amountEatenInput.value = "";
   if (piecesEatenInput) piecesEatenInput.value = "";
 }
 
 // Render logged items table
 function renderLoggedItems() {
-  const tbody = $("#loggedItemsBody");
+  const tbody = $("loggedItemsBody");
   if (!tbody) return;
   tbody.innerHTML = "";
 
@@ -131,7 +131,7 @@ function renderLoggedItems() {
 
 // Render summary table for carbs, fat, protein per item
 function renderSummaryTable() {
-  const tbody = $("#summaryTableBody");
+  const tbody = $("summaryTableBody");
   if (!tbody) return;
   tbody.innerHTML = "";
 
@@ -238,9 +238,9 @@ function calculateGuidance() {
   const totalFat = totals.fat;
   const totalProtein = totals.protein;
 
-  const totalCarbsEl = $("#resultTotalCarbs");
-  const totalFatEl = $("#resultTotalFat");
-  const totalProteinEl = $("#resultTotalProtein");
+  const totalCarbsEl = $("resultTotalCarbs");
+  const totalFatEl = $("resultTotalFat");
+  const totalProteinEl = $("resultTotalProtein");
 
   if (totalCarbsEl) totalCarbsEl.textContent = round1(totalCarbs).toFixed(1);
   if (totalFatEl) totalFatEl.textContent = round1(totalFat).toFixed(1);
@@ -248,8 +248,8 @@ function calculateGuidance() {
     totalProteinEl.textContent = round1(totalProtein).toFixed(1);
   }
 
-  const bslInput = $("#bsl");
-  const iobInput = $("#iob");
+  const bslInput = $("bsl");
+  const iobInput = $("iob");
   const bslVal = bslInput ? parseFloat(bslInput.value) : NaN;
   const iobVal = iobInput ? parseFloat(iobInput.value) : NaN;
 
@@ -258,24 +258,24 @@ function calculateGuidance() {
     Number.isFinite(iobVal) ? iobVal : 0,
     totalCarbs
   );
-  const preEl = $("#resultPrebolus");
+  const preEl = $("resultPrebolus");
   if (preEl) preEl.textContent = pre;
 
   const splitInfo = getSplitSuggestion(totalCarbs, totalFat);
-  const splitEl = $("#resultSplit");
+  const splitEl = $("resultSplit");
   if (splitEl) splitEl.textContent = splitInfo.split;
 
-  const mealTypeSelect = $("#mealType");
+  const mealTypeSelect = $("mealType");
   const foodTypeText =
     mealTypeSelect && mealTypeSelect.value
       ? mealTypeSelect.value
       : loggedItems.length > 0
       ? "Meal"
       : "--";
-  const foodTypeEl = $("#resultFoodType");
+  const foodTypeEl = $("resultFoodType");
   if (foodTypeEl) foodTypeEl.textContent = foodTypeText;
 
-  const reasonEl = $("#resultReason");
+  const reasonEl = $("resultReason");
   if (reasonEl) reasonEl.textContent = splitInfo.reason;
 }
 
@@ -302,7 +302,7 @@ function saveHistory() {
 }
 
 function renderHistoryTable() {
-  const tbody = $("#historyTableBody");
+  const tbody = $("historyTableBody");
   if (!tbody) return;
   tbody.innerHTML = "";
 
@@ -384,18 +384,18 @@ function registerServiceWorker() {
 
 // Init
 function init() {
-  const tabCurrent = $("#tab-current");
-  const tabHistory = $("#tab-history");
+  const tabCurrent = $("tab-current");
+  const tabHistory = $("tab-history");
   if (tabCurrent) tabCurrent.addEventListener("click", showCurrentScreen);
   if (tabHistory) tabHistory.addEventListener("click", showHistoryScreen);
 
- const addBtn = $("#addItemBtn");
-if (addBtn) addBtn.addEventListener("click", handleAddItem);
+  const addBtn = $("addItemBtn");
+  if (addBtn) addBtn.addEventListener("click", handleAddItem);
 
-  const saveBtn = $("#saveToHistoryBtn");
+  const saveBtn = $("saveToHistoryBtn");
   if (saveBtn) saveBtn.addEventListener("click", handleSaveToHistory);
 
-  const clearBtn = $("#clearHistoryBtn");
+  const clearBtn = $("clearHistoryBtn");
   if (clearBtn) clearBtn.addEventListener("click", handleClearHistory);
 
   // Auto recalc when BSL or IOB change
@@ -411,4 +411,4 @@ if (addBtn) addBtn.addEventListener("click", handleAddItem);
   registerServiceWorker();
 }
 
-init();
+document.addEventListener("DOMContentLoaded", init);
