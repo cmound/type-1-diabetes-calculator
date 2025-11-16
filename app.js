@@ -9,7 +9,9 @@ let historyTemplates = [];
 
 // Utility to read numeric value safely
 function num(id) {
-  const val = $(id).value.trim();
+  const el = $(id);
+  if (!el) return 0;
+  const val = el.value.trim();
   const n = parseFloat(val);
   return Number.isFinite(n) ? n : 0;
 }
@@ -21,22 +23,37 @@ function round1(value) {
 
 // Tab handling
 function showCurrentScreen() {
-  $("#screen-current").classList.remove("hidden");
-  $("#screen-history").classList.add("hidden");
-  $("#tab-current").classList.add("active");
-  $("#tab-history").classList.remove("active");
+  const current = $("#screen-current");
+  const history = $("#screen-history");
+  const tabCurrent = $("#tab-current");
+  const tabHistory = $("#tab-history");
+  if (!current || !history || !tabCurrent || !tabHistory) return;
+
+  current.classList.remove("hidden");
+  history.classList.add("hidden");
+  tabCurrent.classList.add("active");
+  tabHistory.classList.remove("active");
 }
 
 function showHistoryScreen() {
-  $("#screen-current").classList.add("hidden");
-  $("#screen-history").classList.remove("hidden");
-  $("#tab-current").classList.remove("active");
-  $("#tab-history").classList.add("active");
+  const current = $("#screen-current");
+  const history = $("#screen-history");
+  const tabCurrent = $("#tab-current");
+  const tabHistory = $("#tab-history");
+  if (!current || !history || !tabCurrent || !tabHistory) return;
+
+  current.classList.add("hidden");
+  history.classList.remove("hidden");
+  tabCurrent.classList.remove("active");
+  tabHistory.classList.add("active");
 }
 
 // Add current food item to logged list
 function handleAddItem() {
-  const name = $("#foodName").value.trim() || `Item ${loggedItems.length + 1}`;
+  const nameInput = $("#foodName");
+  const name =
+    (nameInput && nameInput.value.trim()) ||
+    `Item ${loggedItems.length + 1}`;
 
   const servingSize = num("servingSize");
   const servingPieces = num("servingPieces");
@@ -82,14 +99,16 @@ function handleAddItem() {
   renderSummaryTable();
   calculateGuidance();
 
-  // Keep form values so you can add a second item of the same food if you want
-  $("#amountEaten").value = "";
-  $("#piecesEaten").value = "";
+  const amountEatenInput = $("#amountEaten");
+  const piecesEatenInput = $("#piecesEaten");
+  if (amountEatenInput) amountEatenInput.value = "";
+  if (piecesEatenInput) piecesEatenInput.value = "";
 }
 
 // Render logged items table
 function renderLoggedItems() {
   const tbody = $("#loggedItemsBody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   loggedItems.forEach((item) => {
@@ -113,6 +132,7 @@ function renderLoggedItems() {
 // Render summary table for carbs, fat, protein per item
 function renderSummaryTable() {
   const tbody = $("#summaryTableBody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   loggedItems.forEach((item) => {
@@ -218,33 +238,45 @@ function calculateGuidance() {
   const totalFat = totals.fat;
   const totalProtein = totals.protein;
 
-  $("#resultTotalCarbs").textContent = round1(totalCarbs).toFixed(1);
-  $("#resultTotalFat").textContent = round1(totalFat).toFixed(1);
-  $("#resultTotalProtein").textContent = round1(totalProtein).toFixed(1);
+  const totalCarbsEl = $("#resultTotalCarbs");
+  const totalFatEl = $("#resultTotalFat");
+  const totalProteinEl = $("#resultTotalProtein");
 
-  const bslVal = parseFloat($("#bsl").value);
-  const iobVal = parseFloat($("#iob").value);
+  if (totalCarbsEl) totalCarbsEl.textContent = round1(totalCarbs).toFixed(1);
+  if (totalFatEl) totalFatEl.textContent = round1(totalFat).toFixed(1);
+  if (totalProteinEl) {
+    totalProteinEl.textContent = round1(totalProtein).toFixed(1);
+  }
+
+  const bslInput = $("#bsl");
+  const iobInput = $("#iob");
+  const bslVal = bslInput ? parseFloat(bslInput.value) : NaN;
+  const iobVal = iobInput ? parseFloat(iobInput.value) : NaN;
 
   const pre = getPrebolusSuggestion(
     Number.isFinite(bslVal) ? bslVal : NaN,
     Number.isFinite(iobVal) ? iobVal : 0,
     totalCarbs
   );
-  $("#resultPrebolus").textContent = pre;
+  const preEl = $("#resultPrebolus");
+  if (preEl) preEl.textContent = pre;
 
   const splitInfo = getSplitSuggestion(totalCarbs, totalFat);
-  $("#resultSplit").textContent = splitInfo.split;
+  const splitEl = $("#resultSplit");
+  if (splitEl) splitEl.textContent = splitInfo.split;
 
   const mealTypeSelect = $("#mealType");
-  const foodType =
+  const foodTypeText =
     mealTypeSelect && mealTypeSelect.value
       ? mealTypeSelect.value
       : loggedItems.length > 0
       ? "Meal"
       : "--";
-  $("#resultFoodType").textContent = foodType;
+  const foodTypeEl = $("#resultFoodType");
+  if (foodTypeEl) foodTypeEl.textContent = foodTypeText;
 
-  $("#resultReason").textContent = splitInfo.reason;
+  const reasonEl = $("#resultReason");
+  if (reasonEl) reasonEl.textContent = splitInfo.reason;
 }
 
 // History handling
@@ -271,6 +303,7 @@ function saveHistory() {
 
 function renderHistoryTable() {
   const tbody = $("#historyTableBody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   historyTemplates.forEach((tpl) => {
@@ -322,7 +355,6 @@ function handleSaveToHistory() {
   saveHistory();
   renderHistoryTable();
 
-  // Clear current meal
   loggedItems = [];
   renderLoggedItems();
   renderSummaryTable();
@@ -352,14 +384,19 @@ function registerServiceWorker() {
 
 // Init
 function init() {
-  // Tabs
-  $("#tab-current").addEventListener("click", showCurrentScreen);
-  $("#tab-history").addEventListener("click", showHistoryScreen);
+  const tabCurrent = $("#tab-current");
+  const tabHistory = $("#tab-history");
+  if (tabCurrent) tabCurrent.addEventListener("click", showCurrentScreen);
+  if (tabHistory) tabHistory.addEventListener("click", showHistoryScreen);
 
-  // Buttons
-  $("#addItemBtn").addEventListener("click", handleAddItem);
-  $("#saveToHistoryBtn").addEventListener("click", handleSaveToHistory);
-  $("#clearHistoryBtn").addEventListener("click", handleClearHistory);
+  const addBtn = $("#addItemBtn");
+  if (addBtn) addBtn.addEventListener("click", handleAddItem);
+
+  const saveBtn = $("#saveToHistoryBtn");
+  if (saveBtn) saveBtn.addEventListener("click", handleSaveToHistory);
+
+  const clearBtn = $("#clearHistoryBtn");
+  if (clearBtn) clearBtn.addEventListener("click", handleClearHistory);
 
   // Auto recalc when BSL or IOB change
   ["bsl", "iob"].forEach((id) => {
