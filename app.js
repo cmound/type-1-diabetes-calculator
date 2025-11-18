@@ -21,6 +21,24 @@ function round1(value) {
   return Math.round(value * 10) / 10;
 }
 
+// Format current date & time like 11/18/2025 - 11:09 AM
+function getCurrentDateTimeString() {
+  const now = new Date();
+  const pad2 = (n) => n.toString().padStart(2, "0");
+
+  const month = pad2(now.getMonth() + 1);
+  const day = pad2(now.getDate());
+  const year = now.getFullYear();
+
+  const hours24 = now.getHours();
+  let hours = hours24 % 12;
+  if (hours === 0) hours = 12;
+  const minutes = pad2(now.getMinutes());
+  const ampm = hours24 >= 12 ? "PM" : "AM";
+
+  return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
+}
+
 // Tab handling
 function showCurrentScreen() {
   const current = $("screen-current");
@@ -107,6 +125,12 @@ function handleAddItem() {
   const piecesEatenInput = $("piecesEaten");
   if (amountEatenInput) amountEatenInput.value = "";
   if (piecesEatenInput) piecesEatenInput.value = "";
+
+  // After adding, put cursor back into Food name and highlight it
+  if (nameInput) {
+    nameInput.focus();
+    nameInput.select();
+  }
 }
 
 // Render logged items table
@@ -189,6 +213,12 @@ function editLoggedItem(index) {
   renderLoggedItems();
   renderSummaryTable();
   calculateGuidance();
+
+  const nameInput = $("foodName");
+  if (nameInput) {
+    nameInput.focus();
+    nameInput.select();
+  }
 }
 
 // Delete a logged item
@@ -270,8 +300,8 @@ function getPrebolusSuggestion(bsl, iob, totalCarbs) {
   return "--";
 }
 
-// Less aggressive split logic
-function getSplitSuggestion(totalCarbs, totalFat) {
+// Softer split logic (40/60, short durations, longer only when clearly needed)
+function getSplitSuggestion(totalCarbs, totalFat, mealType, bsl) {
   let split = "--";
   let reason =
     "Low fat or low carb load. Normal bolus is usually fine. Adjust based on your provider guidance.";
@@ -280,26 +310,48 @@ function getSplitSuggestion(totalCarbs, totalFat) {
     return { split, reason };
   }
 
-  // Moderate fat
+  const baseSplit = "40 / 60";
+  let duration = "1.5 hours";
+
   if (totalFat < 20) {
-    split = "60 / 40 over 1.5 hours";
-    reason =
-      "Moderate fat meal. Slightly extended bolus to smooth a later rise.";
-    return { split, reason };
+    duration = "1 hour";
+  } else if (totalFat < 30) {
+    duration = "1.5 hours";
+  } else {
+    // Very high fat. Only use 2.5 hours when clearly long digesting.
+    if (mealType === "Fast Food" || mealType === "Restaurant") {
+      duration = "2.5 hours";
+    } else {
+      duration = "2 hours";
+    }
   }
 
-  // High fat
-  if (totalFat < 30) {
-    split = "50 / 50 over 2 hours";
-    reason =
-      "High fat meal. Half up front and half extended to cover delayed absorption.";
-    return { split, reason };
+  const parts = [];
+  parts.push(
+    "Higher fat meal. Using a gentler 40/60 split so more insulin is extended instead of front-loaded."
+  );
+
+  if (Number.isFinite(bsl)) {
+    if (bsl < 160) {
+      parts.push(
+        "BSL is under about 160 mg/dL, so this avoids large early doses that can hit harder for a 12-year-old around 60 lbs."
+      );
+    } else {
+      parts.push(
+        "BSL is at or above about 160 mg/dL. Still using 40/60, but monitor closely for early drops."
+      );
+    }
   }
 
-  // Very high fat or heavy Italian or fried type meals
-  split = "35 / 65 over 2.5 hours";
-  reason =
-    "Very high fat or heavy meal. More insulin extended over time to match slow digestion.";
+  if (totalFat >= 30 && (mealType === "Fast Food" || mealType === "Restaurant")) {
+    parts.push(
+      "Very high fat or slow-digesting restaurant or fast food meal, so coverage extends a bit longer."
+    );
+  }
+
+  split = `${baseSplit} over ${duration}`;
+  reason = parts.join(" ");
+
   return { split, reason };
 }
 
@@ -333,19 +385,21 @@ function calculateGuidance() {
   const preEl = $("resultPrebolus");
   if (preEl) preEl.textContent = pre;
 
-  const splitInfo = getSplitSuggestion(totalCarbs, totalFat);
-  const splitEl = $("resultSplit");
-  if (splitEl) splitEl.textContent = splitInfo.split;
-
   const mealTypeSelect = $("mealType");
+  const mealTypeValue = mealTypeSelect ? mealTypeSelect.value : "";
   const foodTypeText =
-    mealTypeSelect && mealTypeSelect.value
-      ? mealTypeSelect.value
-      : loggedItems.length > 0
-      ? "Meal"
-      : "--";
+    mealTypeValue || (loggedItems.length > 0 ? "Meal" : "--");
   const foodTypeEl = $("resultFoodType");
   if (foodTypeEl) foodTypeEl.textContent = foodTypeText;
+
+  const splitInfo = getSplitSuggestion(
+    totalCarbs,
+    totalFat,
+    mealTypeValue,
+    Number.isFinite(bslVal) ? bslVal : NaN
+  );
+  const splitEl = $("resultSplit");
+  if (splitEl) splitEl.textContent = splitInfo.split;
 
   const reasonEl = $("resultReason");
   if (reasonEl) reasonEl.textContent = splitInfo.reason;
@@ -380,7 +434,9 @@ function renderHistoryTable() {
 
   historyTemplates.forEach((tpl) => {
     const tr = document.createElement("tr");
+    const dateTime = tpl.dateTime || "--";
     tr.innerHTML = `
+      <td>${dateTime}</td>
       <td>${tpl.name}</td>
       <td>${tpl.serving}</td>
       <td>${tpl.calories}</td>
@@ -401,6 +457,13 @@ function handleSaveToHistory() {
     return;
   }
 
+  const dateInput = $("mealDateTime");
+  let dateTimeText = dateInput && dateInput.value.trim();
+  if (!dateTimeText) {
+    dateTimeText = getCurrentDateTimeString();
+    if (dateInput) dateInput.value = dateTimeText;
+  }
+
   loggedItems.forEach((item) => {
     const servingTextParts = [];
     if (item.servingSize > 0) {
@@ -412,6 +475,7 @@ function handleSaveToHistory() {
     const servingText = servingTextParts.join(" / ") || "--";
 
     historyTemplates.push({
+      dateTime: dateTimeText,
       name: item.name,
       serving: servingText,
       calories: round1(item.calories),
@@ -431,6 +495,12 @@ function handleSaveToHistory() {
   renderLoggedItems();
   renderSummaryTable();
   calculateGuidance();
+
+  // After saving a meal, set date/time to "now" for the next meal
+  const dateInput2 = $("mealDateTime");
+  if (dateInput2) {
+    dateInput2.value = getCurrentDateTimeString();
+  }
 }
 
 // Clear all history
@@ -477,6 +547,12 @@ function init() {
       el.addEventListener("input", calculateGuidance);
     }
   });
+
+  // Initialize date & time if empty
+  const dt = $("mealDateTime");
+  if (dt && !dt.value) {
+    dt.value = getCurrentDateTimeString();
+  }
 
   loadHistory();
   calculateGuidance();
