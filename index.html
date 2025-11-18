@@ -4,26 +4,24 @@
   <meta charset="UTF-8">
   <title>Type 1 Diabetes Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
   <header class="site-header">
     <h1>Type 1 Diabetes Calculator</h1>
     <p>Enter nutrition label values per serving, how much is eaten, plus BSL, IOB and context.</p>
+
+    <div class="tab-group">
+      <button id="tab-current" type="button" class="tab active">Current meal</button>
+      <button id="tab-history" type="button" class="tab">History</button>
+    </div>
   </header>
 
   <main>
-    <!-- Tabs -->
-    <div class="tabs">
-      <button id="tab-current" class="tab active" type="button">Current meal</button>
-      <button id="tab-history" class="tab" type="button">History</button>
-    </div>
-
     <!-- Current meal screen -->
     <section id="screen-current" class="screen">
-      <!-- Profile card -->
+      <!-- Profile -->
       <section class="card profile-card">
         <h2>Profile</h2>
 
@@ -31,25 +29,29 @@
         <input id="profileName" type="text" placeholder="e.g., Kai">
 
         <div class="profile-context grid2">
-          <div class="field-group">
+          <div>
             <label for="bsl">Current BSL (mg/dL)</label>
-            <input id="bsl" type="number" min="0" step="1">
+            <input id="bsl" type="number" min="0" step="1" placeholder="">
           </div>
-          <div class="field-group">
+          <div>
             <label for="iob">Insulin on board (u)</label>
-            <input id="iob" type="number" min="0" step="0.05">
+            <input id="iob" type="number" min="0" step="0.05" placeholder="">
+          </div>
+          <div>
+            <label for="mealDateTime">Date &amp; time</label>
+            <input id="mealDateTime" type="text" placeholder="MM/DD/YYYY - hh:mm AM" autocomplete="off">
           </div>
         </div>
       </section>
 
-      <!-- Layout: Step 1 and Step 2 side by side on desktop -->
-      <div class="grid2 top-grid">
-        <!-- Step 1 card -->
+      <div class="grid2 main-grid">
+        <!-- STEP 1 -->
         <section class="card">
           <h2>STEP 1: Food label per serving</h2>
 
           <label for="foodName">Food name</label>
           <input id="foodName" type="text" list="foodNames" placeholder="e.g., Barilla Protein+ Pasta">
+          <datalist id="foodNames"></datalist>
 
           <label for="mealType">Meal type</label>
           <select id="mealType">
@@ -85,13 +87,9 @@
 
           <label for="protein">Protein (g)</label>
           <input id="protein" type="number" min="0" step="0.1">
-
-          <datalist id="foodNames">
-            <!-- Your common foods can go here if you like -->
-          </datalist>
         </section>
 
-        <!-- Step 2 and Results -->
+        <!-- STEP 2 + Results -->
         <section class="card">
           <h2>STEP 2: Enter consumed information</h2>
 
@@ -101,7 +99,7 @@
           <label for="piecesEaten">or pieces (optional)</label>
           <input id="piecesEaten" type="number" min="0" step="0.1" placeholder="e.g., 8 crackers">
 
-          <button id="addItemBtn" type="button">Click to Add</button>
+          <button id="addItemBtn" type="button" class="primary">Click to Add</button>
 
           <h3>Food item summary</h3>
           <p class="hint">Quick view of carbs, fat, and protein for each logged item.</p>
@@ -125,7 +123,9 @@
             <p>Total carbs: <span id="resultTotalCarbs">0.0</span> g</p>
             <p>Total fat: <span id="resultTotalFat">0.0</span> g</p>
             <p>Total protein: <span id="resultTotalProtein">0.0</span> g</p>
+
             <hr>
+
             <p>Pre-bolus: <span id="resultPrebolus">--</span></p>
             <p>Split: <span id="resultSplit">--</span></p>
             <p>Food type: <span id="resultFoodType">--</span></p>
@@ -138,29 +138,30 @@
         </section>
       </div>
 
-      <!-- Logged foods -->
+      <!-- Logged food items -->
       <section class="card">
-  <h2>Logged food items</h2>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Actions</th>
-          <th>Item Name</th>
-          <th>Serving size (g or mL)</th>
-          <th>Calories</th>
-          <th>Fat</th>
-          <th>Sodium</th>
-          <th>Carbs</th>
-          <th>Fiber</th>
-          <th>Sugar</th>
-          <th>Protein</th>
-        </tr>
-      </thead>
-      <tbody id="loggedItemsBody"></tbody>
-    </table>
-  </div>
-</section>
+        <h2>Logged food items</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Actions</th>
+                <th>Item Name</th>
+                <th>Serving size (g or mL)</th>
+                <th>Calories</th>
+                <th>Fat</th>
+                <th>Sodium</th>
+                <th>Carbs</th>
+                <th>Fiber</th>
+                <th>Sugar</th>
+                <th>Protein</th>
+              </tr>
+            </thead>
+            <tbody id="loggedItemsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
 
     <!-- History screen -->
     <section id="screen-history" class="screen hidden">
@@ -170,6 +171,7 @@
           <table>
             <thead>
               <tr>
+                <th>Date / Time</th>
                 <th>Name</th>
                 <th>Serving</th>
                 <th>Cal</th>
@@ -189,6 +191,6 @@
     </section>
   </main>
 
-  <script src="app.js?v=17" defer></script>
+  <script src="app.js?v=18" defer></script>
 </body>
 </html>
