@@ -1,4 +1,4 @@
-const CACHE = "t1d-pwa-v17";
+const CACHE = "t1d-pwa-v18";
 
 const ASSETS = [
   "./",
@@ -23,7 +23,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key.startsWith("t1d-pwa-") && key !== CACHE)
+          .filter((key) => key !== CACHE)
           .map((key) => caches.delete(key))
       )
     )
@@ -31,14 +31,17 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  const request = event.request;
+
+  // Only handle GET
+  if (request.method !== "GET") return;
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request).catch(() =>
-          caches.match("./index.html").then((fallback) => fallback)
-        )
-      );
+    caches.match(request).then((cached) => {
+      if (cached) {
+        return cached;
+      }
+      return fetch(request).catch(() => cached);
     })
   );
 });
