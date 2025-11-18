@@ -23,26 +23,26 @@
     <section id="screen-current" class="screen">
       <!-- Profile -->
       <section class="card profile-card">
-        <h2>Profile</h2>
+  <h2>Profile</h2>
 
-        <label for="profileName">Profile name</label>
-        <input id="profileName" type="text" placeholder="e.g., Kai">
+  <label for="profileName">Profile name</label>
+  <input id="profileName" type="text" placeholder="e.g., Kai">
 
-        <div class="profile-context grid2">
-          <div>
-            <label for="bsl">Current BSL (mg/dL)</label>
-            <input id="bsl" type="number" min="0" step="1" placeholder="">
-          </div>
-          <div>
-            <label for="iob">Insulin on board (u)</label>
-            <input id="iob" type="number" min="0" step="0.05" placeholder="">
-          </div>
-          <div>
-            <label for="mealDateTime">Date &amp; time</label>
-            <input id="mealDateTime" type="text" placeholder="MM/DD/YYYY - hh:mm AM" autocomplete="off">
-          </div>
-        </div>
-      </section>
+  <label for="dateTime">Date & Time</label>
+  <input id="dateTime" type="text" readonly>
+
+  <div class="profile-context grid2">
+    <div>
+      <label for="bsl">Current BSL (mg/dL)</label>
+      <input id="bsl" type="number" min="0" step="1">
+    </div>
+
+    <div>
+      <label for="iob">Insulin on board (u)</label>
+      <input id="iob" type="number" min="0" step="0.05">
+    </div>
+  </div>
+</section>
 
       <div class="grid2 main-grid">
         <!-- STEP 1 -->
