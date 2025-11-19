@@ -525,19 +525,20 @@ function registerServiceWorker() {
 }
 
 // Init
+// Init
 function init() {
-  const tabCurrent = $("tab-current");
-  const tabHistory = $("tab-history");
+  const tabCurrent = $("#tab-current");
+  const tabHistory = $("#tab-history");
   if (tabCurrent) tabCurrent.addEventListener("click", showCurrentScreen);
   if (tabHistory) tabHistory.addEventListener("click", showHistoryScreen);
 
-  const addBtn = $("addItemBtn");
+  const addBtn = $("#addItemBtn");
   if (addBtn) addBtn.addEventListener("click", handleAddItem);
 
-  const saveBtn = $("saveToHistoryBtn");
+  const saveBtn = $("#saveToHistoryBtn");
   if (saveBtn) saveBtn.addEventListener("click", handleSaveToHistory);
 
-  const clearBtn = $("clearHistoryBtn");
+  const clearBtn = $("#clearHistoryBtn");
   if (clearBtn) clearBtn.addEventListener("click", handleClearHistory);
 
   // Auto recalc when BSL or IOB change
@@ -548,10 +549,16 @@ function init() {
     }
   });
 
-  // Initialize date & time if empty
-  const dt = $("mealDateTime");
-  if (dt && !dt.value) {
-    dt.value = getCurrentDateTimeString();
+  // Set initial date/time in Profile
+  const dateEl = $("dateTime");
+  if (dateEl) {
+    dateEl.value = getCurrentDateTimeString();
+  }
+
+  // Default profile name to Kai if empty
+  const profileEl = $("profileName");
+  if (profileEl && !profileEl.value.trim()) {
+    profileEl.value = "Kai";
   }
 
   loadHistory();
@@ -559,4 +566,4 @@ function init() {
   registerServiceWorker();
 }
 
-document.addEventListener("DOMContentLoaded", init);
+init();
