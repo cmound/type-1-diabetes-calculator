@@ -532,8 +532,14 @@ function init() {
   if (tabCurrent) tabCurrent.addEventListener("click", showCurrentScreen);
   if (tabHistory) tabHistory.addEventListener("click", showHistoryScreen);
 
-  const addBtn = $("#addItemBtn");
-  if (addBtn) addBtn.addEventListener("click", handleAddItem);
+    const addBtn = $("#addItemBtn");
+  if (addBtn) {
+    if (typeof handleAddItem === "function") {
+      addBtn.addEventListener("click", handleAddItem);
+    } else if (typeof addItem === "function") {
+      addBtn.addEventListener("click", addItem);
+    }
+  }
 
   const saveBtn = $("#saveToHistoryBtn");
   if (saveBtn) saveBtn.addEventListener("click", handleSaveToHistory);
