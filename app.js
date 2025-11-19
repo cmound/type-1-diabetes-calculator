@@ -527,25 +527,25 @@ function registerServiceWorker() {
 // Init
 // Init
 function init() {
-  const tabCurrent = $("#tab-current");
-  const tabHistory = $("#tab-history");
-  if (tabCurrent) tabCurrent.addEventListener("click", showCurrentScreen);
-  if (tabHistory) tabHistory.addEventListener("click", showHistoryScreen);
+  const tabCurrent = $("tab-current");
+const tabHistory = $("tab-history");
+if (tabCurrent) tabCurrent.addEventListener("click", showCurrentScreen);
+if (tabHistory) tabHistory.addEventListener("click", showHistoryScreen);
 
-    const addBtn = $("#addItemBtn");
-  if (addBtn) {
-    if (typeof handleAddItem === "function") {
-      addBtn.addEventListener("click", handleAddItem);
-    } else if (typeof addItem === "function") {
-      addBtn.addEventListener("click", addItem);
-    }
+const addBtn = $("addItemBtn");
+if (addBtn) {
+  if (typeof handleAddItem === "function") {
+    addBtn.addEventListener("click", handleAddItem);
+  } else if (typeof addItem === "function") {
+    addBtn.addEventListener("click", addItem);
   }
+}
 
-  const saveBtn = $("#saveToHistoryBtn");
-  if (saveBtn) saveBtn.addEventListener("click", handleSaveToHistory);
+const saveBtn = $("saveToHistoryBtn");
+if (saveBtn) saveBtn.addEventListener("click", handleSaveToHistory);
 
-  const clearBtn = $("#clearHistoryBtn");
-  if (clearBtn) clearBtn.addEventListener("click", handleClearHistory);
+const clearBtn = $("clearHistoryBtn");
+if (clearBtn) clearBtn.addEventListener("click", handleClearHistory);
 
   // Auto recalc when BSL or IOB change
   ["bsl", "iob"].forEach((id) => {
