@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Type 1 Diabetes Calculator</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <header>
@@ -13,62 +13,99 @@
   </header>
 
   <main>
-    <section class="profile-section">
-      <div class="left-profile">
+    <section class="top-section">
+      <div class="form-group compact-inputs">
         <label>Name:</label>
-        <input type="text" id="profileName" placeholder="Name" />
+        <input type="text" id="name" />
         <label>Current BSL (mg/dL):</label>
-        <input type="number" id="currentBSL" />
+        <input type="number" id="bsl" />
         <label>Insulin on board (u):</label>
-        <input type="number" id="iob" />
+        <input type="number" id="iob" step="0.1" />
       </div>
-      <div class="mirrored-results" id="mirroredResultsBox"></div>
+      <div id="mirrored-results" class="results-box blue-box">
+        <p><strong>Total carbs:</strong> <span id="mirror-total-carbs">0.0 g</span></p>
+        <p><strong>Total fat:</strong> <span id="mirror-total-fat">0.0 g</span></p>
+        <p><strong>Total protein:</strong> <span id="mirror-total-protein">0.0 g</span></p>
+        <p><strong>Pre-bolus:</strong> <span id="mirror-prebolus">--</span></p>
+        <p><strong>Split:</strong> <span id="mirror-split">--</span></p>
+        <p><strong>Food type:</strong> <span id="mirror-food-type">--</span></p>
+        <p><strong>Reason:</strong> <span id="mirror-reason">--</span></p>
+      </div>
     </section>
 
-    <section class="form-section">
-      <h2>STEP 1: Food label per serving</h2>
-      <input type="text" id="foodName" placeholder="Food name" />
-      <select id="mealType">
-        <option value="Home Meal">Home Meal</option>
-        <option value="Restaurant">Restaurant</option>
-        <option value="Frozen Meal">Frozen Meal</option>
-        <option value="Other">Other</option>
-      </select>
-      <input type="number" id="servingSize" placeholder="Serving size (g or mL)" />
-      <input type="text" id="piecesPerServing" placeholder="e.g., 5 for 5 crackers" />
-      <input type="number" id="calories" placeholder="Calories" />
-      <input type="number" id="fat" placeholder="Fat (g)" />
-      <input type="number" id="sodium" placeholder="Sodium (mg)" />
-      <input type="number" id="carbs" placeholder="Carbs (g)" />
-      <input type="number" id="fiber" placeholder="Fiber (g)" />
-      <input type="number" id="sugar" placeholder="Sugar (g)" />
-      <input type="number" id="protein" placeholder="Protein (g)" />
+    <section>
+      <h3>STEP 1: Food label per serving</h3>
+      <div class="form-columns">
+        <input type="text" id="food-name" placeholder="e.g., Barilla Protein+ Pasta"/>
+        <select id="meal-type">
+          <option value="Home Meal">Home Meal</option>
+          <option value="Fast Food">Fast Food</option>
+          <option value="Restaurant">Restaurant</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="number" id="serving-size" placeholder="Serving size (g or mL)"/>
+
+        <label for="fraction-type">Serving equals number or fraction?</label>
+        <select id="fraction-type">
+          <option value="number">Number</option>
+          <option value="fraction">Fraction</option>
+        </select>
+
+        <div id="fraction-fields">
+          <input type="text" id="fraction-input" placeholder="Enter fraction e.g. 1/3"/>
+          <button onclick="convertFraction()">Convert</button>
+          <p>Decimal: <span id="fraction-output"></span></p>
+        </div>
+
+        <input type="text" id="serving-pieces" placeholder="Serving equals how many pieces?"/>
+        <input type="number" id="calories" placeholder="Calories"/>
+        <input type="number" id="fat" placeholder="Fat (g)"/>
+        <input type="number" id="sodium" placeholder="Sodium (mg)"/>
+        <input type="number" id="carbs" placeholder="Carbs (g)"/>
+        <input type="number" id="fiber" placeholder="Fiber (g)"/>
+        <input type="number" id="sugar" placeholder="Sugar (g)"/>
+        <input type="number" id="protein" placeholder="Protein (g)"/>
+      </div>
     </section>
 
-    <section class="entry-section">
-      <h2>STEP 2: Enter consumed information</h2>
-      <input type="number" id="amountHaving" placeholder="Amount eaten (g or mL)" />
-      <input type="text" id="piecesEaten" placeholder="or pieces (optional)" />
-      <button onclick="addEntry()">Click to Add</button>
+    <section>
+      <h3>STEP 2: Enter consumed information</h3>
+      <input type="number" id="amount-eaten" placeholder="Amount eaten (g or mL)"/>
+      <input type="text" id="pieces-eaten" placeholder="or pieces (optional)"/>
+      <button id="add-button">Click to Add</button>
+
+      <div id="summary">
+        <h4>Food item summary</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Item Name</th>
+              <th>Carbs</th>
+              <th>Fat</th>
+              <th>Protein</th>
+              <th>Qty Having</th>
+            </tr>
+          </thead>
+          <tbody id="food-summary-body"></tbody>
+        </table>
+
+        <div id="final-results" class="results-box">
+          <h4>Results</h4>
+          <p><strong>Total carbs:</strong> <span id="total-carbs">0.0 g</span></p>
+          <p><strong>Total fat:</strong> <span id="total-fat">0.0 g</span></p>
+          <p><strong>Total protein:</strong> <span id="total-protein">0.0 g</span></p>
+          <p><strong>Pre-bolus:</strong> <span id="prebolus-time">--</span></p>
+          <p><strong>Split:</strong> <span id="split-ratio">--</span></p>
+          <p><strong>Split time:</strong> <span id="split-time">--</span></p>
+          <p><strong>Food type:</strong> <span id="food-type">--</span></p>
+          <p><strong>Reason:</strong> <span id="reason">--</span></p>
+        </div>
+      </div>
     </section>
 
-    <section class="summary-section">
-      <h3>Food item summary</h3>
-      <table id="foodSummaryTable">
-        <thead>
-          <tr><th>Item Name</th><th>Carbs</th><th>Fat</th><th>Protein</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <h3>Results</h3>
-      <div class="results" id="resultsBox"></div>
-      <button onclick="saveToHistory()">Save to history, clears current</button>
-    </section>
-
-    <section class="history-section">
+    <section>
       <h3>Logged food items</h3>
-      <table id="historyTable">
+      <table>
         <thead>
           <tr>
             <th>Actions</th>
@@ -84,7 +121,7 @@
             <th>Qty Having</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="logged-items-body"></tbody>
       </table>
     </section>
   </main>
