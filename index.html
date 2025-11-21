@@ -1,102 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Type 1 Diabetes Calculator</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Type 1 Diabetes Calculator</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header>
-        <h1>TYPE 1 DIABETES CALCULATOR</h1>
-        <p>Enter nutrition label values per serving, how much is eaten, plus BSL, IOB and context.</p>
-    </header>
+  <header>
+    <h1>TYPE 1 DIABETES CALCULATOR</h1>
+    <p>Enter nutrition label values per serving, how much is eaten, plus BSL, IOB and context.</p>
+  </header>
 
-    <section class="profile">
-        <h2>Profile Info</h2>
-        <label>Name: <input type="text" id="profileName" placeholder="e.g., Kai"></label>
-        <label>Current BSL (mg/dL): <input type="number" id="bslInput"></label>
-        <label>Insulin on board (u): <input type="number" id="iobInput"></label>
+  <main>
+    <section class="profile-section">
+      <div class="left-profile">
+        <label>Name:</label>
+        <input type="text" id="profileName" placeholder="Name" />
+        <label>Current BSL (mg/dL):</label>
+        <input type="number" id="currentBSL" />
+        <label>Insulin on board (u):</label>
+        <input type="number" id="iob" />
+      </div>
+      <div class="mirrored-results" id="mirroredResultsBox"></div>
     </section>
 
-    <section class="inputs">
-        <h2>STEP 1: Food label per serving</h2>
-        <label>Food name: <input type="text" id="foodName"></label>
-        <label>Meal type: 
-            <select id="mealType">
-                <option value="Home Meal">Home Meal</option>
-                <option value="Restaurant Meal">Restaurant Meal</option>
-                <option value="Packaged Food">Packaged Food</option>
-                <option value="Other">Other</option>
-            </select>
-        </label>
-        <label>Serving size (g or mL): <input type="number" id="servingSize"></label>
-        <label>Serving equals number or fraction? 
-            <select id="servingType">
-                <option value="Number">Number</option>
-                <option value="Fraction">Fraction</option>
-            </select>
-        </label>
-        <label>Fraction to Decimal Converter</label>
-        <input type="text" id="fractionInput" placeholder="e.g., 1/3">
-        <button onclick="convertFraction()">Convert</button>
-        <p id="decimalResult">Decimal: --</p>
-
-        <label>Serving equals how many pieces? <input type="number" id="piecesPerServing" placeholder="e.g., 5"></label>
-        <label>Calories: <input type="number" id="calories"></label>
-        <label>Fat (g): <input type="number" id="fat"></label>
-        <label>Sodium (mg): <input type="number" id="sodium"></label>
-        <label>Carbs (g): <input type="number" id="carbs"></label>
-        <label>Fiber (g): <input type="number" id="fiber"></label>
-        <label>Sugar (g): <input type="number" id="sugar"></label>
-        <label>Protein (g): <input type="number" id="protein"></label>
+    <section class="form-section">
+      <h2>STEP 1: Food label per serving</h2>
+      <input type="text" id="foodName" placeholder="Food name" />
+      <select id="mealType">
+        <option value="Home Meal">Home Meal</option>
+        <option value="Restaurant">Restaurant</option>
+        <option value="Frozen Meal">Frozen Meal</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="number" id="servingSize" placeholder="Serving size (g or mL)" />
+      <input type="text" id="piecesPerServing" placeholder="e.g., 5 for 5 crackers" />
+      <input type="number" id="calories" placeholder="Calories" />
+      <input type="number" id="fat" placeholder="Fat (g)" />
+      <input type="number" id="sodium" placeholder="Sodium (mg)" />
+      <input type="number" id="carbs" placeholder="Carbs (g)" />
+      <input type="number" id="fiber" placeholder="Fiber (g)" />
+      <input type="number" id="sugar" placeholder="Sugar (g)" />
+      <input type="number" id="protein" placeholder="Protein (g)" />
     </section>
 
-    <section class="inputs">
-        <h2>STEP 2: Enter consumed information</h2>
-        <label>Amount having: <input type="text" id="amountHaving"></label>
-        <button onclick="addFood()">Click to Add</button>
+    <section class="entry-section">
+      <h2>STEP 2: Enter consumed information</h2>
+      <input type="number" id="amountHaving" placeholder="Amount eaten (g or mL)" />
+      <input type="text" id="piecesEaten" placeholder="or pieces (optional)" />
+      <button onclick="addEntry()">Click to Add</button>
     </section>
 
-    <section class="summary">
-        <h3>Food item summary</h3>
-        <p><strong>Item Name</strong> <strong>Carbs</strong> <strong>Fat</strong> <strong>Protein</strong> <strong>Qty Having</strong></p>
-        <div id="foodSummary"></div>
+    <section class="summary-section">
+      <h3>Food item summary</h3>
+      <table id="foodSummaryTable">
+        <thead>
+          <tr><th>Item Name</th><th>Carbs</th><th>Fat</th><th>Protein</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h3>Results</h3>
+      <div class="results" id="resultsBox"></div>
+      <button onclick="saveToHistory()">Save to history, clears current</button>
     </section>
 
-    <section class="results">
-        <h2>Results</h2>
-        <p id="totalCarbs">Total Carbs: 0g</p>
-        <p id="totalFat">Total Fat: 0g</p>
-        <p id="totalProtein">Total Protein: 0g</p>
-        <p id="preBolus">Pre-bolus: --</p>
-        <p id="split">Split: --</p>
-        <p id="foodType">Food type: --</p>
-        <p id="reason">Reason: --</p>
+    <section class="history-section">
+      <h3>Logged food items</h3>
+      <table id="historyTable">
+        <thead>
+          <tr>
+            <th>Actions</th>
+            <th>Item Name</th>
+            <th>Serving Size</th>
+            <th>Calories</th>
+            <th>Fat</th>
+            <th>Sodium</th>
+            <th>Carbs</th>
+            <th>Fiber</th>
+            <th>Sugar</th>
+            <th>Protein</th>
+            <th>Qty Having</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </section>
+  </main>
 
-    <section class="history">
-        <h2>Logged food items</h2>
-        <table id="foodTable">
-            <thead>
-                <tr>
-                    <th>Actions</th>
-                    <th>Item Name</th>
-                    <th>Serving Size</th>
-                    <th>Calories</th>
-                    <th>Fat</th>
-                    <th>Sodium (mg)</th>
-                    <th>Carbs (g)</th>
-                    <th>Fiber (g)</th>
-                    <th>Sugar (g)</th>
-                    <th>Protein (g)</th>
-                    <th>Qty Having</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </section>
-
-    <script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
