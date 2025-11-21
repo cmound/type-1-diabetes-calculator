@@ -1,165 +1,110 @@
-// Utility functions
-function $(id) {
-  return document.getElementById(id);
-}
-function round1(n) {
-  return Math.round(n * 10) / 10;
-}
-function getCurrentDateTimeString() {
-  const now = new Date();
-  return now.toLocaleString("en-US");
-}
+let entries = [];
 
-// Constants
-const STORAGE_KEY = "t1d-calculator-history";
+function addEntry() {
+  const foodName = document.getElementById("foodName").value;
+  const carbs = parseFloat(document.getElementById("carbs").value) || 0;
+  const fat = parseFloat(document.getElementById("fat").value) || 0;
+  const protein = parseFloat(document.getElementById("protein").value) || 0;
+  const qty = parseFloat(document.getElementById("amountHaving").value) || 1;
 
-// Data
-let loggedItems = [];
-let historyTemplates = [];
+  const entry = { foodName, carbs, fat, protein, qty };
+  entries.push(entry);
 
-// Prebolus logic
-function getPrebolusSuggestion(bsl, iob, totalCarbs) {
-  if (!Number.isFinite(bsl) || totalCarbs === 0) return "Enter food and context first.";
-  if (bsl > 180) return "15–30 min";
-  if (bsl > 140) return "10–15 min";
-  if (bsl > 120) return "5–10 min";
-  return "2–5 min";
+  updateSummary();
+  updateResults();
+  renderHistory();
 }
 
-// Split logic
-function getSplitSuggestion(carbs, fat, mealType, bsl) {
-  if (carbs === 0 && fat === 0) return { split: "--", reason: "--" };
-  let split = "60/40";
-  let reason = "Default split";
+function updateSummary() {
+  const tbody = document.querySelector("#foodSummaryTable tbody");
+  tbody.innerHTML = "";
+  entries.forEach(entry => {
+    const row = `<tr><td>${entry.foodName}</td><td>${entry.carbs}</td><td>${entry.fat}</td><td>${entry.protein}</td></tr>`;
+    tbody.innerHTML += row;
+  });
+}
 
-  if (fat >= 20 && carbs >= 40) {
-    split = "40/60";
-    reason = "High fat & carb meal";
-  } else if (mealType === "Fast Food" || mealType === "Restaurant") {
-    split = "40/60";
-    reason = "Likely delayed digestion";
-  } else if (mealType === "Pizza") {
-    split = "30/70";
-    reason = "Slow digesting meal";
+function updateResults() {
+  const totalCarbs = entries.reduce((sum, e) => sum + e.carbs * e.qty, 0).toFixed(1);
+  const totalFat = entries.reduce((sum, e) => sum + e.fat * e.qty, 0).toFixed(1);
+  const totalProtein = entries.reduce((sum, e) => sum + e.protein * e.qty, 0).toFixed(1);
+  const bsl = parseFloat(document.getElementById("currentBSL").value) || 0;
+
+  let prebolus = "2–5 min";
+  if (bsl > 150 && bsl <= 200) prebolus = "5–8 min";
+  else if (bsl > 200 && bsl <= 240) prebolus = "8–10 min";
+  else if (bsl > 240) prebolus = "10–15 min";
+
+  let split = "None";
+  let splitTime = "";
+  if (totalFat > 25 || totalProtein > 30) {
+    split = "60/40";
+    splitTime = " over 1 hour 30 mins";
   }
 
-  if (bsl > 200) {
-    reason += ". Adjust due to high BSL.";
-  }
+  const foodType = document.getElementById("mealType").value;
+  let reason = "Normal meal";
+  if (totalFat > 25) reason = "High fat meal";
+  else if (totalCarbs > 50) reason = "High carb meal";
 
-  return { split, reason };
+  const html = `
+    <p>Total carbs: ${totalCarbs} g</p>
+    <p>Total fat: ${totalFat} g</p>
+    <p>Total protein: ${totalProtein} g</p>
+    <p>Pre-bolus: ${prebolus}</p>
+    <p>Split: ${split}${splitTime}</p>
+    <p>Food type: ${foodType}</p>
+    <p>Reason: ${reason}</p>
+  `;
+  document.getElementById("resultsBox").innerHTML = html;
+  document.getElementById("mirroredResultsBox").innerHTML = html;
 }
 
-// Rendering logic
-function renderLoggedItems() {
-  const tbody = $("loggedItemsTableBody");
-  if (!tbody) return;
+function renderHistory() {
+  const tbody = document.querySelector("#historyTable tbody");
   tbody.innerHTML = "";
-
-  loggedItems.forEach((item, index) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><button onclick="editItem(${index})">✏️</button><button onclick="removeItem(${index})">🗑️</button></td>
-      <td>${item.name}</td>
-      <td>${item.carbs}</td>
-      <td>${item.fat}</td>
-      <td>${item.protein}</td>
-      <td>${item.qty}</td>
-    `;
-    tbody.appendChild(tr);
+  entries.forEach((entry, index) => {
+    const row = `
+      <tr>
+        <td>
+          <button onclick="editEntry(${index})">✏️</button>
+          <button onclick="deleteEntry(${index})">🗑️</button>
+        </td>
+        <td>${entry.foodName}</td>
+        <td>–</td>
+        <td>–</td>
+        <td>${entry.fat}</td>
+        <td>–</td>
+        <td>${entry.carbs}</td>
+        <td>–</td>
+        <td>–</td>
+        <td>${entry.protein}</td>
+        <td>${entry.qty}</td>
+      </tr>`;
+    tbody.innerHTML += row;
   });
 }
 
-function renderSummaryTable() {
-  const tbody = $("summaryTableBody");
-  if (!tbody) return;
-  tbody.innerHTML = "";
-
-  loggedItems.forEach((item) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${item.name}</td>
-      <td>${item.carbs}</td>
-      <td>${item.fat}</td>
-      <td>${item.protein}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+function deleteEntry(index) {
+  entries.splice(index, 1);
+  updateSummary();
+  updateResults();
+  renderHistory();
 }
 
-// Adding/removing
-function addItem() {
-  const name = $("foodName").value.trim();
-  const carbs = parseFloat($("carbs").value) || 0;
-  const fat = parseFloat($("fat").value) || 0;
-  const protein = parseFloat($("protein").value) || 0;
-  const qty = parseFloat($("qty").value) || 1;
-
-  loggedItems.push({ name, carbs, fat, protein, qty });
-  renderLoggedItems();
-  renderSummaryTable();
-  calculateGuidance();
+function editEntry(index) {
+  const entry = entries[index];
+  document.getElementById("foodName").value = entry.foodName;
+  document.getElementById("carbs").value = entry.carbs;
+  document.getElementById("fat").value = entry.fat;
+  document.getElementById("protein").value = entry.protein;
+  document.getElementById("amountHaving").value = entry.qty;
+  deleteEntry(index);
 }
 
-function removeItem(index) {
-  loggedItems.splice(index, 1);
-  renderLoggedItems();
-  renderSummaryTable();
-  calculateGuidance();
+function saveToHistory() {
+  entries = [];
+  updateSummary();
+  updateResults();
+  renderHistory();
 }
-
-function editItem(index) {
-  const item = loggedItems[index];
-  $("foodName").value = item.name;
-  $("carbs").value = item.carbs;
-  $("fat").value = item.fat;
-  $("protein").value = item.protein;
-  $("qty").value = item.qty;
-  removeItem(index);
-}
-
-// Calculations
-function calculateGuidance() {
-  let totalCarbs = 0;
-  let totalFat = 0;
-  let totalProtein = 0;
-
-  loggedItems.forEach((item) => {
-    totalCarbs += item.carbs * item.qty;
-    totalFat += item.fat * item.qty;
-    totalProtein += item.protein * item.qty;
-  });
-
-  const totalCarbsEl = $("resultCarbs");
-  const totalFatEl = $("resultFat");
-  const totalProteinEl = $("resultProtein");
-
-  if (totalCarbsEl) totalCarbsEl.textContent = round1(totalCarbs).toFixed(1);
-  if (totalFatEl) totalFatEl.textContent = round1(totalFat).toFixed(1);
-  if (totalProteinEl) totalProteinEl.textContent = round1(totalProtein).toFixed(1);
-
-  const bsl = parseFloat($("bsl").value) || 0;
-  const iob = parseFloat($("iob").value) || 0;
-  const mealType = $("mealType").value || "";
-
-  const prebolus = getPrebolusSuggestion(bsl, iob, totalCarbs);
-  $("resultPrebolus").textContent = prebolus;
-
-  const split = getSplitSuggestion(totalCarbs, totalFat, mealType, bsl);
-  $("resultSplit").textContent = split.split;
-  $("resultReason").textContent = split.reason;
-  $("resultFoodType").textContent = mealType || "--";
-}
-
-// Init
-function init() {
-  $("addItemBtn").addEventListener("click", addItem);
-  $("bsl").addEventListener("input", calculateGuidance);
-  $("iob").addEventListener("input", calculateGuidance);
-  $("mealType").addEventListener("change", calculateGuidance);
-  $("profileName").value = "Kai";
-  $("dateTime").value = getCurrentDateTimeString();
-  calculateGuidance();
-}
-
-init();
