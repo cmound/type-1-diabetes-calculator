@@ -1,134 +1,84 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f8f8f8;
-  color: #333;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f6f6f6;
 }
 
 header {
-  background: #2c2c2c;
-  color: white;
-  padding: 20px 10px;
-  text-align: center;
+    background: #333;
+    color: #fff;
+    padding: 15px;
+    text-align: center;
 }
 
-header h1 {
-  margin-bottom: 5px;
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
 }
 
-main {
-  padding: 20px;
-  max-width: 1200px;
-  margin: auto;
+.section {
+    background: #fff;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 5px;
 }
 
-h3 {
-  margin-top: 40px;
-  margin-bottom: 15px;
-}
-
-input, select, button {
-  font-size: 14px;
-  padding: 6px 10px;
-  margin: 4px 0;
-  width: 300px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+input,
+select,
+button {
+    width: 300px;
+    padding: 10px;
+    margin: 5px 10px 5px 0;
+    font-size: 14px;
 }
 
 button {
-  background: #007a8c;
-  color: white;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
+    background: teal;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
 button:hover {
-  background: #005f6b;
+    background: darkcyan;
+}
+
+.results-box,
+.mirrored-box {
+    background: #e6f4ff;
+    padding: 10px;
+    border-radius: 5px;
+    float: right;
+    width: 300px;
+    margin-left: 20px;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
-table, th, td {
-  border: 1px solid #ccc;
+table th,
+table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
 }
 
-th, td {
-  text-align: center;
-  padding: 8px;
-  font-size: 14px;
+th {
+    background-color: #f2f2f2;
 }
 
-.results-box {
-  margin-top: 10px;
-  padding: 15px;
-  background: #fff3cd;
-  border: 1px solid #ffeeba;
-  border-radius: 5px;
-  max-width: 500px;
+.profile-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
 }
 
-.results-box.blue-box {
-  background: #e6f6fc;
-  border: 1px solid #b3e0f5;
-}
-
-.top-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-}
-
-.form-group.compact-inputs {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-grow: 1;
-}
-
-.form-columns {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-#add-button {
-  width: 250px;
-  font-size: 16px;
-  margin-top: 10px;
-}
-
-.icon-btn {
-  font-size: 16px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-  width: 32px;
-  height: 32px;
-  text-align: center;
-  line-height: 20px;
-}
-
-.icon-btn:hover {
-  background: #f0f0f0;
-  border-radius: 4px;
-}
-
-#fraction-fields {
-  display: none;
-}
-
-#mirrored-results {
-  flex-shrink: 0;
-  min-width: 300px;
-  max-width: 300px;
+.profile-info input {
+    width: 200px;
 }
