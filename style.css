@@ -1,1 +1,73 @@
-/* style.css updated with styles for fraction converter */
+
+body {
+  font-family: sans-serif;
+  background-color: #e4e7eb; /* darker contrast bg */
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+.site-header {
+  background-color: #444;
+  color: #fff;
+  padding: 1rem;
+  text-align: center;
+}
+
+main {
+  padding: 1rem;
+}
+
+.card {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+input, select {
+  display: block;
+  margin: 0.5rem 0 1rem;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+  font-size: 1rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  border: 1px solid #bbb;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+#fractionInput {
+  max-width: 150px;
+}
+
+#fractionResult {
+  font-weight: bold;
+}
