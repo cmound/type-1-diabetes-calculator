@@ -1,72 +1,49 @@
+
 body {
-  font-family: sans-serif;
-  background-color: #e4e7eb;
-  margin: 0;
-  padding: 0;
-  color: #333;
+    font-family: sans-serif;
+    background: #f7f7f7;
+    margin: 0;
+    padding: 0;
 }
-
-.site-header {
-  background-color: #444;
-  color: #fff;
-  padding: 1rem;
-  text-align: center;
+header {
+    background: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
 }
-
 main {
-  padding: 1rem;
+    max-width: 900px;
+    margin: 1rem auto;
+    padding: 1rem;
 }
-
 .card {
-  background-color: #fff;
-  border: 1px solid #ccc;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 5px;
+    background: white;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-
-.card h2 {
-  margin-top: 0;
+label {
+    display: block;
+    margin-top: 0.5rem;
 }
-
 input, select {
-  display: block;
-  margin: 0.5rem 0 1rem;
-  padding: 0.5rem;
-  width: 100%;
-  max-width: 400px;
-  font-size: 1rem;
+    width: 100%;
+    padding: 0.4rem;
+    margin-top: 0.2rem;
 }
-
-button {
-  padding: 0.5rem 1rem;
-  background-color: #0077cc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #005fa3;
-}
-
 table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
 }
-
 th, td {
-  border: 1px solid #bbb;
-  padding: 0.5rem;
-  text-align: left;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
 }
-
-#fractionInput {
-  max-width: 150px;
-}
-
-#fractionResult {
-  font-weight: bold;
+#fractionConverter {
+    margin: 1rem 0;
+    padding: 0.5rem;
+    background: #eef;
+    border: 1px solid #ccd;
 }

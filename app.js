@@ -1,59 +1,59 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const $ = (id) => document.getElementById(id);
 
-  let items = [];
+function convertFraction() {
+    const input = document.getElementById("fractionInput").value;
+    const output = document.getElementById("decimalOutput");
+    try {
+        const parts = input.split('/');
+        if (parts.length === 2) {
+            const decimal = parseFloat(parts[0]) / parseFloat(parts[1]);
+            output.textContent = decimal.toFixed(3);
+        } else {
+            output.textContent = "Invalid input";
+        }
+    } catch (e) {
+        output.textContent = "Error";
+    }
+}
 
-  function round1(n) {
-    return Math.round(n * 10) / 10;
-  }
+let foodItems = [];
 
-  $("addItemBtn").addEventListener("click", () => {
-    const name = $("foodName").value || "Unnamed";
-    const carbs = parseFloat($("carbs").value) || 0;
-    const fat = parseFloat($("fat").value) || 0;
-    const protein = parseFloat($("protein").value) || 0;
-    const pieces = parseFloat($("piecesEaten").value) || 0;
+function addFood() {
+    const name = document.getElementById("foodName").value;
+    const carbs = parseFloat(document.getElementById("carbs").value) || 0;
+    const fat = parseFloat(document.getElementById("fat").value) || 0;
+    const protein = parseFloat(document.getElementById("protein").value) || 0;
+    const qty = parseFloat(document.getElementById("eatenAmount").value || document.getElementById("piecesEaten").value) || 1;
 
-    items.push({ name, carbs, fat, protein, qty: pieces });
-    renderSummary();
-    calculateResults();
-  });
+    const item = { name, carbs, fat, protein, qty };
+    foodItems.push(item);
+    updateFoodTable();
+    updateTotals();
+}
 
-  function renderSummary() {
-    const body = $("summaryTableBody");
-    body.innerHTML = "";
-    items.forEach(item => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${item.name}</td>
-        <td>${round1(item.carbs)}</td>
-        <td>${round1(item.fat)}</td>
-        <td>${round1(item.protein)}</td>
-        <td>${item.qty > 0 ? round1(item.qty) : ''}</td>`;
-      body.appendChild(tr);
+function updateFoodTable() {
+    const table = document.getElementById("foodSummaryTable");
+    table.innerHTML = "";
+    foodItems.forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${item.name}</td><td>${item.carbs}</td><td>${item.fat}</td><td>${item.protein}</td><td>${item.qty}</td>`;
+        table.appendChild(row);
     });
-  }
+}
 
-  function calculateResults() {
-    // placeholder logic
-    const bsl = parseFloat($("bsl").value) || 0;
-    const iob = parseFloat($("iob").value) || 0;
-    let reduce = "";
+function updateTotals() {
+    let totalCarbs = 0, totalFat = 0, totalProtein = 0;
+    foodItems.forEach(item => {
+        totalCarbs += item.carbs * item.qty;
+        totalFat += item.fat * item.qty;
+        totalProtein += item.protein * item.qty;
+    });
 
-    if (bsl < 130 && iob > 1.5) {
-      reduce = "✓";
-    }
+    document.getElementById("totalCarbs").textContent = totalCarbs.toFixed(1);
+    document.getElementById("totalFat").textContent = totalFat.toFixed(1);
+    document.getElementById("totalProtein").textContent = totalProtein.toFixed(1);
 
-    $("reduceInsulin").innerText = reduce;
-  }
-
-  $("convertFractionBtn").addEventListener("click", () => {
-    const input = $("fractionInput").value.trim();
-    if (input.includes("/")) {
-      const [num, denom] = input.split("/").map(Number);
-      if (!isNaN(num) && !isNaN(denom) && denom !== 0) {
-        $("fractionResult").innerText = (num / denom).toFixed(3);
-      }
-    }
-  });
-});
+    const bsl = parseFloat(document.getElementById("bsl").value);
+    const iob = parseFloat(document.getElementById("insulinOnBoard").value);
+    const reduceInsulin = (bsl < 130 && iob > 0.5) ? "Yes" : "No";
+    document.getElementById("insulinReduce").textContent = isNaN(bsl) || isNaN(iob) ? "--" : reduceInsulin;
+}
