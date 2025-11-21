@@ -1,1 +1,0 @@
-// Updated app.js with: fix for qtyHaving, insulin reduction logic, fraction converter
