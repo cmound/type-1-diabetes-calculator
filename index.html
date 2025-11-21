@@ -1,93 +1,62 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Type 1 Diabetes Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="site-header">
+  <div class="site-header">
     <h1>Type 1 Diabetes Calculator</h1>
-    <p>Enter nutrition label values per serving, how much is eaten, plus BSL, IOB and context.</p>
-  </header>
+  </div>
 
   <main>
-    <section class="card">
-      <h2>Profile Info</h2>
-      <label for="profileName">Name</label>
-      <input id="profileName" type="text" />
-      <label for="bsl">BSL</label>
-      <input id="bsl" type="number" />
+    <div class="card">
+      <label for="bsl">Current BSL (mg/dL)</label>
+      <input id="bsl" type="number">
       <label for="iob">Insulin on board (u)</label>
-      <input id="iob" type="number" />
-    </section>
+      <input id="iob" type="number">
+    </div>
 
-    <section class="card">
-      <h2>Serving Info</h2>
-      <label for="foodName">Food name</label>
-      <input id="foodName" type="text" />
-      <label for="mealType">Meal type</label>
-      <select id="mealType">
-        <option value="Home Meal">Home Meal</option>
-        <option value="Fast Food">Fast Food</option>
-        <option value="Restaurant">Restaurant</option>
-      </select>
-      <label for="servingSize">Serving size (g or mL)</label>
-      <input id="servingSize" type="number" />
-      <label for="servingPieces">Serving equals how many pieces (optional)</label>
-      <input id="servingPieces" type="number" />
-      <label for="calories">Calories</label>
-      <input id="calories" type="number" />
-      <label for="fat">Fat</label>
-      <input id="fat" type="number" />
-      <label for="sodium">Sodium</label>
-      <input id="sodium" type="number" />
-      <label for="carbs">Carbs</label>
-      <input id="carbs" type="number" />
-      <label for="fiber">Fiber</label>
-      <input id="fiber" type="number" />
-      <label for="sugar">Sugar</label>
-      <input id="sugar" type="number" />
-      <label for="protein">Protein</label>
-      <input id="protein" type="number" />
-
-      <label for="amountEaten">Amount eaten (g or mL)</label>
-      <input id="amountEaten" type="number" />
-      <label for="piecesEaten">or pieces (optional)</label>
-      <input id="piecesEaten" type="number" />
-
+    <div class="card">
+      <h2>Step 1: Food Entry</h2>
+      <label>Food name</label>
+      <input id="foodName">
+      <label>Carbs</label>
+      <input id="carbs">
+      <label>Fat</label>
+      <input id="fat">
+      <label>Protein</label>
+      <input id="protein">
+      <label>or pieces (optional)</label>
+      <input id="piecesEaten">
       <button id="addItemBtn">Click to Add</button>
-    </section>
+    </div>
 
-    <section class="card">
+    <div class="card">
+      <h2>Fraction to Decimal Converter</h2>
+      <input id="fractionInput" placeholder="e.g., 2/3">
+      <button id="convertFractionBtn">Convert</button>
+      <div id="fractionResult"></div>
+    </div>
+
+    <div class="card">
       <h2>Food item summary</h2>
       <table>
         <thead>
-          <tr><th>Name</th><th>Carbs</th><th>Fat</th><th>Protein</th><th>Qty</th></tr>
+          <tr><th>Item Name</th><th>Carbs</th><th>Fat</th><th>Protein</th><th>Qty</th></tr>
         </thead>
         <tbody id="summaryTableBody"></tbody>
       </table>
-    </section>
+    </div>
 
-    <section class="card">
+    <div class="card">
       <h2>Results</h2>
-      <p>Total carbs: <span id="resultTotalCarbs">0</span></p>
-      <p>Total fat: <span id="resultTotalFat">0</span></p>
-      <p>Total protein: <span id="resultTotalProtein">0</span></p>
-      <p>Reduce insulin?: <span id="resultInsulinAdvice">--</span></p>
-    </section>
-
-    <section class="card">
-      <h2>Fraction to Decimal Converter</h2>
-      <label for="fractionInput">Enter fraction (e.g., 3/4):</label>
-      <input id="fractionInput" type="text" />
-      <button id="convertFraction">Convert</button>
-      <p>Decimal: <span id="fractionResult">--</span></p>
-    </section>
+      <p>Reduce insulin? → <span id="reduceInsulin"></span></p>
+    </div>
   </main>
 
-  <script src="app.js" defer></script>
+  <script src="app.js"></script>
 </body>
 </html>
