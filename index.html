@@ -1,126 +1,100 @@
-<!-- final_index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Type 1 Diabetes Calculator</title>
-    <link rel="stylesheet" href="final_style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Type 1 Diabetes Calculator</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header>
-        <h1>TYPE 1 DIABETES CALCULATOR</h1>
-        <p>Enter nutrition label values per serving, how much is eaten, plus BSL, IOB and context.</p>
-    </header>
+  <header>
+    <h1>TYPE 1 DIABETES CALCULATOR</h1>
+    <p>Enter nutrition label values per serving, how much is eaten, plus BSL, IOB and context.</p>
+  </header>
 
-    <main>
-        <section class="card">
-            <h2>Profile Info</h2>
-            <label>Name: <input type="text" value="Kai" /></label>
-            <label>Current BSL (mg/dL): <input type="number" /></label>
-            <label>Insulin on board (u): <input type="number" /></label>
-        </section>
+  <main>
+    <section class="card">
+      <h2>Profile Info</h2>
+      <label>Name: <input type="text" id="name" value="Kai" /></label>
+      <label>Current BSL (mg/dL): <input type="number" id="bsl" /></label>
+      <label>Insulin on board (u): <input type="number" id="iob" /></label>
+    </section>
 
-        <section class="card">
-            <h2>STEP 1: Food label per serving</h2>
-            <label>Food name: <input type="text" /></label>
-            <label>Meal type:
-                <select>
-                    <option>Home Meal</option>
-                    <option>Fast Food</option>
-                    <option>Restaurant</option>
-                    <option>Other</option>
-                </select>
-            </label>
-            <label>Serving size (g or mL): <input type="number" /></label>
+    <section class="card">
+      <h2>STEP 1: Food label per serving</h2>
+      <label>Food name: <input type="text" id="foodName" /></label>
+      <label>Meal type:
+        <select id="mealType">
+          <option>Home Meal</option>
+          <option>Fast Food</option>
+          <option>Restaurant</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label>Serving size (g or mL): <input type="number" id="servingSize" /></label>
+      <label>Serving equals number or fraction? 
+        <select id="servingInputType">
+          <option value="number">Number</option>
+          <option value="fraction">Fraction</option>
+        </select>
+      </label>
+      <div id="fractionInput" style="display:none;">
+        <label>Enter fraction (e.g., 1/3): <input type="text" id="fraction" /></label>
+        <button onclick="convertFraction()">Convert</button>
+        <p>Decimal: <span id="decimal">--</span></p>
+      </div>
+      <label>Serving equals how many pieces? <input type="number" id="piecesPerServing" /></label>
+      <label>Calories: <input type="number" id="calories" /></label>
+      <label>Fat (g): <input type="number" id="fat" /></label>
+      <label>Sodium (mg): <input type="number" id="sodium" /></label>
+      <label>Carbs (g): <input type="number" id="carbs" /></label>
+      <label>Fiber (g): <input type="number" id="fiber" /></label>
+      <label>Sugar (g): <input type="number" id="sugar" /></label>
+      <label>Protein (g): <input type="number" id="protein" /></label>
+    </section>
 
-            <label>Serving equals number or fraction?
-                <select id="servingType" onchange="toggleServingInput(this.value)">
-                    <option value="Number">Number</option>
-                    <option value="Fraction">Fraction</option>
-                </select>
-            </label>
+    <section class="card">
+      <h2>STEP 2: Enter consumed information</h2>
+      <label>Amount having: <input type="number" id="amountHaving" /></label>
+      <button onclick="addItem()">Click to Add</button>
+    </section>
 
-            <div id="fractionConverter" class="hidden">
-                <h4>Fraction to Decimal Converter</h4>
-                <input type="text" id="fractionInput" placeholder="e.g., 1/3">
-                <button id="convertBtn">Convert</button>
-                <p id="decimalOutput">Decimal: --</p>
-            </div>
+    <section class="card">
+      <h2>Food item summary</h2>
+      <table id="summaryTable">
+        <thead>
+          <tr><th>Item Name</th><th>Carbs</th><th>Fat</th><th>Protein</th><th>Qty Having</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
 
-            <label>Serving equals how many pieces? <input type="text" id="servingEquals"></label>
+    <section class="card">
+      <h2>Results</h2>
+      <p>Total Carbs: <span id="totalCarbs">0</span>g</p>
+      <p>Total Fat: <span id="totalFat">0</span>g</p>
+      <p>Total Protein: <span id="totalProtein">0</span>g</p>
+      <hr />
+      <p>Pre-bolus: <span id="prebolus">--</span></p>
+      <p>Split: <span id="split">--</span></p>
+      <p>Food type: <span id="type">--</span></p>
+      <p>Reason: <span id="reason">--</span></p>
+    </section>
 
-            <label>Calories: <input type="number" /></label>
-            <label>Fat (g): <input type="number" /></label>
-            <label>Sodium (mg): <input type="number" /></label>
-            <label>Carbs (g): <input type="number" /></label>
-            <label>Fiber (g): <input type="number" /></label>
-            <label>Sugar (g): <input type="number" /></label>
-            <label>Protein (g): <input type="number" /></label>
-        </section>
+    <section class="card">
+      <h2>Logged food items</h2>
+      <table id="foodTable">
+        <thead>
+          <tr>
+            <th>Actions</th><th>Item Name</th><th>Serving Size</th><th>Calories</th><th>Fat</th>
+            <th>Sodium</th><th>Carbs</th><th>Fiber</th><th>Sugar</th><th>Protein</th><th>Qty Having</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
 
-        <section class="card">
-            <h2>STEP 2: Enter consumed information</h2>
-            <label>Amount having: <input type="number" /></label>
-            <button class="add-btn">Click to Add</button>
-        </section>
-
-        <section class="card">
-            <h2>Food item summary</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item Name</th>
-                        <th>Carbs</th>
-                        <th>Fat</th>
-                        <th>Protein</th>
-                        <th>Qty Having</th>
-                    </tr>
-                </thead>
-                <tbody id="summaryTableBody"></tbody>
-            </table>
-        </section>
-
-        <section class="card">
-            <h2>Results</h2>
-            <p>Total Carbs: <span id="totalCarbs">0</span>g</p>
-            <p>Total Fat: <span id="totalFat">0</span>g</p>
-            <p>Total Protein: <span id="totalProtein">0</span>g</p>
-            <hr>
-            <p>Pre-bolus: <span id="prebolus">--</span></p>
-            <p>Split: <span id="split">--</span></p>
-            <p>Food Type: <span id="foodType">--</span></p>
-            <p>Reason: <span id="reason">--</span></p>
-        </section>
-
-        <section class="card">
-            <h2>Logged food items</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Actions</th>
-                        <th>Item Name</th>
-                        <th>Serving Size</th>
-                        <th>Calories</th>
-                        <th>Fat (g)</th>
-                        <th>Sodium (mg)</th>
-                        <th>Carbs (g)</th>
-                        <th>Fiber (g)</th>
-                        <th>Sugar (g)</th>
-                        <th>Protein (g)</th>
-                        <th>Qty Having</th>
-                    </tr>
-                </thead>
-                <tbody id="loggedItemsTableBody"></tbody>
-            </table>
-        </section>
-    </main>
-
-    <script src="final_app.js"></script>
-    <script>
-        function toggleServingInput(value) {
-            const converter = document.getElementById("fractionConverter");
-            converter.classList.toggle("hidden", value !== "Fraction");
-        }
-    </script>
+  <script src="app.js"></script>
 </body>
 </html>
