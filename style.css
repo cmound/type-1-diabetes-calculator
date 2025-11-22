@@ -1,34 +1,51 @@
+/* style.css updated with styles for fraction converter */
 .results-box {
-  background-color: #e8f4fd;
-  padding: 15px;
-  border-radius: 5px;
-  float: right;
-  margin-top: 10px;
-  margin-bottom: 30px;
+    background-color: #e8f4fd;
+    padding: 15px;
+    border-radius: 5px;
+    float: right;
+    margin-top: 10px;
+    margin-bottom: 30px;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
 th, td {
-  padding: 8px;
-  text-align: left;
-  border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ccc;
 }
 
 button {
-  background-color: teal;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  margin: 2px;
-  cursor: pointer;
-  border-radius: 4px;
+    background-color: teal;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin: 2px;
+    cursor: pointer;
+    border-radius: 4px;
 }
 
 button:hover {
-  background-color: #005f5f;
+    background-color: #005f5f;
+}
+
+/* New styles */
+#fractionInput {
+    width: 100px;
+}
+
+#convertedDecimal {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.convert-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
 }
