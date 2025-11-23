@@ -1,83 +1,69 @@
-
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #f5f7fa;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
-    width: 95%;
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-    background: white;
-    border-radius: 10px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 h1, h2, h3 {
-    color: #003366;
+  color: #003366;
 }
 
-.input-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
+.section {
+  margin-bottom: 20px;
 }
 
-.input-row label {
-    width: 150px;
-    font-weight: bold;
-    margin-top: 5px;
+label {
+  display: inline-block;
+  width: 160px;
+  margin-top: 10px;
 }
 
-.input-row input, .input-row select, .input-row button {
-    flex: 1;
-    min-width: 150px;
-    padding: 5px;
+input, select, button {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+input[type="text"], input[type="number"], select {
+  padding: 5px;
+  width: 160px;
 }
 
 button {
-    background-color: #007acc;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
+  padding: 6px 16px;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
 button:hover {
-    background-color: #005999;
+  background-color: #005fa3;
 }
 
 .results-box {
-    background: #fff8dc;
-    padding: 10px;
-    margin-top: 10px;
-    border-left: 5px solid #ffa500;
+  background-color: #fff3cd;
+  padding: 10px;
+  margin-top: 10px;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
 
 th, td {
-    padding: 10px;
-    border: 1px solid #ccc;
-    text-align: left;
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: center;
 }
 
-th {
-    background: #f0f0f0;
-}
-
-.actions button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: #d11a2a;
+.hidden {
+  display: none;
 }
