@@ -1,151 +1,188 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const foodTableBody = document.getElementById("foodTableBody");
-  const resultsBox = document.getElementById("dynamicResults");
-  const nameInput = document.getElementById("name");
-  const bslInput = document.getElementById("bsl");
-  const iobInput = document.getElementById("iob");
-  const foodNameInput = document.getElementById("foodName");
-  const foodTypeInput = document.getElementById("foodType");
-  const portionInput = document.getElementById("portion");
-  const portionTypeInput = document.getElementById("portionType");
-  const portionAmountInput = document.getElementById("portionAmount");
-  const convertBtn = document.getElementById("convertBtn");
-  const decimalOutput = document.getElementById("decimalOutput");
-  const servingSizeInput = document.getElementById("servingSize");
+document.addEventListener("DOMContentLoaded", function () {
+  const foodItems = [];
+  const foodForm = document.getElementById("food-form");
+  const foodNameInput = document.getElementById("food-name");
+  const servingSizeInput = document.getElementById("serving-size");
+  const mealTypeInput = document.getElementById("meal-type");
+  const numberOrFractionInput = document.getElementById("number-or-fraction");
+  const piecesInput = document.getElementById("pieces");
+  const fractionInput = document.getElementById("fraction");
+  const convertBtn = document.getElementById("convert-btn");
+  const decimalResult = document.getElementById("decimal-result");
   const caloriesInput = document.getElementById("calories");
-  const sodiumInput = document.getElementById("sodium");
   const fatInput = document.getElementById("fat");
+  const sodiumInput = document.getElementById("sodium");
   const carbsInput = document.getElementById("carbs");
   const fiberInput = document.getElementById("fiber");
   const sugarInput = document.getElementById("sugar");
   const proteinInput = document.getElementById("protein");
-  const qtyHavingInput = document.getElementById("qtyHaving");
-  const addButton = document.getElementById("addBtn");
-  const summaryTableBody = document.getElementById("summaryTableBody");
+  const qtyInput = document.getElementById("qty-having");
+  const currentBSLInput = document.getElementById("current-bsl");
+  const insulinOnBoardInput = document.getElementById("insulin-on-board");
+  const summaryContainer = document.getElementById("food-summary");
+  const loggedItemsContainer = document.getElementById("logged-items");
 
-  let foodItems = [];
-
-  function updatePrebolus(bsl, totalFat, foodType) {
-    let time = "2–5 min";
-    if (bsl >= 180 && totalFat >= 15) time = "8–12 min";
-    else if (bsl >= 180) time = "5–10 min";
-    else if (bsl <= 90) time = "0–2 min";
-
-    if (foodType.toLowerCase().includes("fast")) {
-      time = bsl >= 180 ? "10–15 min" : "5–10 min";
-    }
-
-    return time;
-  }
-
-  function updateSummary() {
-    let totalCarbs = 0, totalFat = 0, totalProtein = 0;
+  function updateResults() {
+    let totalCarbs = 0,
+      totalFat = 0,
+      totalProtein = 0;
     foodItems.forEach(item => {
-      totalCarbs += item.carbs * item.qty;
-      totalFat += item.fat * item.qty;
-      totalProtein += item.protein * item.qty;
+      const qty = parseFloat(item.qtyHaving) || 1;
+      totalCarbs += item.carbs * qty;
+      totalFat += item.fat * qty;
+      totalProtein += item.protein * qty;
     });
 
-    const bsl = parseFloat(bslInput.value);
-    const foodType = foodTypeInput.value;
+    document.getElementById("total-carbs").textContent =
+      totalCarbs.toFixed(1) + "g = " + Math.round(totalCarbs) + "g";
+    document.getElementById("total-fat").textContent =
+      totalFat.toFixed(1) + "g = " + Math.round(totalFat) + "g";
+    document.getElementById("total-protein").textContent =
+      totalProtein.toFixed(1) + "g = " + Math.round(totalProtein) + "g";
 
-    const prebolus = updatePrebolus(bsl, totalFat, foodType);
+    const bsl = parseInt(currentBSLInput.value);
+    let prebolus = "2-5 min";
 
-    resultsBox.innerHTML = `
-      <h3>Results</h3>
-      <p><strong>Total carbs:</strong> ${totalCarbs.toFixed(1)} g</p>
-      <p><strong>Total fat:</strong> ${totalFat.toFixed(1)} g</p>
-      <p><strong>Total protein:</strong> ${totalProtein.toFixed(1)} g</p>
-      <p><strong>Pre-bolus:</strong> ${prebolus}</p>
-      <p><strong>Split:</strong> 60/40</p>
-      <p><strong>Split time:</strong> Over 1 hour 30 mins</p>
-      <p><strong>Food type:</strong> ${foodType}</p>
-      <p><strong>Reason:</strong> High fat meal</p>
-    `;
+    if (bsl >= 180 && bsl < 250) prebolus = "10-15 min";
+    else if (bsl >= 250) prebolus = "20-30 min";
+    else if (bsl <= 90) prebolus = "0 min";
+
+    document.getElementById("prebolus").textContent = prebolus;
+
+    document.getElementById("split").textContent =
+      totalFat + totalProtein > 25 ? "40/60 split" : "No split needed";
+
+    document.getElementById("food-type").textContent =
+      mealTypeInput.value || "Other";
+
+    document.getElementById("reason").textContent =
+      totalFat > 20
+        ? "High fat/protein content"
+        : "Standard carb content - single dose likely sufficient";
   }
 
-  function renderTable() {
-    foodTableBody.innerHTML = "";
-    summaryTableBody.innerHTML = "";
+  function renderSummary() {
+    summaryContainer.innerHTML = "";
+    foodItems.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "summary-item";
+      div.innerHTML = `<strong>${item.name}</strong>: Carbs: ${item.carbs}g, Fat: ${item.fat}g, Protein: ${item.protein}g, Qty: ${item.qtyHaving}`;
+      summaryContainer.appendChild(div);
+    });
+  }
 
+  function renderLoggedItems() {
+    loggedItemsContainer.innerHTML = "";
     foodItems.forEach((item, index) => {
-      const row = document.createElement("tr");
+      const row = document.createElement("div");
+      row.className = "logged-item";
       row.innerHTML = `
-        <td><button onclick="removeItem(${index})">✗</button></td>
-        <td>${item.name}</td>
-        <td>${item.servingSize}</td>
-        <td>${item.calories}</td>
-        <td>${item.sodium}</td>
-        <td>${item.fat}</td>
-        <td>${item.carbs}</td>
-        <td>${item.fiber}</td>
-        <td>${item.sugar}</td>
-        <td>${item.protein}</td>
-        <td>${item.qty}</td>
+        <div class="actions">
+          <button onclick="editItem(${index})">✏️</button>
+          <button onclick="deleteItem(${index})">🗑️</button>
+        </div>
+        <div>${item.name}</div>
+        <div>${item.servingSize}</div>
+        <div>${item.calories}</div>
+        <div>${item.fat}</div>
+        <div>${item.sodium}</div>
+        <div>${item.carbs}</div>
+        <div>${item.fiber}</div>
+        <div>${item.sugar}</div>
+        <div>${item.protein}</div>
+        <div>${item.qtyHaving}</div>
       `;
-      foodTableBody.appendChild(row);
-
-      const summaryRow = document.createElement("tr");
-      summaryRow.innerHTML = `
-        <td>${item.name}</td>
-        <td>${item.carbs}</td>
-        <td>${item.fat}</td>
-        <td>${item.protein}</td>
-        <td>${item.qty}</td>
-      `;
-      summaryTableBody.appendChild(summaryRow);
+      loggedItemsContainer.appendChild(row);
     });
-
-    updateSummary();
   }
 
-  window.removeItem = function(index) {
+  window.deleteItem = function (index) {
     foodItems.splice(index, 1);
-    renderTable();
+    renderSummary();
+    renderLoggedItems();
+    updateResults();
   };
 
-  addButton.addEventListener("click", () => {
+  window.editItem = function (index) {
+    const item = foodItems[index];
+    foodNameInput.value = item.name;
+    servingSizeInput.value = item.servingSize;
+    caloriesInput.value = item.calories;
+    fatInput.value = item.fat;
+    sodiumInput.value = item.sodium;
+    carbsInput.value = item.carbs;
+    fiberInput.value = item.fiber;
+    sugarInput.value = item.sugar;
+    proteinInput.value = item.protein;
+    qtyInput.value = item.qtyHaving;
+    deleteItem(index);
+  };
+
+  foodForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
     const newItem = {
       name: foodNameInput.value,
       servingSize: servingSizeInput.value,
+      mealType: mealTypeInput.value,
       calories: parseFloat(caloriesInput.value),
-      sodium: parseFloat(sodiumInput.value),
       fat: parseFloat(fatInput.value),
+      sodium: parseFloat(sodiumInput.value),
       carbs: parseFloat(carbsInput.value),
       fiber: parseFloat(fiberInput.value),
       sugar: parseFloat(sugarInput.value),
       protein: parseFloat(proteinInput.value),
-      qty: parseFloat(qtyHavingInput.value)
+      qtyHaving: parseFloat(qtyInput.value)
     };
 
     foodItems.push(newItem);
-    renderTable();
+    renderSummary();
+    renderLoggedItems();
+    updateResults();
 
-    // Reset inputs
-    servingSizeInput.value = "";
-    caloriesInput.value = "";
-    sodiumInput.value = "";
-    fatInput.value = "";
-    carbsInput.value = "";
-    fiberInput.value = "";
-    sugarInput.value = "";
-    proteinInput.value = "";
-
-    // Refocus to food name input
     foodNameInput.focus();
     foodNameInput.select();
+
+    // Clear relevant fields
+    [
+      servingSizeInput,
+      caloriesInput,
+      fatInput,
+      sodiumInput,
+      carbsInput,
+      fiberInput,
+      sugarInput,
+      proteinInput,
+      qtyInput,
+      piecesInput,
+      fractionInput
+    ].forEach(el => (el.value = ""));
   });
 
-  convertBtn.addEventListener("click", () => {
-    const fraction = portionAmountInput.value.trim();
-    if (fraction.includes("/")) {
-      const [numerator, denominator] = fraction.split("/");
-      const decimal = parseFloat(numerator) / parseFloat(denominator);
-      portionInput.value = decimal.toFixed(3);
-      decimalOutput.textContent = `Decimal: ${decimal.toFixed(3)}`;
+  convertBtn.addEventListener("click", function () {
+    const fractionValue = fractionInput.value.trim();
+    if (fractionValue.includes("/")) {
+      const [numerator, denominator] = fractionValue.split("/").map(Number);
+      if (!isNaN(numerator) && !isNaN(denominator) && denominator !== 0) {
+        const decimal = numerator / denominator;
+        decimalResult.textContent = decimal.toFixed(3);
+        piecesInput.value = decimal.toFixed(3);
+      } else {
+        decimalResult.textContent = "Invalid fraction";
+      }
+    } else {
+      decimalResult.textContent = "Invalid format";
     }
   });
 
-  // Initialize
-  bslInput.addEventListener("input", updateSummary);
+  numberOrFractionInput.addEventListener("change", function () {
+    const value = this.value;
+    document.getElementById("number-input-section").style.display =
+      value === "Number" ? "block" : "none";
+    document.getElementById("fraction-input-section").style.display =
+      value === "Fraction" ? "block" : "none";
+  });
+
+  // Initial calculation
+  updateResults();
 });
