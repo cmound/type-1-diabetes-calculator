@@ -1,112 +1,183 @@
-let foodItems = [];
 
-function handleServingEqualsChange() {
-  const type = document.getElementById("servingEquals").value;
-  document.getElementById("fractionConverter").classList.toggle("hidden", type !== "Fraction");
+// Type 1 Diabetes Calculator logic
+
+const $ = (id) => document.getElementById(id);
+
+const STORAGE_KEY = "t1d-food-history-v1";
+
+let loggedItems = [];
+let editingIndex = -1;
+
+// Utility to read numeric value safely
+function num(id) {
+  const el = $(id);
+  if (!el) return 0;
+  const val = el.value.trim();
+  const n = parseFloat(val);
+  return Number.isFinite(n) ? n : 0;
 }
 
-function convertFraction() {
-  const fraction = document.getElementById("fractionInput").value;
+// Round to one decimal
+function round1(value) {
+  return Math.round(value * 10) / 10;
+}
+
+// Convert fraction (including mixed numbers like "2 1/4") to decimal
+$("fractionInput").addEventListener("input", () => {
+  const input = $("fractionInput").value.trim();
   try {
-    const [numerator, denominator] = fraction.split("/").map(Number);
-    const decimal = numerator / denominator;
-    document.getElementById("servingQty").value = decimal.toFixed(3);
-  } catch {
-    alert("Invalid fraction format.");
+    let parts = input.split(" ");
+    let whole = 0, frac = "0/1";
+    if (parts.length === 2) {
+      whole = parseInt(parts[0], 10);
+      frac = parts[1];
+    } else {
+      frac = parts[0];
+    }
+
+    const [numerator, denominator] = frac.split("/").map(Number);
+    if (!isNaN(numerator) && !isNaN(denominator) && denominator !== 0) {
+      const decimal = whole + numerator / denominator;
+      $("servingQty").value = round1(decimal);
+    } else {
+      $("servingQty").value = "";
+    }
+  } catch (e) {
+    $("servingQty").value = "";
   }
+});
+
+// Smart logic for Pre-Bolus time
+function getPrebolusTime(bsl) {
+  if (bsl <= 120) return "0–2 min";
+  if (bsl <= 160) return "3–4 min";
+  if (bsl <= 200) return "5–7 min";
+  return "8–10 min";
 }
 
-function addFood() {
-  const food = {
-    name: document.getElementById("foodName").value,
-    servingSize: +document.getElementById("servingSize").value,
-    calories: +document.getElementById("calories").value,
-    sodium: +document.getElementById("sodium").value,
-    fat: +document.getElementById("fat").value,
-    carbs: +document.getElementById("carbs").value,
-    fiber: +document.getElementById("fiber").value,
-    sugar: +document.getElementById("sugar").value,
-    protein: +document.getElementById("protein").value,
-    qty: +document.getElementById("amountHaving").value || 1
-  };
-
-  foodItems.push(food);
-  updateSummary();
-  updateResults();
-  updateTable();
+// Smart logic for Split
+function getSplit(bsl) {
+  return bsl > 200 ? "60/40" : "40/60";
 }
 
-function updateSummary() {
-  const totalCarbs = sum("carbs");
-  const totalFat = sum("fat");
-  const totalProtein = sum("protein");
-
-  document.getElementById("summary").innerHTML = `
-    <strong>Total carbs:</strong> ${totalCarbs.toFixed(1)} g<br/>
-    <strong>Total fat:</strong> ${totalFat.toFixed(1)} g<br/>
-    <strong>Total protein:</strong> ${totalProtein.toFixed(1)} g
-  `;
-}
+// Trigger update when BSL changes
+$("bsl").addEventListener("input", updateResults);
 
 function updateResults() {
-  const totalCarbs = sum("carbs");
-  const totalFat = sum("fat");
-  const totalProtein = sum("protein");
-  const bsl = +document.getElementById("bsl").value;
-  const mealType = document.getElementById("mealType").value;
+  const totalCarbs = round1(loggedItems.reduce((acc, item) => acc + (item.carbs * item.qty), 0));
+  const totalFat = round1(loggedItems.reduce((acc, item) => acc + (item.fat * item.qty), 0));
+  const totalProtein = round1(loggedItems.reduce((acc, item) => acc + (item.protein * item.qty), 0));
 
-  let preBolus = "0–2 min";
-  if (bsl >= 120 && bsl <= 150) preBolus = "2–4 min";
-  else if (bsl >= 151 && bsl < 200) preBolus = "5–7 min";
-  else if (bsl >= 200) preBolus = "8–10 min";
+  const bsl = num("bsl");
+  const split = getSplit(bsl);
+  const prebolus = getPrebolusTime(bsl);
+  const mealType = $("mealType").value;
 
-  const split = bsl > 200 ? "60/40" : "40/60";
-
-  document.getElementById("results").innerHTML = `
-    <strong>Total carbs:</strong> ${totalCarbs.toFixed(1)} g<br/>
-    <strong>Total fat:</strong> ${totalFat.toFixed(1)} g<br/>
-    <strong>Total protein:</strong> ${totalProtein.toFixed(1)} g<br/>
-    <strong>Pre-bolus:</strong> ${preBolus}<br/>
-    <strong>Split:</strong> ${split}<br/>
-    <strong>Split time:</strong> Over 1 hour 30 mins<br/>
-    <strong>Food type:</strong> ${mealType}<br/>
+  $("resultsBox").innerHTML = `
+    <strong>Total carbs:</strong> ${totalCarbs} g<br>
+    <strong>Total fat:</strong> ${totalFat} g<br>
+    <strong>Total protein:</strong> ${totalProtein} g<br>
+    <strong>Pre-bolus:</strong> ${prebolus}<br>
+    <strong>Split:</strong> ${split}<br>
+    <strong>Split time:</strong> Over 1 hour 30 mins<br>
+    <strong>Food type:</strong> ${mealType}<br>
     <strong>Reason:</strong> High fat meal
   `;
 }
 
-function updateTable() {
-  const tbody = document.querySelector("#foodTable tbody");
-  tbody.innerHTML = "";
-  foodItems.forEach((item, index) => {
-    const row = `
-      <tr>
-        <td>
-          <button onclick="editItem(${index})">✎</button>
-          <button onclick="removeItem(${index})">✖</button>
-        </td>
-        <td>${item.name}</td>
-        <td>${item.servingSize}</td>
-        <td>${item.calories}</td>
-        <td>${item.sodium}</td>
-        <td>${item.fat}</td>
-        <td>${item.carbs}</td>
-        <td>${item.fiber}</td>
-        <td>${item.sugar}</td>
-        <td>${item.protein}</td>
-        <td>${item.qty}</td>
-      </tr>
+// Handle Add or Save
+$("addBtn").addEventListener("click", () => {
+  const item = {
+    name: $("foodName").value.trim(),
+    size: num("servingSize"),
+    calories: num("calories"),
+    fat: num("fat"),
+    sodium: num("sodium"),
+    carbs: num("carbs"),
+    fiber: num("fiber"),
+    sugar: num("sugar"),
+    protein: num("protein"),
+    qty: num("servingQty"),
+  };
+
+  if (editingIndex >= 0) {
+    loggedItems[editingIndex] = item;
+    editingIndex = -1;
+  } else {
+    loggedItems.push(item);
+  }
+
+  $("foodName").focus();
+  $("foodName").select();
+
+  clearInputs();
+  renderTable();
+  updateResults();
+});
+
+function clearInputs() {
+  $("calories").value = "";
+  $("fat").value = "";
+  $("sodium").value = "";
+  $("carbs").value = "";
+  $("fiber").value = "";
+  $("sugar").value = "";
+  $("protein").value = "";
+  $("servingQty").value = "";
+  $("servingSize").value = "";
+  $("fractionInput").value = "";
+}
+
+// Render table and attach edit/delete
+function renderTable() {
+  const table = $("foodTableBody");
+  table.innerHTML = "";
+
+  loggedItems.forEach((item, i) => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>
+        <button onclick="editItem(${i})">✏️</button>
+        <button onclick="deleteItem(${i})">❌</button>
+      </td>
+      <td>${item.name}</td>
+      <td>${item.size}</td>
+      <td>${item.calories}</td>
+      <td>${item.sodium}</td>
+      <td>${item.fat}</td>
+      <td>${item.carbs}</td>
+      <td>${item.fiber}</td>
+      <td>${item.sugar}</td>
+      <td>${item.protein}</td>
+      <td>${item.qty}</td>
     `;
-    tbody.innerHTML += row;
+    table.appendChild(row);
   });
 }
 
-function removeItem(index) {
-  foodItems.splice(index, 1);
-  updateSummary();
-  updateResults();
-  updateTable();
-}
+// Edit button
+window.editItem = function (index) {
+  const item = loggedItems[index];
+  editingIndex = index;
 
-function sum(field) {
-  return foodItems.reduce((acc, item) => acc + (item[field] * item.qty), 0);
-}
+  $("foodName").value = item.name;
+  $("servingSize").value = item.size;
+  $("calories").value = item.calories;
+  $("fat").value = item.fat;
+  $("sodium").value = item.sodium;
+  $("carbs").value = item.carbs;
+  $("fiber").value = item.fiber;
+  $("sugar").value = item.sugar;
+  $("protein").value = item.protein;
+  $("servingQty").value = item.qty;
+
+  window.scrollTo(0, 0);
+};
+
+// Delete button
+window.deleteItem = function (index) {
+  loggedItems.splice(index, 1);
+  renderTable();
+  updateResults();
+};
