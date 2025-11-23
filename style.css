@@ -1,61 +1,77 @@
+
 body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    background-color: #fff;
-    color: #000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  margin: 20px;
 }
 
 h1 {
-    color: #002f6c;
+  color: #003366;
+  font-size: 26px;
 }
 
-h2 {
-    margin-top: 30px;
-    color: #003366;
+section {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.form-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
+label {
+  display: inline-block;
+  width: 140px;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
-.form-row label {
-    width: 120px;
-    font-weight: bold;
+input, select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
 }
 
-input, select, button {
-    padding: 5px;
-    font-size: 14px;
+input:focus, select:focus {
+  outline: none;
+  border-color: #3399ff;
 }
 
-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    cursor: pointer;
+button, .btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.results-box {
-    background-color: #fff6cc;
-    padding: 10px;
-    margin-top: 10px;
-    border-left: 6px solid #ffe066;
+button:hover, .btn:hover {
+  background-color: #0056b3;
+}
+
+.result-box {
+  background-color: #fff7d6;
+  border-left: 4px solid #ffcc00;
+  padding: 15px;
+  margin-top: 15px;
+  font-size: 15px;
 }
 
 table {
-    width: 100%;
-    margin-top: 10px;
-    border-collapse: collapse;
-}
-
-table, th, td {
-    border: 1px solid #ccc;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
 th, td {
-    padding: 8px;
-    text-align: center;
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background-color: #e9ecef;
+  font-weight: bold;
 }
