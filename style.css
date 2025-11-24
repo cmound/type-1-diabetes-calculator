@@ -1,27 +1,83 @@
 
-/* Style Summary Box */
-.summary-box {
-    background: #e0f7fa;
-    border-left: 5px solid #00acc1;
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f7fa;
+}
+
+.container {
+    width: 95%;
+    max-width: 1200px;
+    margin: auto;
     padding: 20px;
-    margin-bottom: 25px;
+    background: white;
+    border-radius: 10px;
 }
 
-.summary-grid > div {
+h1, h2, h3 {
+    color: #003366;
+}
+
+.input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.input-row label {
+    width: 150px;
     font-weight: bold;
-    color: #000;
-    margin-bottom: 10px;
+    margin-top: 5px;
 }
 
-.summary-grid hr {
-    border: 0;
-    border-top: 2px solid #aaa;
-    margin: 15px 0;
+.input-row input, .input-row select, .input-row button {
+    flex: 1;
+    min-width: 150px;
+    padding: 5px;
 }
 
-/* Footer Totals Row */
-tfoot td {
-    font-weight: bold;
+button {
+    background-color: #007acc;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #005999;
+}
+
+.results-box {
+    background: #fff8dc;
+    padding: 10px;
+    margin-top: 10px;
+    border-left: 5px solid #ffa500;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+th {
     background: #f0f0f0;
-    border-top: 2px solid #aaa;
+}
+
+.actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #d11a2a;
 }
