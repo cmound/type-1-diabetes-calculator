@@ -53,31 +53,33 @@
         </div>
 
         <h3>Food Item Summary</h3>
-        <div id="foodSummary"></div>
+        <div id="foodSummary" class="summary-box"></div>
 
         <h3>Results</h3>
         <div id="results" class="resultsBox"></div>
 
         <h3>Logged Food Items</h3>
-        <table id="foodLogTable">
-            <thead>
-                <tr>
-                    <th>Actions</th>
-                    <th>Item Name</th>
-                    <th>Serving Size</th>
-                    <th>Calories</th>
-                    <th>Sodium</th>
-                    <th>Fat</th>
-                    <th>Carbs</th>
-                    <th>Fiber</th>
-                    <th>Sugar</th>
-                    <th>Protein</th>
-                    <th>Qty Having</th>
-                </tr>
-            </thead>
-            <tbody id="foodLogBody"></tbody>
-        </table>
-    </div>
-    <script src="app.js"></script>
-</body>
-</html>
+<table id="foodLogTable">
+    <thead>
+        <tr>
+            <th>Actions</th>
+            <th>Item Name</th>
+            <th>Serving Size</th>
+            <th>Fat</th>
+            <th>Carbs</th>
+            <th>Protein</th>
+            <th>Qty Having</th>
+        </tr>
+    </thead>
+    <tbody id="foodLogBody"></tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2"><strong>Totals</strong></td>
+            <td id="totalServingSize"></td>
+            <td id="totalFat"></td>
+            <td id="totalCarbs"></td>
+            <td id="totalProtein"></td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>
