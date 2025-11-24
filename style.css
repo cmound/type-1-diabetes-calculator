@@ -1,61 +1,65 @@
-
 body {
     font-family: Arial, sans-serif;
+    background: #f8f9fa;
     margin: 0;
     padding: 0;
-    background: #f5f7fa;
+    color: #333;
 }
 
 .container {
     width: 95%;
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-    background: white;
-    border-radius: 10px;
+    max-width: 1100px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2, h3 {
-    color: #003366;
+h1 {
+    color: #0d3b66;
+    text-align: center;
 }
 
-.input-row {
+.section {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 15px;
+    margin-bottom: 25px;
 }
 
-.input-row label {
-    width: 150px;
-    font-weight: bold;
-    margin-top: 5px;
+.section label {
+    flex: 1 1 250px;
 }
 
-.input-row input, .input-row select, .input-row button {
-    flex: 1;
-    min-width: 150px;
-    padding: 5px;
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 6px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 button {
-    background-color: #007acc;
-    color: white;
+    background: #007bff;
+    color: #fff;
+    padding: 6px 12px;
     border: none;
-    padding: 8px 16px;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
+    margin-top: 22px;
 }
 
 button:hover {
-    background-color: #005999;
+    background: #0056b3;
 }
 
-.results-box {
-    background: #fff8dc;
-    padding: 10px;
-    margin-top: 10px;
-    border-left: 5px solid #ffa500;
+.resultsBox {
+    background: #fff7d6;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin-bottom: 20px;
 }
 
 table {
@@ -66,18 +70,10 @@ table {
 
 th, td {
     padding: 10px;
-    border: 1px solid #ccc;
-    text-align: left;
+    border: 1px solid #ddd;
+    text-align: center;
 }
 
 th {
-    background: #f0f0f0;
-}
-
-.actions button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: #d11a2a;
+    background: #f1f1f1;
 }
