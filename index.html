@@ -37,9 +37,18 @@
     <div class="section">
 
       <label>Food Name:
-        <input type="text" id="foodName" autocomplete="off">
-        <div id="autocompleteList" class="autocomplete-box"></div>
-      </label>
+  <input type="text" id="foodName" autocomplete="off">
+
+  <!-- Existing autocomplete dropdown -->
+  <div id="autocompleteList" class="autocomplete-box"></div>
+
+  <!-- NEW inline match suggestion -->
+  <div id="historyMatchBox" class="history-match-box hidden">
+    <p class="match-text"></p>
+    <button id="useSavedBtn" class="match-btn">Use Saved</button>
+    <button id="createNewBtn" class="match-btn">Create New</button>
+  </div>
+</label>
 
       <label>Meal Type:
         <select id="mealType">
