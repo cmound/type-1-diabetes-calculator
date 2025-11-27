@@ -16,7 +16,6 @@ const servingEqualsInput = document.getElementById("servingEquals");
 const fractionBox = document.getElementById("fractionBox");
 const fractionInput = document.getElementById("fractionInput");
 const piecesInput = document.getElementById("pieces");
-
 const amountHavingInput = document.getElementById("amountHaving");
 const addFoodBtn = document.getElementById("addFoodBtn");
 
@@ -25,6 +24,12 @@ const resultsDiv = document.getElementById("results");
 const foodLogBody = document.getElementById("foodLogBody");
 
 const saveToHistoryBtn = document.getElementById("saveToHistoryBtn");
+
+/* NEW: Inline history match popup */
+const historyMatchBox = document.getElementById("historyMatchBox");
+const matchText = historyMatchBox.querySelector(".match-text");
+const useSavedBtn = document.getElementById("useSavedBtn");
+const createNewBtn = document.getElementById("createNewBtn");
 
 /* -------------------------------------------------------------
    FRACTION CONVERTER
@@ -37,14 +42,12 @@ document.getElementById("convertFractionBtn").addEventListener("click", () => {
     let numerator = 0;
     let denominator = 1;
 
-    // Handle "2 1/4" format
     if (input.includes(" ")) {
       const parts = input.split(" ");
       whole = parseInt(parts[0]);
       const frac = parts[1];
       [numerator, denominator] = frac.split("/").map(Number);
     } else if (input.includes("/")) {
-      // Handle simple fraction "1/3"
       [numerator, denominator] = input.split("/").map(Number);
     } else {
       alert("Invalid fraction format");
@@ -53,7 +56,7 @@ document.getElementById("convertFractionBtn").addEventListener("click", () => {
 
     const decimal = whole + numerator / denominator;
     piecesInput.value = decimal.toFixed(3);
-  } catch (err) {
+  } catch {
     alert("Could not parse fraction.");
   }
 });
@@ -66,7 +69,7 @@ servingEqualsInput.addEventListener("change", () => {
 });
 
 /* -------------------------------------------------------------
-   MAIN CALCULATION ENGINE
+   MAIN INPUT GATHERING
 -------------------------------------------------------------- */
 function getFoodInputs() {
   return {
@@ -85,6 +88,9 @@ function getFoodInputs() {
   };
 }
 
+/* -------------------------------------------------------------
+   NUTRITION CALCULATION ENGINE
+-------------------------------------------------------------- */
 function calculateTotals(item) {
   if (!item.pieces || item.pieces === 0) return null;
 
@@ -102,7 +108,7 @@ function calculateTotals(item) {
 }
 
 /* -------------------------------------------------------------
-   ADD OR EDIT FOOD ITEM
+   ADD / EDIT FOOD ITEM
 -------------------------------------------------------------- */
 addFoodBtn.addEventListener("click", () => {
   const item = getFoodInputs();
@@ -127,7 +133,7 @@ addFoodBtn.addEventListener("click", () => {
 });
 
 /* -------------------------------------------------------------
-   RENDER SUMMARY (TOTAL CARBS, FAT, PROTEIN)
+   SUMMARY SECTION
 -------------------------------------------------------------- */
 function renderSummary() {
   let totalCarbs = 0;
@@ -155,7 +161,6 @@ function renderSummary() {
 -------------------------------------------------------------- */
 function getPreBolus(bsl) {
   if (!bsl) return "-";
-
   if (bsl <= 125) return "0–3 mins";
   if (bsl <= 150) return "3–5 mins";
   if (bsl <= 200) return "5–7 mins";
@@ -165,13 +170,15 @@ function getPreBolus(bsl) {
 }
 
 /* -------------------------------------------------------------
-   SMART SPLIT DOSE ENGINE
+   SPLIT DOSE ENGINE
 -------------------------------------------------------------- */
 function getSplitDose() {
   if (foodItems.length === 0) return "No";
 
   let totalCarbs = 0;
   let totalFat = 0;
+  const foodName = foodItems[foodItems.length - 1].name.toLowerCase();
+  const bsl = parseFloat(bslInput.value);
 
   foodItems.forEach((item) => {
     const totals = calculateTotals(item);
@@ -180,14 +187,11 @@ function getSplitDose() {
     totalFat += totals.fat;
   });
 
-  const foodName = foodItems[foodItems.length - 1].name.toLowerCase();
-  const bsl = parseFloat(bslInput.value);
-
   const highFatFoods = ["pizza", "fried", "burger", "cheese", "cream", "alfredo"];
   const simpleCarbs = ["donut", "soda", "candy", "white bread", "rice", "pasta"];
 
-  let isHighFat = highFatFoods.some(f => foodName.includes(f));
-  let isSimpleCarb = simpleCarbs.some(f => foodName.includes(f));
+  const isHighFat = highFatFoods.some(f => foodName.includes(f));
+  const isSimpleCarb = simpleCarbs.some(f => foodName.includes(f));
 
   if (isHighFat || totalFat > 15) {
     if (bsl > 200) return "60/40 over 2 hrs";
@@ -205,7 +209,7 @@ function getSplitDose() {
 }
 
 /* -------------------------------------------------------------
-   UPDATE RESULTS BOX
+   RESULTS BOX
 -------------------------------------------------------------- */
 function updateResults() {
   const bsl = parseFloat(bslInput.value);
@@ -224,7 +228,7 @@ function updateResults() {
 bslInput.addEventListener("input", updateResults);
 
 /* -------------------------------------------------------------
-   FOOD LOG RENDER
+   RENDER FOOD LOG
 -------------------------------------------------------------- */
 function renderFoodLog() {
   foodLogBody.innerHTML = "";
@@ -288,7 +292,7 @@ function renderTotalsRow() {
 }
 
 /* -------------------------------------------------------------
-   EDIT AND REMOVE
+   EDIT / REMOVE HANDLERS
 -------------------------------------------------------------- */
 window.editItem = function(index) {
   const item = foodItems[index];
@@ -334,42 +338,59 @@ function resetInputs() {
 }
 
 /* -------------------------------------------------------------
-   AUTOCOMPLETE SYSTEM
+   AUTOFILL + HISTORY MATCH DETECTION
 -------------------------------------------------------------- */
 foodNameInput.addEventListener("input", () => {
   const query = foodNameInput.value.toLowerCase();
-  autocompleteBox.innerHTML = "";
 
-  if (!query) {
-    autocompleteBox.style.display = "none";
-    return;
-  }
+  autocompleteBox.innerHTML = "";
+  autocompleteBox.style.display = "none";
+  historyMatchBox.classList.add("hidden");
+
+  if (!query) return;
 
   const matches = historyData.filter(item =>
     item.name.toLowerCase().includes(query)
   );
 
-  if (matches.length === 0) {
-    autocompleteBox.style.display = "none";
-    return;
+  // Build autocomplete list
+  if (matches.length > 0) {
+    matches.forEach((item) => {
+      const div = document.createElement("div");
+      div.classList.add("autocomplete-item");
+      div.innerText = item.name;
+
+      div.onclick = () => {
+        fillFromHistory(item);
+        autocompleteBox.style.display = "none";
+      };
+
+      autocompleteBox.appendChild(div);
+    });
+
+    autocompleteBox.style.display = "block";
   }
 
-  matches.forEach((item) => {
-    const div = document.createElement("div");
-    div.classList.add("autocomplete-item");
-    div.innerText = item.name;
+  // Inline match popup (Option A)
+  const exactMatch = matches.find(m => m.name.toLowerCase() === query);
+  if (exactMatch) {
+    matchText.innerText = `Found "${exactMatch.name}" in your history. Use saved nutrition values?`;
+    historyMatchBox.classList.remove("hidden");
 
-    div.onclick = () => {
-      fillFromHistory(item);
-      autocompleteBox.style.display = "none";
+    useSavedBtn.onclick = () => {
+      fillFromHistory(exactMatch);
+      historyMatchBox.classList.add("hidden");
     };
 
-    autocompleteBox.appendChild(div);
-  });
-
-  autocompleteBox.style.display = "block";
+    createNewBtn.onclick = () => {
+      historyMatchBox.classList.add("hidden");
+    };
+  }
 });
 
+/* -------------------------------------------------------------
+   AUTOFILL FROM HISTORY
+-------------------------------------------------------------- */
 function fillFromHistory(item) {
   foodNameInput.value = item.name;
   document.getElementById("servingSize").value = item.servingSize;
@@ -385,11 +406,11 @@ function fillFromHistory(item) {
 }
 
 /* -------------------------------------------------------------
-   SAVE TO HISTORY PAGE
+   SAVE ORIGINAL VALUES TO HISTORY
 -------------------------------------------------------------- */
 saveToHistoryBtn.addEventListener("click", () => {
   if (foodItems.length === 0) {
-    alert("No items to save");
+    alert("No items to save.");
     return;
   }
 
