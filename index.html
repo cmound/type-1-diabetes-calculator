@@ -3,82 +3,168 @@
 <head>
   <meta charset="UTF-8">
   <title>Type 1 Diabetes Calculator</title>
+
+  <!-- iOS and PWA Support -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/png" href="favicon.png">
 </head>
+
 <body>
-    <div class="container">
-        <h1>Type 1 Diabetes Calculator</h1>
-        <div class="section">
-            <label>Name: <input type="text" id="name"></label>
-            <label>Current BSL (mg/dL): <input type="number" id="bsl"></label>
-            <label>Insulin on Board (u): <input type="number" id="insulin"></label>
-        </div>
+  <div class="container">
 
-        <h2>STEP 1: Food Label Per Serving</h2>
-        <div class="section">
-            <label>Food Name: <input type="text" id="foodName"></label>
-            <label>Meal Type:
-                <select id="mealType">
-                    <option>Home Meal</option>
-                    <option>Fast Food</option>
-                    <option>Snack</option>
-                    <option>Dessert</option>
-                </select>
-            </label>
-            <label>Serving Size (g or mL): <input type="number" id="servingSize"></label>
-            <label>Serving equals:
-                <select id="servingEquals" onchange="toggleFractionInput()">
-                    <option value="Number">Number</option>
-                    <option value="Fraction">Fraction</option>
-                </select>
-            </label>
-            <div id="fractionInputContainer" style="display:none;">
-                <label>Enter fraction (e.g., 1/3): <input type="text" id="fractionInput"></label>
-                <button onclick="convertFraction()">Convert</button>
-            </div>
-            <label>How many pieces?: <input type="number" id="pieces"></label>
-            <label>Calories: <input type="number" id="calories"></label>
-            <label>Fat (g): <input type="number" id="fat"></label>
-            <label>Sodium (mg): <input type="number" id="sodium"></label>
-            <label>Carbs (g): <input type="number" id="carbs"></label>
-            <label>Fiber (g): <input type="number" id="fiber"></label>
-            <label>Sugar (g): <input type="number" id="sugar"></label>
-            <label>Protein (g): <input type="number" id="protein"></label>
-        </div>
+    <h1>Type 1 Diabetes Calculator</h1>
 
-        <h2>STEP 2: Enter Consumed Information</h2>
-        <div class="section">
-            <label>Amount Having: <input type="number" id="amountHaving"></label>
-            <button onclick="addFoodItem()">Click to Add</button>
-        </div>
+    <!-- USER INFO -->
+    <div class="section">
+      <label>Name:
+        <input type="text" id="name" value="Kai">
+      </label>
 
-        <h3>Food Item Summary</h3>
-        <div id="foodSummary"></div>
-
-        <h3>Results</h3>
-        <div id="results" class="resultsBox"></div>
-
-        <h3>Logged Food Items</h3>
-        <table id="foodLogTable">
-            <thead>
-                <tr>
-                    <th>Actions</th>
-                    <th>Item Name</th>
-                    <th>Serving Size</th>
-                    <th>Calories</th>
-                    <th>Sodium</th>
-                    <th>Fat</th>
-                    <th>Carbs</th>
-                    <th>Fiber</th>
-                    <th>Sugar</th>
-                    <th>Protein</th>
-                    <th>Qty Having</th>
-                </tr>
-            </thead>
-            <tbody id="foodLogBody"></tbody>
-        </table>
+      <label>Current BSL (mg/dL):
+        <input type="number" id="bsl" min="70" max="400">
+      </label>
     </div>
-    <script src="app.js"></script>
+
+    <!-- STEP 1 -->
+    <h2>STEP 1: Food Label Per Serving</h2>
+    <div class="section">
+
+      <label>Food Name:
+        <input type="text" id="foodName" autocomplete="off">
+        <div id="autocompleteList" class="autocomplete-box"></div>
+      </label>
+
+      <label>Meal Type:
+        <select id="mealType">
+          <option>Home Meal</option>
+          <option>Fast Food</option>
+          <option>Restaurant</option>
+          <option>Snack</option>
+          <option>Dessert</option>
+        </select>
+      </label>
+
+      <label>Serving Size (g or mL):
+        <input type="number" id="servingSize">
+      </label>
+
+      <label>Serving equals:
+        <select id="servingEquals">
+          <option value="Number">Number</option>
+          <option value="Fraction">Fraction</option>
+        </select>
+      </label>
+
+      <div id="fractionBox" class="fraction-box hidden">
+        <label>Enter fraction (ex. 1/3 or 2 1/4):
+          <input type="text" id="fractionInput">
+        </label>
+        <button id="convertFractionBtn">Convert</button>
+      </div>
+
+      <label>How many pieces?:
+        <input type="number" id="pieces" step="0.001">
+      </label>
+
+      <label>Calories:
+        <input type="number" id="calories">
+      </label>
+
+      <label>Fat (g):
+        <input type="number" id="fat" step="0.1">
+      </label>
+
+      <label>Sodium (mg):
+        <input type="number" id="sodium">
+      </label>
+
+      <label>Carbs (g):
+        <input type="number" id="carbs" step="0.1">
+      </label>
+
+      <label>Fiber (g):
+        <input type="number" id="fiber" step="0.1">
+      </label>
+
+      <label>Sugar (g):
+        <input type="number" id="sugar" step="0.1">
+      </label>
+
+      <label>Protein (g):
+        <input type="number" id="protein" step="0.1">
+      </label>
+
+    </div>
+
+    <!-- STEP 2 -->
+    <h2>STEP 2: Enter Consumed Information</h2>
+    <div class="section">
+      <label>Amount Having:
+        <input type="number" id="amountHaving" step="0.001">
+      </label>
+      <button id="addFoodBtn">Click to Add</button>
+    </div>
+
+    <!-- SUMMARY -->
+    <h3>Food Item Summary</h3>
+    <div id="foodSummary" class="summary-box"></div>
+
+    <!-- RESULTS -->
+    <h3>Results</h3>
+    <div id="results" class="resultsBox"></div>
+
+    <!-- LOG TABLE -->
+    <h3>Logged Food Items</h3>
+    <table id="foodLogTable">
+      <thead>
+        <tr>
+          <th>Edit</th>
+          <th>Remove</th>
+          <th class="left">Item Name</th>
+          <th>Serving Size</th>
+          <th>Calories</th>
+          <th>Sodium</th>
+          <th>Fat</th>
+          <th>Carbs</th>
+          <th>Fiber</th>
+          <th>Sugar</th>
+          <th>Protein</th>
+          <th>Qty Having</th>
+        </tr>
+      </thead>
+      <tbody id="foodLogBody"></tbody>
+
+      <!-- TOTAL ROW -->
+      <tfoot>
+        <tr class="totals-row">
+          <td colspan="3" class="left"><strong>Totals</strong></td>
+          <td id="totalServingSize">-</td>
+          <td id="totalCalories">0</td>
+          <td id="totalSodium">0</td>
+          <td id="totalFat">0</td>
+          <td id="totalCarbs">0</td>
+          <td id="totalFiber">0</td>
+          <td id="totalSugar">0</td>
+          <td id="totalProtein">0</td>
+          <td>-</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <br>
+
+    <!-- SAVE TO HISTORY -->
+    <button id="saveToHistoryBtn" class="history-btn">Add to History Page</button>
+
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
