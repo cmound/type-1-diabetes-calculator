@@ -1,79 +1,251 @@
+/* GLOBAL RESET */
+* {
+  box-sizing: border-box;
+}
+
+/* SAFE COLORS FOR COLORBLIND VISIBILITY */
+:root {
+  --navy: #0d1b2a;
+  --blue: #1b263b;
+  --light-blue: #cde2ff;
+  --yellow: #fff3b0;
+  --border-bold: #003f88;
+  --white: #ffffff;
+  --gray: #f1f1f1;
+}
+
+/* BASE PAGE */
 body {
-    font-family: Arial, sans-serif;
-    background: #f8f9fa;
-    margin: 0;
-    padding: 0;
-    color: #333;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #eef3f8;
+  color: var(--navy);
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .container {
-    width: 95%;
-    max-width: 1100px;
-    margin: 30px auto;
-    background: #fff;
-    padding: 30px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 95%;
+  max-width: 1100px;
+  margin: 20px auto;
+  background: var(--white);
+  padding: 25px;
+  border: 3px solid var(--border-bold);
+  border-radius: 8px;
 }
 
+/* HEADERS */
 h1 {
-    color: #0d3b66;
-    text-align: center;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 26px;
+  color: var(--blue);
+  font-weight: bold;
 }
 
+h2 {
+  border-left: 6px solid var(--border-bold);
+  padding-left: 10px;
+  margin-top: 30px;
+  color: var(--blue);
+}
+
+h3 {
+  margin-top: 25px;
+  color: var(--blue);
+}
+
+/* FORM SECTION LAYOUT */
 .section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 25px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .section label {
-    flex: 1 1 250px;
+  flex: 1 1 260px;
+  font-weight: bold;
+  color: var(--navy);
 }
 
+/* INPUT STYLING */
 input[type="text"],
 input[type="number"],
 select {
-    width: 100%;
-    padding: 6px;
-    margin-top: 4px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--border-bold);
+  border-radius: 6px;
+  margin-top: 4px;
+  font-size: 16px;
 }
 
+input:focus,
+select:focus {
+  outline: 3px solid var(--light-blue);
+}
+
+/* BUTTONS */
 button {
-    background: #007bff;
-    color: #fff;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 22px;
+  background: var(--blue);
+  color: var(--white);
+  padding: 12px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 button:hover {
-    background: #0056b3;
+  background: var(--navy);
 }
 
+/* STICKY ADD BUTTON ON MOBILE */
+#addFoodBtn {
+  margin-top: 22px;
+}
+
+/* FRACTION BOX */
+.fraction-box {
+  width: 100%;
+  padding: 10px;
+  border: 2px dashed var(--border-bold);
+  border-radius: 6px;
+  background: #f8fbff;
+}
+
+.hidden {
+  display: none;
+}
+
+/* SUMMARY BOX */
+.summary-box {
+  background: #e8f1ff;
+  border-left: 5px solid var(--border-bold);
+  padding: 15px;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+/* RESULTS BOX */
 .resultsBox {
-    background: #fff7d6;
-    border-left: 4px solid #ffc107;
-    padding: 15px;
-    margin-bottom: 20px;
+  background: var(--yellow);
+  border-left: 5px solid #ffcc00;
+  padding: 15px;
+  margin-bottom: 20px;
+  font-size: 16px;
 }
 
+/* TABLE STYLING */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
-th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: center;
+th,
+td {
+  border: 2px solid var(--border-bold);
+  padding: 10px;
+  text-align: center;
+  font-size: 15px;
 }
 
 th {
-    background: #f1f1f1;
+  background: var(--gray);
+  font-weight: bold;
+}
+
+.left {
+  text-align: left;
+  padding-left: 8px;
+}
+
+/* EDIT AND REMOVE BUTTON CELLS */
+.edit-btn,
+.remove-btn {
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.edit-btn {
+  color: #0077cc;
+}
+
+.remove-btn {
+  color: #cc0000;
+}
+
+/* TOTALS ROW */
+.totals-row {
+  background: var(--light-blue);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* AUTOCOMPLETE DROPDOWN */
+.autocomplete-box {
+  position: absolute;
+  background: var(--white);
+  border: 2px solid var(--border-bold);
+  border-radius: 6px;
+  width: 90%;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  margin-top: 2px;
+  z-index: 1000;
+}
+
+.autocomplete-item {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.autocomplete-item:hover {
+  background: var(--light-blue);
+}
+
+/* HISTORY BUTTON */
+.history-btn {
+  margin-top: 25px;
+  background: #16697a;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 8px;
+}
+
+.history-btn:hover {
+  background: #0f4c5c;
+}
+
+/* MOBILE OPTIMIZATION */
+@media (max-width: 600px) {
+  .container {
+    padding: 15px;
+  }
+
+  input,
+  select {
+    font-size: 18px;
+  }
+
+  button {
+    width: 100%;
+    font-size: 18px;
+    padding: 14px;
+  }
+
+  #addFoodBtn {
+    position: sticky;
+    bottom: 10px;
+    width: 100%;
+  }
 }
