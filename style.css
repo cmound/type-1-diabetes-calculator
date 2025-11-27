@@ -213,6 +213,45 @@ th {
   background: var(--light-blue);
 }
 
+/* INLINE HISTORY MATCH POPUP */
+.history-match-box {
+  margin-top: 6px;
+  padding: 10px;
+  border: 2px solid var(--border-bold);
+  background: var(--light-blue);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 95%;
+}
+
+.history-match-box.hidden {
+  display: none;
+}
+
+.match-text {
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+  color: var(--navy);
+  font-weight: bold;
+}
+
+.match-btn {
+  background: var(--blue);
+  color: var(--white);
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.match-btn:hover {
+  background: var(--navy);
+}
+
 /* HISTORY BUTTON */
 .history-btn {
   margin-top: 25px;
