@@ -1,98 +1,294 @@
+/* -----------------------------------------------------------
+   Base Page Layout
+------------------------------------------------------------*/
+
 body {
-    background: #dfe4e8;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background: #ffffff;
+    color: #000000;
 }
 
 .container {
-    width: 85%;
-    max-width: 1200px;
+    max-width: 1100px;
     margin: auto;
-    background: #f7f9fa;
     padding: 20px;
-    border-radius: 6px;
-    border: 2px solid #b8bec4;
-    margin-top: 25px;
+    background: #f5f5f5;
+    border: 3px solid #000000;
+    border-radius: 12px;
 }
 
-h1, h2, h3 {
-    color: #0f3b3d;
+/* Header row */
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
+
+.theme-toggle {
+    padding: 8px 12px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* -----------------------------------------------------------
+   Layout Components
+------------------------------------------------------------*/
 
 .row {
     display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
 }
 
 .column {
     flex: 1;
-    display: flex;
-    flex-direction: column;
+    min-width: 220px;
+    padding: 6px;
 }
 
 label {
     font-weight: bold;
-    margin-bottom: 5px;
 }
 
-input, select, button {
-    padding: 7px;
-    font-size: 15px;
+/* Inputs */
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 2px solid #000000;
+    border-radius: 6px;
+    font-size: 16px;
 }
 
+/* Buttons */
 button {
+    padding: 10px 18px;
+    border: none;
+    font-weight: bold;
     cursor: pointer;
+    border-radius: 6px;
 }
 
-.add-btn, .history-btn {
-    background: #0f6a64;
+.add-btn {
+    background: #0077ff;
     color: white;
-    border: none;
-    border-radius: 4px;
+}
+
+.action-btn {
+    background: #0ea5e9;
+    color: black;
+}
+
+.history-btn {
+    background: #14b8a6;
+    color: black;
 }
 
 .history-nav-btn {
-    background: #2f4858;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 4px;
+    background: #d1d5db;
+    color: black;
+    margin-bottom: 10px;
 }
 
-.summary-box, .result-box {
-    background: #fff9c4;
-    padding: 15px;
-    min-height: 40px;
-    border-left: 5px solid #c9b200;
+/* -----------------------------------------------------------
+   Step Header with Buttons
+------------------------------------------------------------*/
+
+.step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    margin-bottom: 20px;
+.step-actions {
+    display: flex;
+    gap: 10px;
 }
 
-table th, table td {
-    border: 1px solid #9aa3ac;
-    padding: 8px;
-    text-align: center;
+/* MOBILE stacking */
+@media (max-width: 600px) {
+    .step-actions {
+        flex-direction: column;
+        width: 160px;
+    }
+
+    .action-btn {
+        width: 100%;
+    }
 }
 
-.totals-row td {
-    background: #e8edf1;
-    font-weight: bold;
-}
+/* -----------------------------------------------------------
+   Fraction Box
+------------------------------------------------------------*/
 
 .fraction-box {
-    background: #eef7ff;
-    padding: 15px;
-    border: 1px solid #7da4c2;
-    border-radius: 4px;
-    margin-top: 10px;
+    margin-top: 12px;
+    padding: 12px;
+    border: 2px solid #000000;
+    background: #eeeeee;
+    border-radius: 6px;
 }
 
 .hidden {
     display: none;
+}
+
+/* -----------------------------------------------------------
+   Recent Foods Panel
+------------------------------------------------------------*/
+
+.recent-panel {
+    margin-bottom: 12px;
+    padding: 10px;
+    background: #dde7ff;
+    border: 2px solid #000000;
+    border-radius: 6px;
+}
+
+.recent-chip {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #0ea5e9;
+    color: black;
+    font-weight: bold;
+    border-radius: 20px;
+    margin: 3px;
+    cursor: pointer;
+    border: 2px solid #000000;
+}
+
+/* -----------------------------------------------------------
+   Summary Box + Results Box
+------------------------------------------------------------*/
+
+.summary-box, .result-box {
+    padding: 15px;
+    background: #e5f7ff;
+    border-left: 6px solid #0ea5e9;
+    border: 2px solid #000000;
+    border-radius: 6px;
+    margin-bottom: 18px;
+}
+
+/* -----------------------------------------------------------
+   Table Styling
+------------------------------------------------------------*/
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+th, td {
+    border: 2px solid #000000;
+    padding: 6px;
+    text-align: center;
+}
+
+th {
+    background: #cbd5e1;
+}
+
+.totals-row td {
+    background: #f0f0f0;
+    font-weight: bold;
+}
+
+/* -----------------------------------------------------------
+   EXPORT / IMPORT BOX
+------------------------------------------------------------*/
+
+.export-import-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* -----------------------------------------------------------
+   DARK MODE (High Contrast Accessibility Mode)
+------------------------------------------------------------*/
+
+body.dark-mode {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.dark-mode .container {
+    background-color: #111827;
+    border-color: #ffffff;
+}
+
+/* Inputs */
+.dark-mode input,
+.dark-mode select {
+    background-color: #020617;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+
+/* Buttons */
+.dark-mode button {
+    border: 2px solid #ffffff;
+}
+
+.dark-mode .add-btn {
+    background-color: #3b82f6;
+    color: #000000;
+}
+
+.dark-mode .action-btn {
+    background-color: #0ea5e9;
+    color: #000000;
+}
+
+.dark-mode .history-btn {
+    background-color: #22c55e;
+    color: #000000;
+}
+
+.dark-mode .history-nav-btn {
+    background: #334155;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+/* Summary + Results Boxes */
+.dark-mode .summary-box,
+.dark-mode .result-box {
+    background-color: #1f2937;
+    border-left-color: #22c55e;
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+/* Recent Panel */
+.dark-mode .recent-panel {
+    background-color: #1e293b;
+    border-color: #ffffff;
+}
+
+.dark-mode .recent-chip {
+    background-color: #0ea5e9;
+    color: #000000;
+    border-color: #ffffff;
+}
+
+/* Tables */
+.dark-mode table th {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+.dark-mode table td {
+    background-color: #0f172a;
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
+.dark-mode .totals-row td {
+    background-color: #1e293b;
+    color: #ffffff;
 }
