@@ -1,47 +1,52 @@
-const CACHE = "t1d-pwa-v23";
+/* ============================================================
+   BASIC SERVICE WORKER FOR PWA CACHING
+============================================================ */
 
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./style.css",
-  "./app.js",
-  "./manifest.webmanifest",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+const CACHE_NAME = "t1d-cache-v1";
+
+const urlsToCache = [
+    "./",
+    "index.html",
+    "style.css",
+    "app.js",
+    "history.html",
+    "history.js",
+    "manifest.webmanifest",
+    "icon-192.png",
+    "icon-256.png",
+    "icon-512.png",
+    "icon-1024.png",
+    "favicon-16.png",
+    "favicon-32.png",
+    "apple-touch-icon.png"
 ];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
+self.addEventListener("install", event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll(urlsToCache);
+        })
+    );
 });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE)
-          .map((key) => caches.delete(key))
-      )
-    )
-  );
+self.addEventListener("fetch", event => {
+    event.respondWith(
+        caches.match(event.request).then(response => {
+            return response || fetch(event.request);
+        })
+    );
 });
 
-self.addEventListener("fetch", (event) => {
-  const request = event.request;
-
-  // Only handle GET
-  if (request.method !== "GET") return;
-
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
-      return fetch(request).catch(() => cached);
-    })
-  );
+self.addEventListener("activate", event => {
+    event.waitUntil(
+        caches.keys().then(names => {
+            return Promise.all(
+                names.map(cache => {
+                    if (cache !== CACHE_NAME) {
+                        return caches.delete(cache);
+                    }
+                })
+            );
+        })
+    );
 });
