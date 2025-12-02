@@ -1,67 +1,200 @@
-/* -------------------------------------------------------------
-    LOAD HISTORY
-------------------------------------------------------------- */
-let historyData = JSON.parse(localStorage.getItem("t1d_food_history")) || [];
+/* ============================================================
+   T1D CALCULATOR — HISTORY PAGE LOGIC
+   Handles:
+   ✓ Load history from localStorage
+   ✓ Populate table
+   ✓ Delete selected items
+   ✓ Export JSON
+   ✓ Export CSV
+   ✓ Import JSON
+   ✓ Sync dark mode
+============================================================ */
 
-const listDiv = document.getElementById("historyList");
+/* ------------------------------------------------------------
+   LOAD HISTORY FROM LOCAL STORAGE
+------------------------------------------------------------ */
+let historyData = JSON.parse(localStorage.getItem("tid_food_history")) || [];
 
-renderHistory();
+const tableBody = document.getElementById("historyTableBody");
+const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
 
-/* -------------------------------------------------------------
-    RENDER HISTORY
-------------------------------------------------------------- */
-function renderHistory() {
-    listDiv.innerHTML = "";
+const exportJsonBtn = document.getElementById("exportJsonBtn");
+const exportCsvBtn = document.getElementById("exportCsvBtn");
+const importHistoryBtn = document.getElementById("importHistoryBtn");
+const importHistoryInput = document.getElementById("importHistoryInput");
 
-    if (historyData.length === 0) {
-        listDiv.innerHTML = "<p>No saved history yet.</p>";
-        return;
-    }
+/* ============================================================
+   RENDER HISTORY TABLE
+============================================================ */
+function renderHistoryTable() {
+    tableBody.innerHTML = "";
 
-    historyData
-        .sort((a, b) => b.timestamp - a.timestamp)
-        .forEach((item, index) => {
+    historyData.forEach((entry, index) => {
+        const tr = document.createElement("tr");
 
-        let box = document.createElement("div");
-        box.className = "summary-box";
-
-        let date = new Date(item.timestamp).toLocaleString();
-
-        box.innerHTML = `
-            <strong>${item.name}</strong><br>
-            <em>${date}</em><br><br>
-
-            Meal Type: ${item.mealType}<br>
-            Serving Equals: ${item.servingEquals}<br>
-            Serving Size: ${item.servingSize}<br>
-            Qty Per Label: ${item.qtyPieces}<br>
-            Per Measurement: ${item.perMeasurement}<br><br>
-
-            Calories: ${item.calories}<br>
-            Fat: ${item.fat}g<br>
-            Sodium: ${item.sodium}mg<br>
-            Carbs: ${item.carbs}g<br>
-            Fiber: ${item.fiber}g<br>
-            Sugar: ${item.sugar}g<br>
-            Protein: ${item.protein}g<br><br>
-
-            Qty Having: ${item.qtyHaving}
-            <br><br>
-
-            <button class="removeBtn" onclick="deleteItem(${index})">Delete</button>
+        tr.innerHTML = `
+            <td><input type="checkbox" class="deleteCheck" data-index="${index}"></td>
+            <td>${entry.name || ""}</td>
+            <td>${entry.servingSize || ""}</td>
+            <td>${entry.calories || ""}</td>
+            <td>${entry.sodium || ""}</td>
+            <td>${entry.fat || ""}</td>
+            <td>${entry.carbs || ""}</td>
+            <td>${entry.fiber || ""}</td>
+            <td>${entry.sugar || ""}</td>
+            <td>${entry.protein || ""}</td>
         `;
 
-        listDiv.appendChild(box);
+        tableBody.appendChild(tr);
     });
 }
 
-/* -------------------------------------------------------------
-    DELETE ENTRY
-------------------------------------------------------------- */
-function deleteItem(i) {
-    if (!confirm("Delete this entry?")) return;
+renderHistoryTable();
 
-    historyData.splice(i, 1);
-    localStorage.setItem("t1d_food_history", JSON.stringify(historyData));
-    renderHistory();
+/* ============================================================
+   DELETE SELECTED ENTRIES
+============================================================ */
+deleteSelectedBtn.addEventListener("click", () => {
+    const checkboxes = document.querySelectorAll(".deleteCheck");
+
+    // Build new history excluding checked ones
+    const filtered = [];
+    checkboxes.forEach(cb => {
+        const index = Number(cb.dataset.index);
+        if (!cb.checked) filtered.push(historyData[index]);
+    });
+
+    historyData = filtered;
+
+    // Save to localStorage
+    localStorage.setItem("tid_food_history", JSON.stringify(historyData));
+
+    renderHistoryTable();
+    alert("Selected items deleted.");
+});
+
+/* ============================================================
+   EXPORT JSON
+============================================================ */
+exportJsonBtn.addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(historyData, null, 2)], {
+        type: "application/json"
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "T1D_History.json";
+    a.click();
+
+    URL.revokeObjectURL(url);
+});
+
+/* ============================================================
+   EXPORT CSV
+============================================================ */
+exportCsvBtn.addEventListener("click", () => {
+    if (!historyData.length) return alert("History is empty.");
+
+    const headers = [
+        "Name", "Serving Size", "Calories", "Sodium", "Fat",
+        "Carbs", "Fiber", "Sugar", "Protein"
+    ];
+
+    const rows = historyData.map(item => [
+        item.name || "",
+        item.servingSize || "",
+        item.calories || "",
+        item.sodium || "",
+        item.fat || "",
+        item.carbs || "",
+        item.fiber || "",
+        item.sugar || "",
+        item.protein || ""
+    ]);
+
+    let csv = headers.join(",") + "\n";
+    rows.forEach(r => {
+        csv += r.join(",") + "\n";
+    });
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "T1D_History.csv";
+    a.click();
+
+    URL.revokeObjectURL(url);
+});
+
+/* ============================================================
+   IMPORT JSON
+============================================================ */
+importHistoryBtn.addEventListener("click", () => {
+    importHistoryInput.click();
+});
+
+importHistoryInput.addEventListener("change", event => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        try {
+            const imported = JSON.parse(e.target.result);
+
+            if (!Array.isArray(imported)) {
+                alert("Invalid file format.");
+                return;
+            }
+
+            // Merge + remove duplicates
+            const existingNames = new Set(historyData.map(x => x.name.toLowerCase()));
+
+            imported.forEach(item => {
+                if (!existingNames.has(item.name.toLowerCase())) {
+                    historyData.push(item);
+                }
+            });
+
+            // Save
+            localStorage.setItem("tid_food_history", JSON.stringify(historyData));
+
+            renderHistoryTable();
+            alert("History imported successfully.");
+
+        } catch (err) {
+            alert("Error importing file.");
+        }
+    };
+
+    reader.readAsText(file);
+});
+
+/* ============================================================
+   DARK MODE — Sync with index.html
+============================================================ */
+const darkToggle = document.getElementById("darkToggle");
+
+if (darkToggle) {
+    // Apply saved theme
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+        darkToggle.checked = true;
+        document.body.classList.add("dark");
+    }
+
+    darkToggle.addEventListener("change", () => {
+        if (darkToggle.checked) {
+            document.body.classList.add("dark");
+            localStorage.setItem("theme", "dark");
+        } else {
+            document.body.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+        }
+    });
 }
