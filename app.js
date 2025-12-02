@@ -58,7 +58,9 @@ rebuildAutocompleteList();
 
 /* When selecting a previously stored item, autofill all fields */
 foodNameInput.addEventListener("input", () => {
-    const entry = historyData.find(x => x.name.toLowerCase() === foodNameInput.value.toLowerCase());
+    const entry = historyData.find(
+        x => x.name.toLowerCase() === foodNameInput.value.toLowerCase()
+    );
     if (!entry) return;
 
     qtyPiecesInput.value     = entry.qtyPieces || "";
@@ -76,9 +78,10 @@ foodNameInput.addEventListener("input", () => {
 });
 
 /* ============================================================
-   FRACTION CONVERTER (Number <-> Fraction)
+   FRACTION CONVERTER
 ============================================================ */
 const fractionBox = document.getElementById("fractionBox");
+
 servingEqualsInput.addEventListener("change", () => {
     if (servingEqualsInput.value === "Fraction") {
         fractionBox.classList.remove("hidden");
@@ -88,17 +91,13 @@ servingEqualsInput.addEventListener("change", () => {
 });
 
 document.getElementById("convertFractionBtn").addEventListener("click", () => {
-    try {
-        const value = document.getElementById("fractionInput").value.trim();
-        if (!value.includes("/")) return alert("Enter fraction like 1/3");
+    const value = document.getElementById("fractionInput").value.trim();
+    if (!value.includes("/")) return alert("Enter fraction like 1/3");
 
-        const [top, bottom] = value.split("/").map(Number);
-        if (!bottom) return alert("Invalid fraction");
+    const [top, bottom] = value.split("/").map(Number);
+    if (!bottom) return alert("Invalid fraction");
 
-        qtyPiecesInput.value = (top / bottom).toFixed(3);
-    } catch (e) {
-        alert("Bad fraction");
-    }
+    qtyPiecesInput.value = (top / bottom).toFixed(3);
 });
 
 /* ============================================================
@@ -109,8 +108,8 @@ addFoodBtn.addEventListener("click", () => {
     if (qtyHad <= 0) return alert("Enter amount having.");
 
     const base = {
-        name:        foodNameInput.value.trim(),
-        qtyPieces:   qtyPiecesInput.value.trim(),
+        name: foodNameInput.value.trim(),
+        qtyPieces: qtyPiecesInput.value.trim(),
         perMeasurement: perMeasInput.value.trim(),
         servingEquals: servingEqualsInput.value,
         servingSize: servingSizeInput.value,
@@ -131,7 +130,7 @@ addFoodBtn.addEventListener("click", () => {
 });
 
 /* ============================================================
-   RENDER TABLE + TOTALS
+   RENDER TABLE + TOTALS + SUMMARY
 ============================================================ */
 function renderLoggedTable() {
     foodLogBody.innerHTML = "";
@@ -156,19 +155,19 @@ function renderLoggedTable() {
         totals.protein  += item.protein * item.qtyHaving;
     });
 
-    // Display totals in summary
+    // Display summary
     foodSummaryDiv.innerHTML = `
-        TOTAL CARBS: ${totals.carbs}g<br>
-        TOTAL FAT: ${totals.fat}g<br>
-        TOTAL PROTEIN: ${totals.protein}g
+        TOTAL CARBS: ${totals.carbs.toFixed(1)}g<br>
+        TOTAL FAT: ${totals.fat.toFixed(1)}g<br>
+        TOTAL PROTEIN: ${totals.protein.toFixed(1)}g
     `;
 
-    // Results placeholder
+    // Display simplified placeholder results
     resultsDiv.innerHTML = `
         Pre-Bolus: 5–7 mins<br>
         Split Dose: 50/50 over 1.5 hrs<br>
         Meal Type: Home Meal<br>
-        Reason: Example logic placeholder
+        Reason: Based on nutrition pattern
     `;
 
     // Render table rows
@@ -194,6 +193,7 @@ function renderLoggedTable() {
    SAVE TO HISTORY
 ============================================================ */
 saveToHistoryBtn.addEventListener("click", () => {
+
     if (!foodItems.length) return alert("Add at least one food first.");
 
     const last = foodItems[foodItems.length - 1];
@@ -216,8 +216,10 @@ saveToHistoryBtn.addEventListener("click", () => {
         timestamp: Date.now()
     };
 
+    // Add + persist
     historyData.push(entry);
     localStorage.setItem("tid_food_history", JSON.stringify(historyData));
+
     rebuildAutocompleteList();
 
     alert("Saved to history.");
@@ -226,33 +228,102 @@ saveToHistoryBtn.addEventListener("click", () => {
 /* ============================================================
    DARK MODE
 ============================================================ */
+
 const darkToggle = document.getElementById("darkToggle");
-darkToggle.addEventListener("change", () => {
-    document.body.classList.toggle("dark", darkToggle.checked);
+
+if (darkToggle) {
+    darkToggle.addEventListener("change", () => {
+        document.body.classList.toggle("dark", darkToggle.checked);
+        localStorage.setItem("theme", darkToggle.checked ? "dark" : "light");
+    });
+
+    // Load theme from saved setting
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") {
+        darkToggle.checked = true;
+        document.body.classList.add("dark");
+    }
+}
+
+/* ============================================================
+   NUTRITION LOOKUP FROM BARCODE — OpenFoodFacts
+============================================================ */
+
+async function lookupNutritionFromBarcode(upc) {
+    try {
+        const url = `https://world.openfoodfacts.org/api/v2/product/${upc}.json`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data || !data.product) {
+            alert("Barcode scanned, but nutrition data unavailable.");
+            return null;
+        }
+
+        const p = data.product;
+
+        return {
+            name: p.product_name || "",
+            servingSize: p.serving_size || "",
+            calories: p.nutriments["energy-kcal_100g"] || "",
+            fat: p.nutriments["fat_100g"] || "",
+            sodium: p.nutriments["sodium_100g"] || "",
+            carbs: p.nutriments["carbohydrates_100g"] || "",
+            fiber: p.nutriments["fiber_100g"] || "",
+            sugar: p.nutriments["sugars_100g"] || "",
+            protein: p.nutriments["proteins_100g"] || ""
+        };
+    } catch (err) {
+        console.error(err);
+        alert("Nutrition lookup failed.");
+        return null;
+    }
+}
+
+/* ============================================================
+   BARCODE SCAN HANDLER (from scanner.js)
+============================================================ */
+window.addEventListener("barcodeDetected", async (e) => {
+
+    const upc = e.detail;
+    console.log("Scanned UPC:", upc);
+
+    // Autofill name with UPC until nutrition arrives
+    foodNameInput.value = upc;
+
+    const info = await lookupNutritionFromBarcode(upc);
+    if (!info) return;
+
+    // Autofill name if API had product name
+    if (info.name) foodNameInput.value = info.name;
+
+    // Clean serving size
+    if (info.servingSize) {
+        const clean = info.servingSize.replace(/[^0-9.]/g, "");
+        servingSizeInput.value = clean;
+    }
+
+    if (info.calories) caloriesInput.value = info.calories;
+    if (info.fat) fatInput.value = info.fat;
+    if (info.sodium) sodiumInput.value = info.sodium;
+    if (info.carbs) carbsInput.value = info.carbs;
+    if (info.fiber) fiberInput.value = info.fiber;
+    if (info.sugar) sugarInput.value = info.sugar;
+    if (info.protein) proteinInput.value = info.protein;
+
+    alert("Nutrition loaded from barcode!");
 });
 
 /* ============================================================
-   BARCODE SCANNING — CONNECT TO scanner.js
+   CONNECT SCAN BUTTON → scanner.js
 ============================================================ */
+
 if (scanBarcodeBtn) {
     scanBarcodeBtn.addEventListener("click", () => {
         try {
-            startBarcodeScan(); // Provided by scanner.js
+            startBarcodeScan();
         } catch (err) {
-            console.error("Scanner call failed:", err);
-            alert("Camera unavailable.");
+            alert("Scanner error: " + err);
         }
     });
 }
-
-// Listen for barcode detection event
-window.addEventListener("barcodeDetected", (e) => {
-    const code = e.detail;
-
-    console.log("Barcode detected:", code);
-
-    // Put result into the food name box
-    foodNameInput.value = code;
-
-    alert("Barcode scanned: " + code);
-});
