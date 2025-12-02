@@ -1,42 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>History</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+let historyData = JSON.parse(localStorage.getItem("tid_food_history")) || [];
 
-    <link rel="stylesheet" href="style.css">
-</head>
+const tbody = document.querySelector("#historyTable tbody");
+tbody.innerHTML = "";
 
-<body>
-    <div class="container">
-        <h1>History Page</h1>
+historyData.forEach(item => {
+    const tr = document.createElement("tr");
 
-        <button onclick="window.location.href='index.html'" class="history-nav-btn">
-            Back to Calculator
-        </button>
+    tr.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.servingSize}</td>
+        <td>${item.qtyPieces}</td>
+        <td>${item.perMeasurement}</td>
+        <td>${item.calories}</td>
+        <td>${item.sodium}</td>
+        <td>${item.fat}</td>
+        <td>${item.carbs}</td>
+        <td>${item.fiber}</td>
+        <td>${item.sugar}</td>
+        <td>${item.protein}</td>
+        <td>${item.reason || ""}</td>
+    `;
 
-        <table id="historyTable">
-            <thead>
-                <tr>
-                    <th>Item Name</th>
-                    <th>Serving Size</th>
-                    <th>Qty Pieces</th>
-                    <th>Measurement</th>
-                    <th>Calories</th>
-                    <th>Sodium</th>
-                    <th>Fat</th>
-                    <th>Carbs</th>
-                    <th>Fiber</th>
-                    <th>Sugar</th>
-                    <th>Protein</th>
-                    <th>Reason</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-<script src="history.js"></script>
-</body>
-</html>
+    tbody.appendChild(tr);
+});
