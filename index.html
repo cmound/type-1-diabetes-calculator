@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <title>Type 1 Diabetes Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- PWA / Icons -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <!-- Icons -->
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="manifest" href="manifest.webmanifest">
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -21,21 +21,21 @@
 <div class="container">
 
     <!-- Header Row -->
-    <div class="top-header">
+    <div class="header-row">
         <h1>Type 1 Diabetes Calculator</h1>
 
-        <div class="header-actions">
+        <div class="header-buttons">
             <button id="viewHistoryButton" class="history-nav-btn">View History</button>
 
-            <!-- Dark Mode Toggle -->
+            <!-- Dark Mode -->
             <label class="switch">
-                <input type="checkbox" id="darkToggle">
+                <input type="checkbox" id="darkModeToggle">
                 <span class="slider"></span>
             </label>
         </div>
     </div>
 
-    <!-- USER INFO -->
+    <!-- User Info -->
     <div class="row">
         <div class="column">
             <label>Name:</label>
@@ -44,18 +44,13 @@
 
         <div class="column">
             <label>Current BSL (mg/dL):</label>
-            <input type="number" id="bsl" min="70" max="400">
+            <input type="number" id="bsl">
         </div>
     </div>
 
     <h2>Step 1: Food Label Per Serving</h2>
 
-    <!-- Barcode Scanner Button -->
-    <div class="scanner-actions">
-        <button id="scanBarcodeBtn" class="scan-btn">Scan Barcode</button>
-    </div>
-
-    <!-- FOOD INPUT ROW -->
+    <!-- Step 1 Row A -->
     <div class="row">
         <div class="column">
             <label>Food Name:</label>
@@ -65,11 +60,12 @@
 
         <div class="column">
             <label>Meal Type:</label>
-            <select id="mealTypeInput">
+            <select id="mealType">
                 <option>Home Meal</option>
-                <option>Restaurant Meal</option>
+                <option>Restaurant</option>
                 <option>Fast Food</option>
                 <option>Snack</option>
+                <option>Dessert</option>
             </select>
         </div>
 
@@ -79,6 +75,12 @@
         </div>
     </div>
 
+    <!-- Buttons aligned right -->
+    <div class="row-right">
+        <button id="scanBarcodeBtn" class="scan-btn">Scan Barcode</button>
+    </div>
+
+    <!-- Step 1 Row B -->
     <div class="row">
         <div class="column">
             <label>Serving equals:</label>
@@ -91,12 +93,12 @@
 
         <div class="column">
             <label>Per Quantity (per nutrition label):</label>
-            <input type="text" id="qtyPieces" placeholder="1, 2, 0.5">
+            <input type="text" id="qtyPieces" placeholder="Ex: 1, 2, 0.5">
         </div>
 
         <div class="column">
             <label>Per Measurement:</label>
-            <input type="text" id="PerMeasurement" list="measurementList" placeholder="Cup, Tbsp, etc.">
+            <input list="measurementList" id="PerMeasurement" placeholder="Cup, Tbsp, etc.">
             <datalist id="measurementList">
                 <option value="Cup">
                 <option value="Cups">
@@ -113,15 +115,18 @@
         </div>
     </div>
 
-    <!-- FRACTION BOX -->
-    <div id="fractionBox" class="fraction-box hidden">
-        <label>Convert Fraction:</label>
-        <input type="text" id="fractionInput" placeholder="e.g., 1/3">
+    <!-- Fraction converter -->
+    <div id="fractionConverterBox" class="fraction-box hidden">
+        <h4>Fraction to Decimal Converter</h4>
+        <input type="text" id="fractionInput" placeholder="Ex: 1/4 or 3/8">
         <button id="convertFractionBtn">Convert</button>
+        <p id="convertedFractionResult"></p>
     </div>
 
+    <!-- Nutrition Per Serving -->
     <h3>Nutrition Per Serving</h3>
 
+    <!-- Row 1 -->
     <div class="row">
         <div class="column">
             <label>Calories:</label>
@@ -137,7 +142,10 @@
             <label>Sodium (mg):</label>
             <input type="number" id="sodiumInput">
         </div>
+    </div>
 
+    <!-- Row 2 -->
+    <div class="row">
         <div class="column">
             <label>Carbs (g):</label>
             <input type="number" id="carbsInput">
@@ -164,12 +172,10 @@
     <div class="row">
         <div class="column">
             <label>Amount Having:</label>
-            <input type="number" id="amountHaving">
+            <input type="number" id="amountHavingInput">
         </div>
 
-        <div class="column add-btn-column">
-            <button id="addFoodBtn" class="add-btn">Click to Add</button>
-        </div>
+        <button id="addFoodBtn" class="add-btn">Click to Add</button>
     </div>
 
     <h3>Food Item Summary</h3>
@@ -180,7 +186,7 @@
 
     <h3>Logged Food Items</h3>
 
-    <table>
+    <table id="foodLogTable">
         <thead>
             <tr>
                 <th>Item</th>
@@ -195,22 +201,38 @@
                 <th>Qty Having</th>
             </tr>
         </thead>
-
         <tbody id="foodLogBody"></tbody>
+
+        <tfoot>
+            <tr class="totals-row">
+                <td>Totals</td>
+                <td>-</td>
+                <td id="totalCalories">0</td>
+                <td id="totalSodium">0</td>
+                <td id="totalFat">0</td>
+                <td id="totalCarbs">0</td>
+                <td id="totalFiber">0</td>
+                <td id="totalSugar">0</td>
+                <td id="totalProtein">0</td>
+                <td>-</td>
+            </tr>
+        </tfoot>
     </table>
 
     <button id="saveToHistoryBtn" class="history-btn">Add to History Page</button>
 
-</div>
+</div><!-- END CONTAINER -->
 
-<!-- SCRIPTS -->
+<!-- Scripts -->
 <script src="scanner.js"></script>
+<script src="ocr.js"></script>
 <script src="app.js"></script>
 
+<!-- History Navigation -->
 <script>
-    document.getElementById("viewHistoryButton").addEventListener("click", () => {
-        window.location.href = "history.html";
-    });
+document.getElementById("viewHistoryButton").addEventListener("click", () => {
+    window.location.href = "history.html";
+});
 </script>
 
 </body>
