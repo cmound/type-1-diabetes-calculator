@@ -1,63 +1,42 @@
-/* -------------------------------------------------------------
-   HISTORY PAGE SCRIPT
-   Loads saved nutrition items and displays them in a table
--------------------------------------------------------------- */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-// Load saved history from localStorage
-let historyData = JSON.parse(localStorage.getItem("t1d_food_history")) || [];
+    <link rel="stylesheet" href="style.css">
+</head>
 
-const historyBody = document.getElementById("historyBody");
-const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+<body>
+    <div class="container">
+        <h1>History Page</h1>
 
-/* -------------------------------------------------------------
-   RENDER HISTORY TABLE
--------------------------------------------------------------- */
-function renderHistory() {
-  historyBody.innerHTML = "";
+        <button onclick="window.location.href='index.html'" class="history-nav-btn">
+            Back to Calculator
+        </button>
 
-  if (historyData.length === 0) {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td colspan="9" style="text-align:center; padding:15px;">
-        No items saved yet.
-      </td>`;
-    historyBody.appendChild(row);
-    return;
-  }
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Serving Size</th>
+                    <th>Qty Pieces</th>
+                    <th>Measurement</th>
+                    <th>Calories</th>
+                    <th>Sodium</th>
+                    <th>Fat</th>
+                    <th>Carbs</th>
+                    <th>Fiber</th>
+                    <th>Sugar</th>
+                    <th>Protein</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-  historyData.forEach((item) => {
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-      <td class="left">${item.name}</td>
-      <td>${item.servingSize}</td>
-      <td>${item.calories}</td>
-      <td>${item.sodium}</td>
-      <td>${item.fat}</td>
-      <td>${item.carbs}</td>
-      <td>${item.fiber}</td>
-      <td>${item.sugar}</td>
-      <td>${item.protein}</td>
-    `;
-
-    historyBody.appendChild(row);
-  });
-}
-
-/* -------------------------------------------------------------
-   CLEAR HISTORY
--------------------------------------------------------------- */
-clearHistoryBtn.addEventListener("click", () => {
-  if (!confirm("Are you sure you want to delete all saved items?")) {
-    return;
-  }
-
-  historyData = [];
-  localStorage.setItem("t1d_food_history", JSON.stringify(historyData));
-
-  renderHistory();
-});
-
-/* -------------------------------------------------------------
-   INITIAL LOAD
--------------------------------------------------------------- */
-renderHistory();
+<script src="history.js"></script>
+</body>
+</html>
