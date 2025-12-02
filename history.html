@@ -1,52 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Food History</title>
+    <meta charset="UTF-8">
+    <title>History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div class="container">
+    <div class="container">
+        <h1>History Page</h1>
 
-    <h1>Food History</h1>
+        <button onclick="window.location.href='index.html'" class="history-nav-btn">
+            Back to Calculator
+        </button>
 
-    <p>This page shows all saved nutrition labels based on the original per-serving values.</p>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Serving Size</th>
+                    <th>Qty Pieces</th>
+                    <th>Measurement</th>
+                    <th>Calories</th>
+                    <th>Sodium</th>
+                    <th>Fat</th>
+                    <th>Carbs</th>
+                    <th>Fiber</th>
+                    <th>Sugar</th>
+                    <th>Protein</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-    <table id="historyTable">
-      <thead>
-        <tr>
-          <th class="left">Item Name</th>
-          <th>Serving Size</th>
-          <th>Calories</th>
-          <th>Sodium</th>
-          <th>Fat</th>
-          <th>Carbs</th>
-          <th>Fiber</th>
-          <th>Sugar</th>
-          <th>Protein</th>
-        </tr>
-      </thead>
-      <tbody id="historyBody"></tbody>
-    </table>
-
-    <br>
-
-    <button id="clearHistoryBtn" class="history-btn">Clear Entire History</button>
-
-    <br><br>
-    <button onclick="window.location.href='index.html'" class="history-btn">
-      Back to Calculator
-    </button>
-
-  </div>
-
-  <script src="history.js"></script>
+<script src="history.js"></script>
 </body>
 </html>
-
