@@ -1,49 +1,33 @@
-/* ============================================================
-   LOAD HISTORY FROM LOCALSTORAGE
-============================================================ */
-
 let historyData = JSON.parse(localStorage.getItem("tid_food_history")) || [];
-const tableBody = document.getElementById("historyTableBody");
 
-/* ============================================================
-   BUILD TABLE
-============================================================ */
+const historyBody = document.getElementById("historyBody");
 
-function loadHistory() {
-    tableBody.innerHTML = "";
+function renderHistory() {
+    historyBody.innerHTML = "";
 
-    if (historyData.length === 0) {
+    historyData.forEach(entry => {
         const row = document.createElement("tr");
-        row.innerHTML = `<td colspan="13" style="text-align:center;">No saved items yet.</td>`;
-        tableBody.appendChild(row);
-        return;
-    }
 
-    historyData
-        .sort((a, b) => b.timestamp - a.timestamp)
-        .forEach(entry => {
-            const dateStr = new Date(entry.timestamp).toLocaleString();
+        const date = new Date(entry.timestamp).toLocaleString();
 
-            const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${date}</td>
+            <td>${entry.name}</td>
+            <td>${entry.mealType}</td>
+            <td>${entry.servingSize}</td>
+            <td>${entry.calories}</td>
+            <td>${entry.sodium}</td>
+            <td>${entry.fat}</td>
+            <td>${entry.carbs}</td>
+            <td>${entry.fiber}</td>
+            <td>${entry.sugar}</td>
+            <td>${entry.protein}</td>
+            <td>${entry.qtyPieces || ""}</td>
+            <td>${entry.perMeasurement || ""}</td>
+        `;
 
-            row.innerHTML = `
-                <td>${dateStr}</td>
-                <td>${entry.name}</td>
-                <td>${entry.qtyPieces || "-"}</td>
-                <td>${entry.perMeasurement || "-"}</td>
-                <td>${entry.servingSize}</td>
-                <td>${entry.calories}</td>
-                <td>${entry.sodium}</td>
-                <td>${entry.fat}</td>
-                <td>${entry.carbs}</td>
-                <td>${entry.fiber}</td>
-                <td>${entry.sugar}</td>
-                <td>${entry.protein}</td>
-                <td>${entry.qtyHaving}</td>
-            `;
-
-            tableBody.appendChild(row);
-        });
+        historyBody.appendChild(row);
+    });
 }
 
-loadHistory();
+renderHistory();
