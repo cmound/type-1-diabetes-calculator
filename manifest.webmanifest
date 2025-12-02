@@ -1,14 +1,6 @@
 {
     "name": "Type 1 Diabetes Calculator",
     "short_name": "T1D Calc",
-    "start_url": "index.html",
-    "scope": "./",
-    "display": "standalone",
-    "background_color": "#d9e2e8",
-    "theme_color": "#156f63",
-    "orientation": "portrait-primary",
-    "prefer_related_applications": false,
-
     "icons": [
         {
             "src": "icon-192.png",
@@ -30,12 +22,12 @@
             "sizes": "1024x1024",
             "type": "image/png",
             "purpose": "any"
-        },
-        {
-            "src": "apple-touch-icon.png",
-            "sizes": "180x180",
-            "type": "image/png",
-            "purpose": "apple-touch-icon"
         }
-    ]
+    ],
+
+    "start_url": "/type-1-diabetes-calculator/index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "prefer_related_applications": false
 }
