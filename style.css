@@ -1,71 +1,151 @@
+/* ====== GLOBAL LAYOUT ====== */
+
 body {
-    background-color: #d1d5db;
     margin: 0;
-    padding: 20px;
-    font-family: system-ui, sans-serif;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #d9e2e8; /* Color-blind safe cool gray-blue */
 }
 
 .container {
-    background: #f3f4f6;
-    border: 1px solid #9ca3af;
-    padding: 20px;
+    width: 75%;
+    margin: 25px auto;
+    background-color: #f5f7fa; /* Slight contrast inside box */
+    padding: 25px;
     border-radius: 8px;
-    max-width: 900px;
-    margin: auto;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    border: 2px solid #b7c4cf;
+    box-shadow: 0px 0px 8px rgba(0,0,0,0.15);
 }
 
 h1, h2, h3 {
-    color: #111827;
+    margin-bottom: 10px;
+    color: #1e2d38;
 }
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* ====== ROW & COLUMN SYSTEM ====== */
 
 .row {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
     margin-bottom: 15px;
 }
 
 .column {
     flex: 1;
-    display: flex;
-    flex-direction: column;
+    min-width: 220px;
+    padding-right: 15px;
 }
 
-.column input,
-.column select {
+.column-full {
+    width: 100%;
+}
+
+/* ====== INPUT FIELDS ====== */
+
+input, select {
+    width: 95%;
     padding: 6px;
+    border: 1px solid #98a5b3;
+    border-radius: 4px;
+    background-color: #ffffff;
 }
 
-.add-btn, .history-btn, .history-nav-btn {
-    background-color: #0f766e;
+input:focus, select:focus {
+    outline: none;
+    border-color: #1a6f64;
+    box-shadow: 0px 0px 3px rgba(26,111,100,0.6);
+}
+
+/* ====== BUTTONS ====== */
+
+.add-btn, .history-btn, .history-nav-btn, #convertFractionBtn {
+    background-color: #156f63;
     color: white;
     border: none;
-    padding: 8px 14px;
+    padding: 10px 20px;
+    margin-top: 8px;
     border-radius: 6px;
     cursor: pointer;
 }
-.add-btn:hover,
-.history-btn:hover,
-.history-nav-btn:hover {
-    background-color: #115e59;
+
+.add-btn:hover, .history-btn:hover, .history-nav-btn:hover, #convertFractionBtn:hover {
+    background-color: #0f534a;
 }
+
+.history-nav-btn {
+    margin-bottom: 15px;
+}
+
+.history-btn {
+    margin-top: 20px;
+}
+
+/* Align the Click to Add button */
+.add-btn {
+    height: 40px;
+    align-self: end;
+}
+
+/* ====== TABLE STYLING ====== */
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
+    background-color: white;
 }
 
-th, td {
+table th, table td {
+    border: 1px solid #aeb7c2;
     padding: 8px;
-    border: 1px solid #9ca3af;
-    text-align: left;
+    text-align: center;
 }
 
-#resultsBox, #totalsBox {
-    background: #e5e7eb;
-    border: 1px solid #9ca3af;
-    padding: 10px;
-    border-radius: 6px;
+thead {
+    background-color: #d0d8e0;
+    font-weight: bold;
+}
+
+tfoot {
+    background-color: #eef2f5;
+}
+
+.totals-row td {
+    font-weight: bold;
+}
+
+/* ====== RESULTS BOX ====== */
+
+.results-box {
+    width: 100%;
+    padding: 12px;
+    background-color: #fff9cc;
+    border: 1px solid #e5d777;
+    border-radius: 4px;
+    min-height: 40px;
+    margin-bottom: 25px;
+}
+
+/* ====== FRACTION CONVERTER ====== */
+
+#fractionRow {
+    display: none;
     margin-bottom: 15px;
+}
+
+.hidden-row {
+    display: none;
+}
+
+/* ====== SMALL FIXES ====== */
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
