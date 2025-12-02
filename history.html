@@ -1,32 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Food History</title>
+    <meta charset="UTF-8">
+    <title>T1D Calculator History</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="style.css" />
-
-    <!-- Icons -->
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="container">
 
-    <h1>Food History</h1>
+    <!-- Top Header -->
+    <div class="top-header">
+        <h1>Saved Food History</h1>
 
-    <button onclick="window.location.href='index.html'" class="history-nav-btn">Back to Calculator</button>
+        <div class="header-actions">
 
-    <div id="historyList"></div>
+            <!-- Back button -->
+            <button id="goBackBtn" class="history-nav-btn">← Back</button>
+
+            <!-- Dark Mode Toggle -->
+            <label class="switch">
+                <input type="checkbox" id="darkToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+
+    <!-- Export / Import History Buttons -->
+    <div class="export-import-box" style="margin-bottom: 20px;">
+        <button id="exportJsonBtn" class="scan-btn">Export JSON</button>
+        <button id="exportCsvBtn" class="scan-btn">Export CSV</button>
+
+        <input type="file" id="importHistoryInput" accept=".json" class="hidden">
+        <button id="importHistoryBtn" class="scan-btn">Import JSON</button>
+    </div>
+
+
+    <!-- Delete Selected Entries -->
+    <button id="deleteSelectedBtn" class="history-btn" style="margin-bottom: 15px;">
+        Delete Selected
+    </button>
+
+
+    <!-- History Table -->
+    <table id="historyTable">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Food Name</th>
+                <th>Serving Size</th>
+                <th>Calories</th>
+                <th>Sodium</th>
+                <th>Fat</th>
+                <th>Carbs</th>
+                <th>Fiber</th>
+                <th>Sugar</th>
+                <th>Protein</th>
+            </tr>
+        </thead>
+
+        <tbody id="historyTableBody">
+            <!-- Populated by history.js -->
+        </tbody>
+
+    </table>
 
 </div>
 
+<!-- Scripts -->
 <script src="history.js"></script>
+
+<script>
+document.getElementById("goBackBtn").addEventListener("click", () => {
+    window.location.href = "index.html";
+});
+</script>
 
 </body>
 </html>
