@@ -418,15 +418,20 @@ saveToHistoryBtn.addEventListener("click", () => {
 
   const original = {
     name: last.name,
+    mealType: last.mealType,
+    servingEquals: last.servingEquals,
     servingSize: last.servingSize,
     calories: last.calories,
-    sodium: last.sodium,
     fat: last.fat,
+    sodium: last.sodium,
     carbs: last.carbs,
     fiber: last.fiber,
     sugar: last.sugar,
-    protein: last.protein
-  };
+    protein: last.protein,
+    qtyHaving: last.qtyHaving,
+    pieces: last.pieces,      // NEW FIELD
+    timestamp: Date.now()
+};
 
   historyData.push(original);
   localStorage.setItem("t1d_food_history", JSON.stringify(historyData));
