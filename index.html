@@ -24,6 +24,8 @@
 
     <h1>Type 1 Diabetes Calculator</h1>
 
+    <button type="button" id="viewHistoryButton">View History</button>
+      
     <!-- USER INFO -->
     <div class="section">
       <label>Name:
@@ -175,8 +177,13 @@
     <!-- SAVE TO HISTORY -->
     <button id="saveToHistoryBtn" class="history-btn">Add to History Page</button>
 
-  </div>
+<script>
+  document.getElementById('viewHistoryButton')
+    .addEventListener('click', function () {
+      window.location.href = 'history.html';
+    });
+</script>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
