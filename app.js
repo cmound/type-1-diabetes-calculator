@@ -1,67 +1,84 @@
-/* -------------------------------------------------------------
-    GLOBAL STATE
-------------------------------------------------------------- */
+/* ============================================================
+   GLOBAL STATE + LOAD HISTORY
+============================================================ */
 let foodItems = [];
 let editingIndex = -1;
 
-// Load history from localStorage
-let historyData = JSON.parse(localStorage.getItem("t1d_food_history")) || [];
+// Load entire history list (array of objects)
+let historyData = JSON.parse(localStorage.getItem("tid_food_history")) || [];
 
-/* -------------------------------------------------------------
-    ELEMENT REFERENCES
-------------------------------------------------------------- */
-const nameInput = document.getElementById("name");
-const bslInput = document.getElementById("bsl");
-const foodNameInput = document.getElementById("foodNameInput");
-const mealTypeInput = document.getElementById("mealTypeInput");
-const servingSizeInput = document.getElementById("servingSizeInput");
-const servingEqualsInput = document.getElementById("servingEqualsInput");
+/* ============================================================
+   ELEMENT REFERENCES
+============================================================ */
+const nameInput           = document.getElementById("name");
+const bslInput            = document.getElementById("bsl");
+const foodNameInput       = document.getElementById("foodNameInput");
+const autoList            = document.getElementById("foodNameSuggestions");
 
-const QtyPiecesInput = document.getElementById("QtyPieces");
-const PerMeasurementInput = document.getElementById("PerMeasurement");
+const servingEqualsInput  = document.getElementById("servingEqualsInput");
+const qtyPiecesInput      = document.getElementById("qtyPieces");
+const perMeasInput        = document.getElementById("PerMeasurement");
 
-const caloriesInput = document.getElementById("caloriesInput");
-const fatInput = document.getElementById("fatInput");
-const sodiumInput = document.getElementById("sodiumInput");
-const carbsInput = document.getElementById("carbsInput");
-const fiberInput = document.getElementById("fiberInput");
-const sugarInput = document.getElementById("sugarInput");
-const proteinInput = document.getElementById("proteinInput");
+const servingSizeInput    = document.getElementById("servingSizeInput");
 
-const amountHavingInput = document.getElementById("amountHaving");
-const addFoodBtn = document.getElementById("addFoodBtn");
+const caloriesInput       = document.getElementById("caloriesInput");
+const fatInput            = document.getElementById("fatInput");
+const sodiumInput         = document.getElementById("sodiumInput");
+const carbsInput          = document.getElementById("carbsInput");
+const fiberInput          = document.getElementById("fiberInput");
+const sugarInput          = document.getElementById("sugarInput");
+const proteinInput        = document.getElementById("proteinInput");
 
-const foodSummaryDiv = document.getElementById("foodSummary");
-const resultsDiv = document.getElementById("results");
-const foodLogBody = document.getElementById("foodLogBody");
+const amountHavingInput   = document.getElementById("amountHaving");
 
-const fractionBox = document.getElementById("fractionBox");
-const fractionInput = document.getElementById("fractionInput");
-const convertFractionBtn = document.getElementById("convertFractionBtn");
+const addFoodBtn          = document.getElementById("addFoodBtn");
+const saveToHistoryBtn    = document.getElementById("saveToHistoryBtn");
 
-const saveToHistoryBtn = document.getElementById("saveToHistoryBtn");
+const foodSummaryDiv      = document.getElementById("foodSummary");
+const resultsDiv          = document.getElementById("results");
+const foodLogBody         = document.getElementById("foodLogBody");
 
-/* -------------------------------------------------------------
-    AUTOCOMPLETE FROM HISTORY
-------------------------------------------------------------- */
-function loadAutocomplete() {
-    const datalist = document.getElementById("foodNameSuggestions");
-    datalist.innerHTML = "";
+const scanBarcodeBtn      = document.getElementById("scanBarcodeBtn");
 
-    let names = [...new Set(historyData.map(item => item.name))];
+/* ============================================================
+   AUTOCOMPLETE SUPPORT (LOAD FROM HISTORY)
+============================================================ */
+function rebuildAutocompleteList() {
+    autoList.innerHTML = "";
 
-    names.forEach(n => {
+    historyData.forEach(item => {
         const opt = document.createElement("option");
-        opt.value = n;
-        datalist.appendChild(opt);
+        opt.value = item.name;
+        autoList.appendChild(opt);
     });
 }
 
-loadAutocomplete();
+// Build autocomplete on page load
+rebuildAutocompleteList();
 
-/* -------------------------------------------------------------
-    FRACTION CONVERT LOGIC
-------------------------------------------------------------- */
+/* When selecting a previously stored item, autofill all fields */
+foodNameInput.addEventListener("input", () => {
+    const entry = historyData.find(x => x.name.toLowerCase() === foodNameInput.value.toLowerCase());
+    if (!entry) return;
+
+    qtyPiecesInput.value     = entry.qtyPieces || "";
+    perMeasInput.value       = entry.perMeasurement || "";
+    servingEqualsInput.value = entry.servingEquals || "Number";
+
+    servingSizeInput.value   = entry.servingSize || "";
+    caloriesInput.value      = entry.calories || "";
+    fatInput.value           = entry.fat || "";
+    sodiumInput.value        = entry.sodium || "";
+    carbsInput.value         = entry.carbs || "";
+    fiberInput.value         = entry.fiber || "";
+    sugarInput.value         = entry.sugar || "";
+    proteinInput.value       = entry.protein || "";
+});
+
+/* ============================================================
+   FRACTION CONVERTER (Number <-> Fraction)
+============================================================ */
+const fractionBox = document.getElementById("fractionBox");
 servingEqualsInput.addEventListener("change", () => {
     if (servingEqualsInput.value === "Fraction") {
         fractionBox.classList.remove("hidden");
@@ -70,135 +87,94 @@ servingEqualsInput.addEventListener("change", () => {
     }
 });
 
-convertFractionBtn.addEventListener("click", () => {
+document.getElementById("convertFractionBtn").addEventListener("click", () => {
     try {
-        let input = fractionInput.value.trim(); // e.g. 1/4
-        if (!input.includes("/")) return;
+        const value = document.getElementById("fractionInput").value.trim();
+        if (!value.includes("/")) return alert("Enter fraction like 1/3");
 
-        let [num, den] = input.split("/");
-        let dec = parseFloat(num) / parseFloat(den);
+        const [top, bottom] = value.split("/").map(Number);
+        if (!bottom) return alert("Invalid fraction");
 
-        QtyPiecesInput.value = dec;
-        fractionInput.value = "";
+        qtyPiecesInput.value = (top / bottom).toFixed(3);
     } catch (e) {
-        alert("Invalid fraction.");
+        alert("Bad fraction");
     }
 });
 
-/* -------------------------------------------------------------
-    CLICK TO ADD FOOD ITEM
-------------------------------------------------------------- */
+/* ============================================================
+   ADD FOOD ITEM TO LOG
+============================================================ */
 addFoodBtn.addEventListener("click", () => {
-    let qtyHaving = parseFloat(amountHavingInput.value);
-    if (isNaN(qtyHaving) || qtyHaving <= 0) {
-        alert("Enter a valid amount having.");
-        return;
-    }
+    const qtyHad = Number(amountHavingInput.value || 0);
+    if (qtyHad <= 0) return alert("Enter amount having.");
 
-    let entry = {
-        name: foodNameInput.value.trim(),
-        mealType: mealTypeInput.value,
-        servingSize: parseFloat(servingSizeInput.value) || 0,
+    const base = {
+        name:        foodNameInput.value.trim(),
+        qtyPieces:   qtyPiecesInput.value.trim(),
+        perMeasurement: perMeasInput.value.trim(),
         servingEquals: servingEqualsInput.value,
-        qtyPieces: QtyPiecesInput.value.trim(),
-        perMeasurement: PerMeasurementInput.value.trim(),
+        servingSize: servingSizeInput.value,
 
-        calories: parseFloat(caloriesInput.value) || 0,
-        fat: parseFloat(fatInput.value) || 0,
-        sodium: parseFloat(sodiumInput.value) || 0,
-        carbs: parseFloat(carbsInput.value) || 0,
-        fiber: parseFloat(fiberInput.value) || 0,
-        sugar: parseFloat(sugarInput.value) || 0,
-        protein: parseFloat(proteinInput.value) || 0,
+        calories: Number(caloriesInput.value || 0),
+        fat:      Number(fatInput.value || 0),
+        sodium:   Number(sodiumInput.value || 0),
+        carbs:    Number(carbsInput.value || 0),
+        fiber:    Number(fiberInput.value || 0),
+        sugar:    Number(sugarInput.value || 0),
+        protein:  Number(proteinInput.value || 0),
 
-        qtyHaving: qtyHaving
+        qtyHaving: qtyHad
     };
 
-    foodItems.push(entry);
-    updateSummary();
-    updateResults();
-    updateTable();
+    foodItems.push(base);
+    renderLoggedTable();
 });
 
-/* -------------------------------------------------------------
-    UPDATE SUMMARY BOX
-------------------------------------------------------------- */
-function updateSummary() {
-    if (foodItems.length === 0) {
-        foodSummaryDiv.innerHTML = "";
-        return;
-    }
-
-    let last = foodItems[foodItems.length - 1];
-
-    let totalCarbs = last.carbs * last.qtyHaving;
-    let totalFat = last.fat * last.qtyHaving;
-    let totalProtein = last.protein * last.qtyHaving;
-
-    foodSummaryDiv.innerHTML = `
-        <strong>TOTAL CARBS:</strong> ${totalCarbs}g<br>
-        <strong>TOTAL FAT:</strong> ${totalFat}g<br>
-        <strong>TOTAL PROTEIN:</strong> ${totalProtein}g
-    `;
-}
-
-/* -------------------------------------------------------------
-    RESULT LOGIC / MEAL TYPE INTELLIGENCE
-------------------------------------------------------------- */
-function updateResults() {
-    if (foodItems.length === 0) {
-        resultsDiv.innerHTML = "";
-        return;
-    }
-
-    let last = foodItems[foodItems.length - 1];
-
-    let carbLoad = last.carbs * last.qtyHaving;
-    let fatLoad = last.fat * last.qtyHaving;
-
-    // Pre-bolus logic
-    let preBolus = "5–7 mins";
-    if (carbLoad > 70) preBolus = "10–12 mins";
-    if (carbLoad < 15) preBolus = "0–2 mins";
-
-    // Split dose logic
-    let splitDose = "No split needed";
-    let reason = "Meal is balanced";
-
-    if (fatLoad >= 15 && carbLoad >= 20) {
-        splitDose = "Split 50/50 over 1.5 hrs";
-        reason = "High fat delays carb absorption";
-    }
-
-    resultsDiv.innerHTML = `
-        <strong>Pre-Bolus:</strong> ${preBolus}<br>
-        <strong>Split Dose:</strong> ${splitDose}<br>
-        <strong>Food Type:</strong> ${last.mealType}<br>
-        <strong>Reason:</strong> ${reason}
-    `;
-}
-
-/* -------------------------------------------------------------
-    UPDATE TABLE (LOGGED FOOD ITEMS)
-------------------------------------------------------------- */
-function updateTable() {
+/* ============================================================
+   RENDER TABLE + TOTALS
+============================================================ */
+function renderLoggedTable() {
     foodLogBody.innerHTML = "";
 
-    let totalServing = 0,
-        totalCalories = 0,
-        totalSodium = 0,
-        totalFat = 0,
-        totalCarbs = 0,
-        totalFiber = 0,
-        totalSugar = 0,
-        totalProtein = 0;
+    let totals = {
+        calories: 0,
+        sodium: 0,
+        fat: 0,
+        carbs: 0,
+        fiber: 0,
+        sugar: 0,
+        protein: 0
+    };
 
-    foodItems.forEach((item, index) => {
-        let row = document.createElement("tr");
-        row.innerHTML = `
-            <td>
-                <button onclick="removeItem(${index})">❌</button>
-            </td>
+    foodItems.forEach(item => {
+        totals.calories += item.calories * item.qtyHaving;
+        totals.sodium   += item.sodium * item.qtyHaving;
+        totals.fat      += item.fat * item.qtyHaving;
+        totals.carbs    += item.carbs * item.qtyHaving;
+        totals.fiber    += item.fiber * item.qtyHaving;
+        totals.sugar    += item.sugar * item.qtyHaving;
+        totals.protein  += item.protein * item.qtyHaving;
+    });
+
+    // Display totals in summary
+    foodSummaryDiv.innerHTML = `
+        TOTAL CARBS: ${totals.carbs}g<br>
+        TOTAL FAT: ${totals.fat}g<br>
+        TOTAL PROTEIN: ${totals.protein}g
+    `;
+
+    // Results placeholder
+    resultsDiv.innerHTML = `
+        Pre-Bolus: 5–7 mins<br>
+        Split Dose: 50/50 over 1.5 hrs<br>
+        Meal Type: Home Meal<br>
+        Reason: Example logic placeholder
+    `;
+
+    // Render table rows
+    foodItems.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
             <td>${item.name}</td>
             <td>${item.servingSize}</td>
             <td>${item.calories}</td>
@@ -210,52 +186,22 @@ function updateTable() {
             <td>${item.protein}</td>
             <td>${item.qtyHaving}</td>
         `;
-        foodLogBody.appendChild(row);
-
-        totalServing += item.servingSize;
-        totalCalories += item.calories;
-        totalSodium += item.sodium;
-        totalFat += item.fat;
-        totalCarbs += item.carbs;
-        totalFiber += item.fiber;
-        totalSugar += item.sugar;
-        totalProtein += item.protein;
+        foodLogBody.appendChild(tr);
     });
-
-    document.getElementById("totalServingSize").innerText = totalServing;
-    document.getElementById("totalCalories").innerText = totalCalories;
-    document.getElementById("totalSodium").innerText = totalSodium;
-    document.getElementById("totalFat").innerText = totalFat;
-    document.getElementById("totalCarbs").innerText = totalCarbs;
-    document.getElementById("totalFiber").innerText = totalFiber;
-    document.getElementById("totalSugar").innerText = totalSugar;
-    document.getElementById("totalProtein").innerText = totalProtein;
 }
 
-/* -------------------------------------------------------------
-    REMOVE ITEM
-------------------------------------------------------------- */
-function removeItem(i) {
-    foodItems.splice(i, 1);
-    updateSummary();
-    updateResults();
-    updateTable();
-}
-
-/* -------------------------------------------------------------
-    SAVE LAST ITEM TO HISTORY PAGE
-------------------------------------------------------------- */
+/* ============================================================
+   SAVE TO HISTORY
+============================================================ */
 saveToHistoryBtn.addEventListener("click", () => {
-    if (foodItems.length === 0) {
-        alert("Nothing to save.");
-        return;
-    }
+    if (!foodItems.length) return alert("Add at least one food first.");
 
-    let last = foodItems[foodItems.length - 1];
+    const last = foodItems[foodItems.length - 1];
 
-    let saveEntry = {
+    const entry = {
         name: last.name,
-        mealType: last.mealType,
+        qtyPieces: last.qtyPieces,
+        perMeasurement: last.perMeasurement,
         servingEquals: last.servingEquals,
         servingSize: last.servingSize,
 
@@ -267,16 +213,46 @@ saveToHistoryBtn.addEventListener("click", () => {
         sugar: last.sugar,
         protein: last.protein,
 
-        qtyHaving: last.qtyHaving,
-        qtyPieces: last.qtyPieces,
-        perMeasurement: last.perMeasurement,
-
         timestamp: Date.now()
     };
 
-    historyData.push(saveEntry);
-    localStorage.setItem("t1d_food_history", JSON.stringify(historyData));
+    historyData.push(entry);
+    localStorage.setItem("tid_food_history", JSON.stringify(historyData));
+    rebuildAutocompleteList();
 
-    loadAutocomplete();
-    alert("Saved to History Page");
+    alert("Saved to history.");
+});
+
+/* ============================================================
+   DARK MODE
+============================================================ */
+const darkToggle = document.getElementById("darkToggle");
+darkToggle.addEventListener("change", () => {
+    document.body.classList.toggle("dark", darkToggle.checked);
+});
+
+/* ============================================================
+   BARCODE SCANNING — CONNECT TO scanner.js
+============================================================ */
+if (scanBarcodeBtn) {
+    scanBarcodeBtn.addEventListener("click", () => {
+        try {
+            startBarcodeScan(); // Provided by scanner.js
+        } catch (err) {
+            console.error("Scanner call failed:", err);
+            alert("Camera unavailable.");
+        }
+    });
+}
+
+// Listen for barcode detection event
+window.addEventListener("barcodeDetected", (e) => {
+    const code = e.detail;
+
+    console.log("Barcode detected:", code);
+
+    // Put result into the food name box
+    foodNameInput.value = code;
+
+    alert("Barcode scanned: " + code);
 });
