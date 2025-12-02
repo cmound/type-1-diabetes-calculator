@@ -1,24 +1,24 @@
-/* --------------------------------------------------------------------------
-   GLOBAL STATE
--------------------------------------------------------------------------- */
-
+/* -------------------------------------------------------------
+    GLOBAL STATE
+------------------------------------------------------------- */
 let foodItems = [];
 let editingIndex = -1;
+
+// Load history from localStorage
 let historyData = JSON.parse(localStorage.getItem("t1d_food_history")) || [];
 
-/* --------------------------------------------------------------------------
-   ELEMENT REFERENCES
--------------------------------------------------------------------------- */
-
+/* -------------------------------------------------------------
+    ELEMENT REFERENCES
+------------------------------------------------------------- */
 const nameInput = document.getElementById("name");
 const bslInput = document.getElementById("bsl");
 const foodNameInput = document.getElementById("foodNameInput");
-const autocompleteBox = document.getElementById("autocompleteList");
-
-const servingEqualsInput = document.getElementById("servingEqualsInput");
-const qtyPiecesInput = document.getElementById("QtyPieces");
-const perMeasurementInput = document.getElementById("PerMeasurement");
+const mealTypeInput = document.getElementById("mealTypeInput");
 const servingSizeInput = document.getElementById("servingSizeInput");
+const servingEqualsInput = document.getElementById("servingEqualsInput");
+
+const QtyPiecesInput = document.getElementById("QtyPieces");
+const PerMeasurementInput = document.getElementById("PerMeasurement");
 
 const caloriesInput = document.getElementById("caloriesInput");
 const fatInput = document.getElementById("fatInput");
@@ -33,123 +33,172 @@ const addFoodBtn = document.getElementById("addFoodBtn");
 
 const foodSummaryDiv = document.getElementById("foodSummary");
 const resultsDiv = document.getElementById("results");
-const tableBody = document.getElementById("foodLogBody");
+const foodLogBody = document.getElementById("foodLogBody");
 
-const saveToHistoryBtn = document.getElementById("saveToHistoryBtn");
-
-const fractionBox = document.getElementById("fractionInputBox");
+const fractionBox = document.getElementById("fractionBox");
 const fractionInput = document.getElementById("fractionInput");
 const convertFractionBtn = document.getElementById("convertFractionBtn");
 
-/* --------------------------------------------------------------------------
-   AUTOCOMPLETE (LOADS FROM HISTORY)
--------------------------------------------------------------------------- */
+const saveToHistoryBtn = document.getElementById("saveToHistoryBtn");
 
-function loadAutocompleteNames() {
-    const names = historyData.map(entry => entry.name.toLowerCase());
-    return [...new Set(names)];
-}
+/* -------------------------------------------------------------
+    AUTOCOMPLETE FROM HISTORY
+------------------------------------------------------------- */
+function loadAutocomplete() {
+    const datalist = document.getElementById("foodNameSuggestions");
+    datalist.innerHTML = "";
 
-function autocompleteMatch(input) {
-    if (input.trim() === "") return [];
-    const names = loadAutocompleteNames();
-    return names.filter(n => n.includes(input.toLowerCase()));
-}
+    let names = [...new Set(historyData.map(item => item.name))];
 
-function showAutocompleteMatches(input) {
-    const matches = autocompleteMatch(input);
-    autocompleteBox.innerHTML = "";
-
-    matches.forEach(m => {
-        const option = document.createElement("option");
-        option.value = m;
-        autocompleteBox.appendChild(option);
+    names.forEach(n => {
+        const opt = document.createElement("option");
+        opt.value = n;
+        datalist.appendChild(opt);
     });
 }
 
-foodNameInput.addEventListener("input", () => {
-    showAutocompleteMatches(foodNameInput.value);
-});
+loadAutocomplete();
 
-/* --------------------------------------------------------------------------
-   FRACTION TO DECIMAL CONVERTER
--------------------------------------------------------------------------- */
-
+/* -------------------------------------------------------------
+    FRACTION CONVERT LOGIC
+------------------------------------------------------------- */
 servingEqualsInput.addEventListener("change", () => {
-    const mode = servingEqualsInput.value;
-
-    if (mode === "Fraction") {
-        fractionBox.style.display = "block";
+    if (servingEqualsInput.value === "Fraction") {
+        fractionBox.classList.remove("hidden");
     } else {
-        fractionBox.style.display = "none";
+        fractionBox.classList.add("hidden");
     }
 });
 
 convertFractionBtn.addEventListener("click", () => {
     try {
-        const raw = fractionInput.value.trim();
+        let input = fractionInput.value.trim(); // e.g. 1/4
+        if (!input.includes("/")) return;
 
-        if (raw.includes("/")) {
-            const [num, den] = raw.split("/").map(Number);
-            if (!isNaN(num) && !isNaN(den) && den !== 0) {
-                qtyPiecesInput.value = num / den;
-            }
-        }
+        let [num, den] = input.split("/");
+        let dec = parseFloat(num) / parseFloat(den);
+
+        QtyPiecesInput.value = dec;
+        fractionInput.value = "";
     } catch (e) {
-        alert("Invalid fraction");
+        alert("Invalid fraction.");
     }
 });
 
-/* --------------------------------------------------------------------------
-   ADD FOOD ITEM
--------------------------------------------------------------------------- */
-
+/* -------------------------------------------------------------
+    CLICK TO ADD FOOD ITEM
+------------------------------------------------------------- */
 addFoodBtn.addEventListener("click", () => {
-    if (!foodNameInput.value.trim()) {
-        alert("Enter a food name");
+    let qtyHaving = parseFloat(amountHavingInput.value);
+    if (isNaN(qtyHaving) || qtyHaving <= 0) {
+        alert("Enter a valid amount having.");
         return;
     }
 
-    let newItem = {
+    let entry = {
         name: foodNameInput.value.trim(),
+        mealType: mealTypeInput.value,
+        servingSize: parseFloat(servingSizeInput.value) || 0,
         servingEquals: servingEqualsInput.value,
-        qtyPieces: qtyPiecesInput.value.trim(),
-        perMeasurement: perMeasurementInput.value.trim(),
-        servingSize: Number(servingSizeInput.value) || 0,
+        qtyPieces: QtyPiecesInput.value.trim(),
+        perMeasurement: PerMeasurementInput.value.trim(),
 
-        calories: Number(caloriesInput.value) || 0,
-        fat: Number(fatInput.value) || 0,
-        sodium: Number(sodiumInput.value) || 0,
-        carbs: Number(carbsInput.value) || 0,
-        fiber: Number(fiberInput.value) || 0,
-        sugar: Number(sugarInput.value) || 0,
-        protein: Number(proteinInput.value) || 0,
+        calories: parseFloat(caloriesInput.value) || 0,
+        fat: parseFloat(fatInput.value) || 0,
+        sodium: parseFloat(sodiumInput.value) || 0,
+        carbs: parseFloat(carbsInput.value) || 0,
+        fiber: parseFloat(fiberInput.value) || 0,
+        sugar: parseFloat(sugarInput.value) || 0,
+        protein: parseFloat(proteinInput.value) || 0,
 
-        qtyHaving: Number(amountHavingInput.value) || 0
+        qtyHaving: qtyHaving
     };
 
-    foodItems.push(newItem);
+    foodItems.push(entry);
+    updateSummary();
+    updateResults();
     updateTable();
 });
 
-/* --------------------------------------------------------------------------
-   UPDATE TABLE + TOTALS
--------------------------------------------------------------------------- */
+/* -------------------------------------------------------------
+    UPDATE SUMMARY BOX
+------------------------------------------------------------- */
+function updateSummary() {
+    if (foodItems.length === 0) {
+        foodSummaryDiv.innerHTML = "";
+        return;
+    }
 
+    let last = foodItems[foodItems.length - 1];
+
+    let totalCarbs = last.carbs * last.qtyHaving;
+    let totalFat = last.fat * last.qtyHaving;
+    let totalProtein = last.protein * last.qtyHaving;
+
+    foodSummaryDiv.innerHTML = `
+        <strong>TOTAL CARBS:</strong> ${totalCarbs}g<br>
+        <strong>TOTAL FAT:</strong> ${totalFat}g<br>
+        <strong>TOTAL PROTEIN:</strong> ${totalProtein}g
+    `;
+}
+
+/* -------------------------------------------------------------
+    RESULT LOGIC / MEAL TYPE INTELLIGENCE
+------------------------------------------------------------- */
+function updateResults() {
+    if (foodItems.length === 0) {
+        resultsDiv.innerHTML = "";
+        return;
+    }
+
+    let last = foodItems[foodItems.length - 1];
+
+    let carbLoad = last.carbs * last.qtyHaving;
+    let fatLoad = last.fat * last.qtyHaving;
+
+    // Pre-bolus logic
+    let preBolus = "5–7 mins";
+    if (carbLoad > 70) preBolus = "10–12 mins";
+    if (carbLoad < 15) preBolus = "0–2 mins";
+
+    // Split dose logic
+    let splitDose = "No split needed";
+    let reason = "Meal is balanced";
+
+    if (fatLoad >= 15 && carbLoad >= 20) {
+        splitDose = "Split 50/50 over 1.5 hrs";
+        reason = "High fat delays carb absorption";
+    }
+
+    resultsDiv.innerHTML = `
+        <strong>Pre-Bolus:</strong> ${preBolus}<br>
+        <strong>Split Dose:</strong> ${splitDose}<br>
+        <strong>Food Type:</strong> ${last.mealType}<br>
+        <strong>Reason:</strong> ${reason}
+    `;
+}
+
+/* -------------------------------------------------------------
+    UPDATE TABLE (LOGGED FOOD ITEMS)
+------------------------------------------------------------- */
 function updateTable() {
-    tableBody.innerHTML = "";
+    foodLogBody.innerHTML = "";
 
-    let total = {
-        serving: 0, calories: 0, sodium: 0, fat: 0,
-        carbs: 0, fiber: 0, sugar: 0, protein: 0
-    };
+    let totalServing = 0,
+        totalCalories = 0,
+        totalSodium = 0,
+        totalFat = 0,
+        totalCarbs = 0,
+        totalFiber = 0,
+        totalSugar = 0,
+        totalProtein = 0;
 
     foodItems.forEach((item, index) => {
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
-            <td><button onclick="editItem(${index})">✎</button>
-                <button onclick="removeItem(${index})">🗑</button></td>
+        let row = document.createElement("tr");
+        row.innerHTML = `
+            <td>
+                <button onclick="removeItem(${index})">❌</button>
+            </td>
             <td>${item.name}</td>
             <td>${item.servingSize}</td>
             <td>${item.calories}</td>
@@ -161,87 +210,41 @@ function updateTable() {
             <td>${item.protein}</td>
             <td>${item.qtyHaving}</td>
         `;
-        tableBody.appendChild(tr);
+        foodLogBody.appendChild(row);
 
-        total.calories += item.calories;
-        total.sodium += item.sodium;
-        total.fat += item.fat;
-        total.carbs += item.carbs;
-        total.fiber += item.fiber;
-        total.sugar += item.sugar;
-        total.protein += item.protein;
+        totalServing += item.servingSize;
+        totalCalories += item.calories;
+        totalSodium += item.sodium;
+        totalFat += item.fat;
+        totalCarbs += item.carbs;
+        totalFiber += item.fiber;
+        totalSugar += item.sugar;
+        totalProtein += item.protein;
     });
 
-    document.getElementById("totalCalories").innerText = total.calories;
-    document.getElementById("totalSodium").innerText = total.sodium;
-    document.getElementById("totalFat").innerText = total.fat;
-    document.getElementById("totalCarbs").innerText = total.carbs;
-    document.getElementById("totalFiber").innerText = total.fiber;
-    document.getElementById("totalSugar").innerText = total.sugar;
-    document.getElementById("totalProtein").innerText = total.protein;
-
-    updateFoodSummary();
-    updateResults();
+    document.getElementById("totalServingSize").innerText = totalServing;
+    document.getElementById("totalCalories").innerText = totalCalories;
+    document.getElementById("totalSodium").innerText = totalSodium;
+    document.getElementById("totalFat").innerText = totalFat;
+    document.getElementById("totalCarbs").innerText = totalCarbs;
+    document.getElementById("totalFiber").innerText = totalFiber;
+    document.getElementById("totalSugar").innerText = totalSugar;
+    document.getElementById("totalProtein").innerText = totalProtein;
 }
 
-/* --------------------------------------------------------------------------
-   UPDATE SUMMARY + RESULTS
--------------------------------------------------------------------------- */
-
-function updateFoodSummary() {
-    if (foodItems.length === 0) {
-        foodSummaryDiv.innerHTML = "";
-        return;
-    }
-
-    let latest = foodItems[foodItems.length - 1];
-
-    foodSummaryDiv.innerHTML = `
-        TOTAL CARBS: ${latest.carbs} g<br>
-        TOTAL FAT: ${latest.fat} g<br>
-        TOTAL PROTEIN: ${latest.protein} g
-    `;
-}
-
-function updateResults() {
-    if (foodItems.length === 0) {
-        resultsDiv.innerHTML = "";
-        return;
-    }
-
-    let item = foodItems[foodItems.length - 1];
-
-    let reason = "";
-    let split = "No split needed";
-    let prebolus = "5 to 7 min";
-
-    if (item.fat >= 15 || item.protein >= 20) {
-        split = "Split dose recommended (50-50)";
-        reason = "High fat or protein delays carb absorption";
-    } else {
-        reason = "Low fat meal, insulin absorbs normally";
-    }
-
-    resultsDiv.innerHTML = `
-        <strong>Pre-Bolus:</strong> ${prebolus}<br>
-        <strong>Split Dose:</strong> ${split}<br>
-        <strong>Reason:</strong> ${reason}<br>
-    `;
-}
-
-/* --------------------------------------------------------------------------
-   REMOVE ITEM
--------------------------------------------------------------------------- */
-
+/* -------------------------------------------------------------
+    REMOVE ITEM
+------------------------------------------------------------- */
 function removeItem(i) {
     foodItems.splice(i, 1);
+    updateSummary();
+    updateResults();
     updateTable();
 }
 
-/* --------------------------------------------------------------------------
-   SAVE TO HISTORY
--------------------------------------------------------------------------- */
-
+/* -------------------------------------------------------------
+    SAVE LAST ITEM TO HISTORY PAGE
+------------------------------------------------------------- */
 saveToHistoryBtn.addEventListener("click", () => {
     if (foodItems.length === 0) {
         alert("Nothing to save.");
@@ -250,11 +253,10 @@ saveToHistoryBtn.addEventListener("click", () => {
 
     let last = foodItems[foodItems.length - 1];
 
-    const historyEntry = {
+    let saveEntry = {
         name: last.name,
+        mealType: last.mealType,
         servingEquals: last.servingEquals,
-        qtyPieces: last.qtyPieces,
-        perMeasurement: last.perMeasurement,
         servingSize: last.servingSize,
 
         calories: last.calories,
@@ -266,11 +268,15 @@ saveToHistoryBtn.addEventListener("click", () => {
         protein: last.protein,
 
         qtyHaving: last.qtyHaving,
+        qtyPieces: last.qtyPieces,
+        perMeasurement: last.perMeasurement,
+
         timestamp: Date.now()
     };
 
-    historyData.push(historyEntry);
+    historyData.push(saveEntry);
     localStorage.setItem("t1d_food_history", JSON.stringify(historyData));
 
-    alert("Saved to History!");
+    loadAutocomplete();
+    alert("Saved to History Page");
 });
