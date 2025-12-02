@@ -9,22 +9,22 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <link rel="manifest" href="manifest.webmanifest">
+
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="container">
 
+    <button type="button" id="viewHistoryButton" class="history-nav-btn">View History</button>
+
     <h1>Type 1 Diabetes Calculator</h1>
 
-    <!-- View History -->
-    <button id="viewHistoryButton" class="history-nav-btn">View History</button>
-
-    <!-- USER INFO -->
     <div class="row">
         <div class="column">
             <label>Name:</label>
@@ -43,16 +43,17 @@
     <div class="row">
         <div class="column">
             <label>Food Name:</label>
-            <input type="text" id="foodNameInput" list="foodSuggestions">
-            <datalist id="foodSuggestions"></datalist>
+            <input type="text" id="foodName">
+            <datalist id="foodNameSuggestions"></datalist>
         </div>
 
         <div class="column">
             <label>Meal Type:</label>
             <select id="mealType">
-                <option value="Home Meal">Home Meal</option>
-                <option value="Restaurant Meal">Restaurant Meal</option>
-                <option value="Packaged Meal">Packaged Meal</option>
+                <option>Home Meal</option>
+                <option>Packaged</option>
+                <option>Fast Food</option>
+                <option>Snack</option>
             </select>
         </div>
 
@@ -79,88 +80,93 @@
 
         <div class="column">
             <label>Per Measurement:</label>
-            <input list="measurementList" id="PerMeasurement" placeholder="Cup, Tbsp, etc.">
+            <input list="measurementList" id="perMeasurement" placeholder="Cup, Tbsp, etc.">
             <datalist id="measurementList">
-                <option value="Cup">
-                <option value="Cups">
-                <option value="Tbsp">
-                <option value="Tsp">
-                <option value="Ounce">
-                <option value="Ounces">
-                <option value="Fl. Oz">
-                <option value="ml">
-                <option value="g">
-                <option value="serving">
-                <option value="piece">
+                <option value="Cup"></option>
+                <option value="Cups"></option>
+                <option value="Tbsp"></option>
+                <option value="Tsp"></option>
+                <option value="Ounce"></option>
+                <option value="Ounces"></option>
+                <option value="Fl. Oz"></option>
+                <option value="ml"></option>
+                <option value="g"></option>
+                <option value="serving"></option>
+                <option value="piece"></option>
             </datalist>
         </div>
     </div>
 
-    <!-- Fraction Converter -->
-    <div id="fractionRow" class="hidden-row">
-        <label>Convert Fraction:</label>
-        <input type="text" id="fractionInput" placeholder="Ex: 1/3">
+    <!-- FRACTION CONVERTER (HIDDEN BY DEFAULT) -->
+    <div id="fractionConverterBox" class="hidden">
+        <h3>Fraction → Decimal Converter</h3>
+        <input type="text" id="fractionInput" placeholder="Ex: 1/4">
         <button id="convertFractionBtn">Convert</button>
-        <span id="fractionResult"></span>
+        <input type="text" id="convertedFraction" readonly placeholder="Decimal result">
     </div>
 
-    <!-- NUTRITION FIELDS -->
+    <!-- NUTRITION -->
     <h3>Nutrition Per Serving</h3>
 
     <div class="row">
         <div class="column">
             <label>Calories:</label>
-            <input type="number" id="caloriesInput">
+            <input type="number" id="calories">
         </div>
 
         <div class="column">
             <label>Fat (g):</label>
-            <input type="number" id="fatInput">
+            <input type="number" id="fat">
         </div>
 
         <div class="column">
             <label>Sodium (mg):</label>
-            <input type="number" id="sodiumInput">
+            <input type="number" id="sodium">
         </div>
 
         <div class="column">
             <label>Carbs (g):</label>
-            <input type="number" id="carbsInput">
+            <input type="number" id="carbs">
         </div>
     </div>
 
     <div class="row">
         <div class="column">
             <label>Fiber (g):</label>
-            <input type="number" id="fiberInput">
+            <input type="number" id="fiber">
         </div>
 
         <div class="column">
             <label>Sugar (g):</label>
-            <input type="number" id="sugarInput">
+            <input type="number" id="sugar">
         </div>
 
         <div class="column">
             <label>Protein (g):</label>
-            <input type="number" id="proteinInput">
+            <input type="number" id="protein">
         </div>
     </div>
 
     <!-- STEP 2 -->
     <h2>Step 2: Enter Consumed Information</h2>
 
-    <div class="row">
-        <div class="column-full">
-            <label>Amount Having:</label>
-            <input type="number" id="amountHavingInput">
-        </div>
+    <label>Amount Having:</label>
+    <input type="number" id="amountHaving">
 
-        <button id="addFoodBtn" class="add-btn">Click to Add</button>
-    </div>
+    <button id="addFoodBtn">Click to Add</button>
 
+    <!-- Summary -->
+    <h3>Food Item Summary</h3>
+    <div id="foodSummary" class="summaryBox"></div>
+
+    <!-- Results -->
+    <h3>Results</h3>
+    <div id="results" class="resultsBox"></div>
+
+    <!-- Logged Items -->
     <h3>Logged Food Items</h3>
 
-    <table id="foodLogTable">
+    <table id="foodLogBody">
         <thead>
             <tr>
                 <th>Actions</th>
@@ -176,33 +182,32 @@
                 <th>Qty Having</th>
             </tr>
         </thead>
-        <tbody id="foodLogBody"></tbody>
+
+        <tbody id="loggedItems"></tbody>
 
         <tfoot>
-            <tr class="totals-row">
+            <tr>
                 <td><strong>Totals</strong></td>
                 <td></td>
-                <td id="totalServingSize">0</td>
-                <td id="totalCalories">0</td>
-                <td id="totalSodium">0</td>
-                <td id="totalFat">0</td>
-                <td id="totalCarbs">0</td>
-                <td id="totalFiber">0</td>
-                <td id="totalSugar">0</td>
-                <td id="totalProtein">0</td>
+                <td id="t_servingSize">0</td>
+                <td id="t_calories">0</td>
+                <td id="t_sodium">0</td>
+                <td id="t_fat">0</td>
+                <td id="t_carbs">0</td>
+                <td id="t_fiber">0</td>
+                <td id="t_sugar">0</td>
+                <td id="t_protein">0</td>
                 <td></td>
             </tr>
         </tfoot>
     </table>
 
-    <h2>Results</h2>
-    <div id="results" class="results-box"></div>
-
-    <button id="saveToHistoryBtn" class="history-btn">Add to History Page</button>
+    <button class="history-btn" id="saveToHistoryBtn">Add to History Page</button>
 
 </div>
 
 <script src="app.js"></script>
+
 <script>
 document.getElementById("viewHistoryButton").addEventListener("click", () => {
     window.location.href = "history.html";
