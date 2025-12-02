@@ -1,151 +1,87 @@
-/* ====== GLOBAL LAYOUT ====== */
-
 body {
-    margin: 0;
-    padding: 0;
     font-family: Arial, sans-serif;
-    background-color: #d9e2e8; /* Color-blind safe cool gray-blue */
+    background: #dce3e9;
+    padding: 20px;
 }
 
 .container {
-    width: 75%;
-    margin: 25px auto;
-    background-color: #f5f7fa; /* Slight contrast inside box */
-    padding: 25px;
-    border-radius: 8px;
-    border: 2px solid #b7c4cf;
-    box-shadow: 0px 0px 8px rgba(0,0,0,0.15);
+    background: #ffffff;
+    border: 2px solid #3e5d4e;
+    border-radius: 6px;
+    padding: 20px;
+    max-width: 950px;
+    margin: auto;
 }
 
 h1, h2, h3 {
     margin-bottom: 10px;
-    color: #1e2d38;
 }
-
-label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 4px;
-}
-
-/* ====== ROW & COLUMN SYSTEM ====== */
 
 .row {
     display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 .column {
     flex: 1;
-    min-width: 220px;
-    padding-right: 15px;
 }
-
-.column-full {
-    width: 100%;
-}
-
-/* ====== INPUT FIELDS ====== */
 
 input, select {
-    width: 95%;
+    width: 100%;
     padding: 6px;
-    border: 1px solid #98a5b3;
-    border-radius: 4px;
-    background-color: #ffffff;
+    margin-top: 4px;
 }
 
-input:focus, select:focus {
-    outline: none;
-    border-color: #1a6f64;
-    box-shadow: 0px 0px 3px rgba(26,111,100,0.6);
-}
-
-/* ====== BUTTONS ====== */
-
-.add-btn, .history-btn, .history-nav-btn, #convertFractionBtn {
-    background-color: #156f63;
+button {
+    padding: 8px 14px;
+    background: #0f6c56;
     color: white;
     border: none;
-    padding: 10px 20px;
-    margin-top: 8px;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
 }
 
-.add-btn:hover, .history-btn:hover, .history-nav-btn:hover, #convertFractionBtn:hover {
-    background-color: #0f534a;
+button:hover {
+    opacity: 0.9;
 }
 
-.history-nav-btn {
-    margin-bottom: 15px;
+#fractionConverterBox {
+    border: 1px solid #666;
+    padding: 10px;
+    background: #eef2f5;
+    margin-bottom: 20px;
 }
 
-.history-btn {
-    margin-top: 20px;
+.hidden {
+    display: none;
 }
 
-/* Align the Click to Add button */
-.add-btn {
-    height: 40px;
-    align-self: end;
+.summaryBox {
+    background: #e7f0ff;
+    padding: 10px;
+    border-left: 6px solid #6a8fc5;
+    margin-bottom: 20px;
 }
 
-/* ====== TABLE STYLING ====== */
+.resultsBox {
+    background: #fff3c7;
+    padding: 10px;
+    border-left: 6px solid #c5a14c;
+    margin-bottom: 20px;
+}
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 15px;
-    background-color: white;
-}
-
-table th, table td {
-    border: 1px solid #aeb7c2;
-    padding: 8px;
-    text-align: center;
-}
-
-thead {
-    background-color: #d0d8e0;
-    font-weight: bold;
-}
-
-tfoot {
-    background-color: #eef2f5;
-}
-
-.totals-row td {
-    font-weight: bold;
-}
-
-/* ====== RESULTS BOX ====== */
-
-.results-box {
-    width: 100%;
-    padding: 12px;
-    background-color: #fff9cc;
-    border: 1px solid #e5d777;
-    border-radius: 4px;
-    min-height: 40px;
     margin-bottom: 25px;
 }
 
-/* ====== FRACTION CONVERTER ====== */
-
-#fractionRow {
-    display: none;
-    margin-bottom: 15px;
+table, th, td {
+    border: 1px solid #888;
 }
 
-.hidden-row {
-    display: none;
-}
-
-/* ====== SMALL FIXES ====== */
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+th, td {
+    text-align: center;
+    padding: 6px;
 }
