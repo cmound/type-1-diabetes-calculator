@@ -1,13 +1,9 @@
-/* ---------------------------------------------------------
-   GLOBAL BASE STYLES
---------------------------------------------------------- */
-
+/* Global */
 body {
     background: #dfe4e8;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    transition: background 0.3s, color 0.3s;
 }
 
 .container {
@@ -19,18 +15,15 @@ body {
     border-radius: 6px;
     border: 2px solid #b8bec4;
     margin-top: 25px;
-    transition: background 0.3s, color 0.3s;
 }
 
+/* Headings */
 h1, h2, h3 {
     color: #0f3b3d;
     margin-bottom: 10px;
 }
 
-/* ---------------------------------------------------------
-   ROW / COLUMN LAYOUT
---------------------------------------------------------- */
-
+/* Rows & Columns */
 .row {
     display: flex;
     gap: 20px;
@@ -41,6 +34,10 @@ h1, h2, h3 {
     flex: 1;
     display: flex;
     flex-direction: column;
+}
+
+.column.wide {
+    flex: 2;
 }
 
 label {
@@ -55,84 +52,64 @@ input, select, button {
     border: 1px solid #9aa3ac;
 }
 
-/* ---------------------------------------------------------
-   TOP HEADER & ACTION BUTTONS
---------------------------------------------------------- */
-
-.top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.history-nav-btn {
-    background: #2f4f58;
-    color: white;
-    border: none;
-    padding: 7px 14px;
-    font-size: 14px;
-    border-radius: 4px;
+/* Primary Buttons */
+.primary-btn {
     cursor: pointer;
-}
-
-.history-nav-btn:hover {
-    background: #17353d;
-}
-
-/* ---------------------------------------------------------
-   BUTTONS
---------------------------------------------------------- */
-
-.add-btn,
-.history-btn,
-.scan-btn {
     background: #0f6a64;
     color: white;
     border: none;
-    padding: 9px 18px;
     border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
+    margin-top: 22px;
 }
 
-.add-btn:hover,
-.history-btn:hover,
-.scan-btn:hover {
-    background: #0a4d48;
+.primary-btn:hover {
+    background: #0d5a54;
 }
 
-.add-btn-column {
-    display: flex;
-    align-items: flex-end;
+/* Upload Panel Card */
+.upload-panel {
+    background: white;
+    border: 2px solid #c1c7cc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
 }
 
-/* ---------------------------------------------------------
-   SCANNER SECTION
---------------------------------------------------------- */
-
-.scanner-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 10px;
+.upload-box {
+    margin-bottom: 12px;
 }
 
-/* ---------------------------------------------------------
-   SUMMARY / RESULTS / FRACTION BOXES
---------------------------------------------------------- */
+.preview-box {
+    background: #eef7ff;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #7da4c2;
+    margin-top: 10px;
+    min-height: 40px;
+}
 
+/* Fraction Converter Box */
+.fraction-box {
+    background: #eef7ff;
+    padding: 15px;
+    border: 1px solid #7da4c2;
+    border-radius: 4px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Summary and Results */
 .summary-box,
 .result-box {
-    background: #f1f7ff;
+    background: #eef3ff;
     padding: 15px;
     min-height: 40px;
-    border-left: 5px solid #6c9bc2;
+    border-radius: 4px;
+    border-left: 5px solid #6c9bd2;
     margin-bottom: 15px;
 }
 
@@ -141,22 +118,7 @@ input, select, button {
     border-left: 5px solid #c9b200;
 }
 
-.fraction-box {
-    background: #eef7ff;
-    padding: 15px;
-    border: 1px solid #7da4c2;
-    border-radius: 4px;
-    margin-top: 10px;
-}
-
-.hidden {
-    display: none;
-}
-
-/* ---------------------------------------------------------
-   TABLE STYLING
---------------------------------------------------------- */
-
+/* Table */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -164,17 +126,11 @@ table {
     margin-bottom: 20px;
 }
 
-table th {
-    background: #d7e3f0;
+table th, table td {
+    border: 1px solid #9aa3ac;
     padding: 8px;
     text-align: center;
-    border: 1px solid #9aa3ac;
-}
-
-table td {
-    padding: 8px;
-    text-align: center;
-    border: 1px solid #9aa3ac;
+    font-size: 14px;
 }
 
 .totals-row td {
@@ -182,128 +138,27 @@ table td {
     font-weight: bold;
 }
 
-/* ---------------------------------------------------------
-   DARK MODE (Option B — Soft Neutral)
---------------------------------------------------------- */
-
-body.dark {
-    background: #1c1e20;
-    color: #e6e6e6;
+/* History Buttons */
+.history-btn {
+    background: #2f4858;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin-right: 10px;
+    border-radius: 4px;
 }
 
-body.dark .container {
-    background: #2a2d30;
-    border-color: #444;
+.history-btn:hover {
+    background: #273c49;
 }
 
-body.dark h1,
-body.dark h2,
-body.dark h3 {
-    color: #cfe7ff;
-}
-
-body.dark input,
-body.dark select {
-    background: #3a3d40;
-    color: #ffffff;
-    border-color: #555;
-}
-
-body.dark .history-nav-btn,
-body.dark .scan-btn,
-body.dark .add-btn,
-body.dark .history-btn {
-    background: #147a70;
-}
-
-body.dark .summary-box {
-    background: #2f3a4a;
-    border-left-color: #5ba0ff;
-}
-
-body.dark .result-box {
-    background: #4a4300;
-    border-left-color: #e6d300;
-}
-
-body.dark table th {
-    background: #3a3d40;
-    color: #e6e6e6;
-}
-
-body.dark table td {
-    background: #2f3235;
-    color: #dcdcdc;
-}
-
-/* ---------------------------------------------------------
-   DARK MODE TOGGLE SWITCH
---------------------------------------------------------- */
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 48px;
-    height: 24px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #aaa;
-    transition: .4s;
-    border-radius: 24px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-input:checked + .slider {
-    background-color: #0f6a64;
-}
-
-input:checked + .slider:before {
-    transform: translateX(24px);
-}
-
-/* ---------------------------------------------------------
-   MOBILE RESPONSIVE
---------------------------------------------------------- */
-
+/* Mobile Layout */
 @media (max-width: 768px) {
     .row {
         flex-direction: column;
     }
-
-    .scanner-actions {
-        justify-content: center;
-    }
-
-    .add-btn-column {
-        justify-content: center;
+    .primary-btn {
+        width: 100%;
         margin-top: 10px;
-    }
-
-    .history-nav-btn {
-        padding: 6px 10px;
     }
 }
