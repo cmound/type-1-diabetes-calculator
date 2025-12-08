@@ -3,6 +3,7 @@
 ------------------------------------------------------------------------ */
 let foodItems = [];
 let editingIndex = -1;
+let selectedMealTime = null;
 
 // History storage
 let historyData = JSON.parse(localStorage.getItem("t1d_food_history")) || [];
@@ -245,4 +246,22 @@ document.getElementById("saveHistoryButton")?.addEventListener("click", () => {
 
     localStorage.setItem("t1d_food_history", JSON.stringify(historyData));
     alert("Saved to history!");
+});
+
+/* ------------------------------------------------------------------------
+   MEAL TIME SELECTION BUTTONS
+------------------------------------------------------------------------ */
+const mealTimeButtons = document.querySelectorAll(".meal-time-btn");
+
+mealTimeButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        // Remove active class from all buttons
+        mealTimeButtons.forEach(btn => btn.classList.remove("active"));
+        
+        // Add active class to clicked button
+        button.classList.add("active");
+        
+        // Store selected meal time
+        selectedMealTime = button.getAttribute("data-meal-time");
+    });
 });

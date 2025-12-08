@@ -152,6 +152,41 @@ table th, table td {
     background: #273c49;
 }
 
+/* Meal Time Selection */
+.meal-time-selection {
+    margin-bottom: 20px;
+}
+
+.meal-time-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.meal-time-btn {
+    background: #ffffff;
+    color: #333333;
+    border: 2px solid #9aa3ac;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.meal-time-btn:hover {
+    background: #f0f0f0;
+    border-color: #7a8490;
+}
+
+.meal-time-btn.active {
+    background: #ffeb3b;
+    color: #000000;
+    border-color: #fdd835;
+    font-weight: bold;
+}
+
 /* Mobile Layout */
 @media (max-width: 768px) {
     .row {
