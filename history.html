@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T1D Calculator History</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- ========================================================= -->
+    <!-- PAGE TITLE                                                -->
+    <!-- ========================================================= -->
+    <h1 class="page-title">Meal History</h1>
+
+    <!-- ========================================================= -->
+    <!-- RETURN BUTTON                                             -->
+    <!-- ========================================================= -->
+    <div class="history-buttons">
+        <button onclick="window.location.href='index.html'" class="btn-primary">
+            Return to Calculator
+        </button>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- HISTORY TABLE                                             -->
+    <!-- ========================================================= -->
+    <div class="card wide-card">
+        <h2>Saved Entries</h2>
+
+        <table class="food-table">
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Food Item</th>
+                    <th>Meal Type</th>
+                    <th>Size</th>
+                    <th>Calories</th>
+                    <th>Sodium</th>
+                    <th>Fat</th>
+                    <th>Carbs</th>
+                    <th>Fiber</th>
+                    <th>Sugar</th>
+                    <th>Protein</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+
+            <tbody id="historyTableBody"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- ========================================================= -->
+<!-- SCRIPTS                                                    -->
+<!-- ========================================================= -->
+<script src="history.js"></script>
+
+</body>
+</html>

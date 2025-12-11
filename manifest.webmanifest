@@ -1,0 +1,33 @@
+{
+    "name": "Type 1 Diabetes Calculator",
+    "short_name": "T1D Calc",
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icon-256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icon-1024.png",
+            "sizes": "1024x1024",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+
+    "start_url": "/type-1-diabetes-calculator/index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "prefer_related_applications": false
+}

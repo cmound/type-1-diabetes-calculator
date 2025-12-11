@@ -1,0 +1,459 @@
+/* ===================================================================
+   GLOBAL DARK THEME BASE — NAVY GRAPHITE (#0e1621)
+   =================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #0e1621;
+    color: #e4e9ed;
+    padding: 25px;
+    font-size: 18px; /* Large Text Option B */
+}
+
+.page {
+    width: 92%;
+    max-width: 1250px;
+    margin: auto;
+}
+
+/* ===================================================================
+   HEADERS
+   =================================================================== */
+.page-title {
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 30px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+h2 {
+    margin-top: 10px;
+    margin-bottom: 18px;
+    color: #d7e4f3;
+    font-size: 24px;
+}
+
+h3 {
+    margin: 18px 0 12px;
+    color: #b9cde3;
+    font-size: 20px;
+}
+
+/* ===================================================================
+   CARD STYLING
+   =================================================================== */
+.card {
+    background: #1a2533;
+    padding: 22px;
+    border-radius: 12px;
+    border: 1px solid #2d3b4d;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+}
+
+.wide-card {
+    width: 100%;
+}
+
+/* ===================================================================
+   INPUTS AND LABELS
+   =================================================================== */
+label {
+    font-weight: bold;
+    margin-bottom: 6px;
+    display: block;
+    color: #e8f0f6;
+    font-size: 18px;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    background: #0f1a26;
+    color: #ffffff;
+    border: 1px solid #3a4b61;
+    border-radius: 6px;
+    font-size: 18px;
+}
+
+input::placeholder {
+    color: #7d8da5;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* ===================================================================
+   GRIDS
+   =================================================================== */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+/* ===================================================================
+   QUICK SELECT BAR
+   =================================================================== */
+.quick-select-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.quick-btn {
+    padding: 10px 16px;
+    background: #243447;
+    border: 1px solid #3d5166;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #d3ddea;
+    font-size: 18px;
+    transition: background 0.2s, transform 0.1s ease;
+}
+
+.quick-btn:hover {
+    background: #32465b;
+    transform: translateY(-2px);
+}
+
+/* ===================================================================
+   BUTTON STYLES
+   =================================================================== */
+.btn-primary {
+    background: #0a84ff;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background 0.2s, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+    background: #006be6;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #2f3d4d;
+    border: 1px solid #44586d;
+    color: #d9e3ee;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 17px;
+}
+
+.btn-secondary:hover {
+    background: #3d4d61;
+}
+
+.small-btn {
+    padding: 6px 10px;
+    font-size: 16px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* ===================================================================
+   FRACTION TOOL
+   =================================================================== */
+.fraction-box {
+    background: #162130;
+    border: 1px solid #2b3a4d;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.fraction-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.fraction-row input {
+    flex: 1;
+}
+
+.fraction-result {
+    color: #9ac7ff;
+    font-size: 17px;
+    margin-top: 10px;
+}
+
+/* Hide fraction box until needed */
+.hidden {
+    display: none;
+}
+
+/* ===================================================================
+   OCR PANEL
+   =================================================================== */
+.ocr-card {
+    margin-top: 28px;
+    margin-bottom: 30px;
+}
+
+.ocr-status {
+    margin-top: 10px;
+    font-size: 17px;
+    color: #9fb6cc;
+}
+
+.ocr-preview-wrapper {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+}
+
+.ocr-preview {
+    width: 260px;
+    max-height: 280px;
+    border-radius: 8px;
+    border: 1px solid #3d5165;
+    display: none;
+}
+
+.ocr-output {
+    margin-top: 18px;
+    height: 135px;
+    background: #0f1b28;
+    border: 1px solid #32465a;
+    border-radius: 8px;
+    padding: 12px;
+    color: #dce8f4;
+    font-size: 17px;
+}
+
+/* ===================================================================
+   SUMMARY + RESULTS
+   =================================================================== */
+.summary-box {
+    background: #1f2c3a;
+    border-left: 6px solid #3f6bb7;
+    padding: 16px;
+    border-radius: 6px;
+    margin-top: 15px;
+    font-size: 18px;
+}
+
+.results-box {
+    background: #332e14;
+    border-left: 6px solid #e0c14a;
+    padding: 16px;
+    border-radius: 6px;
+    margin-top: 16px;
+    font-size: 18px;
+}
+
+.totals-row {
+    white-space: pre-line;   /* keep line breaks */
+    margin-top: 10px;         /* space under the Amount Having input */
+    line-height: 1.8;        /* vertical space between the three lines */
+    font-size: 18px;         /* optional, tweak if you want smaller or larger */
+}
+
+/* ===================================================================
+   TABLE STYLING
+   =================================================================== */
+.food-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 18px;
+    font-size: 17px;
+}
+
+.food-table thead th {
+    background: #243447;
+    color: #d9e3ee;
+    padding: 12px;
+    border-bottom: 2px solid #3b5168;
+}
+
+.food-table td {
+    padding: 10px;
+    border: 1px solid #2f3d4d;
+    text-align: center;
+    background: #131d27;
+    color: #e8eef5;
+}
+
+.food-table tr:nth-child(even) td {
+    background: #16212d;
+}
+
+/* Totals row */
+#totalsRow td {
+    background: #1f2c3a;
+    color: #d6e3ef;
+    font-weight: bold;
+}
+
+/* ===================================================================
+   TIMELINE CHART
+   =================================================================== */
+canvas {
+    width: 100% !important;
+    background: #0f1a26;
+    border: 1px solid #32465b;
+    border-radius: 8px;
+    margin-top: 18px;
+}
+
+.predicted-chart-card {
+    height: 320px;
+    min-height: 240px;
+    max-height: 600px;
+    resize: vertical;
+    overflow: hidden;
+}
+
+.predicted-chart-card canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* ===================================================================
+   AI GUIDANCE
+   =================================================================== */
+.ai-box {
+    width: 100%;
+    height: 150px;
+    background: #0f1a26;
+    border: 1px solid #384d62;
+    border-radius: 6px;
+    padding: 12px;
+    color: #eff6ff;
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.ai-summary-block {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 2px solid rgba(255, 255, 255, 0.12);
+    font-size: 18px;
+    line-height: 1.8;
+}
+
+.ai-summary-line {
+    margin: 0 0 4px 0;
+}
+
+.ai-summary-label {
+    font-weight: 600;
+}
+
+.floating-summary {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.75);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 1.0rem;
+    max-width: 260px;
+    z-index: 999;
+}
+
+.floating-summary p {
+    margin: 2px 0;
+}
+
+/* ===================================================================
+   HISTORY PAGE BUTTONS
+   =================================================================== */
+.history-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+/* ===================================================================
+   FLOATING EDIT CONFIRM BAR
+   =================================================================== */
+.edit-confirm {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #243447;
+    border: 1px solid #3b5168;
+    padding: 12px 20px;
+    border-radius: 8px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    color: #ffffff;
+    z-index: 9999;
+}
+
+.edit-confirm.hidden {
+    display: none;
+}
+
+/* ===================================================================
+   SPACING RESTORATION BLOCK (Batch 10)
+   =================================================================== */
+.section-block {
+    margin-bottom: 28px;
+}
+
+.card {
+    margin-bottom: 32px;
+}
+/* Step 2 layout, Amount Having + Click to Add */
+.step2-row {
+    display: flex;
+    align-items: flex-end;   /* align bottoms of input and button */
+    gap: 22px;               /* spacing between the two columns */
+}
+
+.step2-row > div:first-child,
+.step2-row > div:last-child {
+    flex: 1;                 /* both sides same width */
+}
+/* Step 1: spacing between Food Name row and Serving row */
+.step1-second-row {
+  margin-top: 14px;
+}
+
+/* ===================================================================
+   RESPONSIVE
+   =================================================================== */
+@media (max-width: 768px) {
+    .grid-2,
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-select-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

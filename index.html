@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>T1D Calculator</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css?v=3002" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+<div class="page">
+
+    <!-- ========================================================= -->
+    <!-- TITLE                                                     -->
+    <!-- ========================================================= -->
+    <h1 class="page-title">Type 1 Diabetes Calculator</h1>
+
+    <!-- ========================================================= -->
+    <!-- QUICK SELECT BAR                                          -->
+    <!-- ========================================================= -->
+    <div class="quick-select-bar">
+        <button class="quick-btn" data-meal="Breakfast">Breakfast</button>
+        <button class="quick-btn" data-meal="Lunch">Lunch</button>
+        <button class="quick-btn" data-meal="Dinner">Dinner</button>
+        <button class="quick-btn" data-meal="Snack">Snack</button>
+        <button class="quick-btn" data-meal="Fast Food">Fast Food</button>
+        <button class="quick-btn" data-meal="Custom">Custom</button>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PROFILE INFORMATION                                       -->
+    <!-- ========================================================= -->
+    <div class="card">
+        <h2>Profile Information</h2>
+
+        <div class="grid-2">
+            <div>
+                <label for="bslInput">Current BSL (mg/dL):</label>
+                <input type="number" id="bslInput" placeholder="Enter current glucose" />
+            </div>
+
+            <div>
+                <label for="iobInput">Insulin on Board (IOB):</label>
+                <input type="number" id="iobInput" placeholder="Enter IOB" />
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- STEP 1 - FOOD LABEL PER SERVING                           -->
+    <!-- ========================================================= -->
+    <div class="card">
+        <h2>Step 1: Food Label Per Serving</h2>
+
+        <div class="grid-2">
+            <div>
+                <label for="foodNameInput">Food Name:</label>
+                <input type="text" id="foodNameInput" />
+            </div>
+
+            <div>
+                <label for="mealTypeInput">Meal Type:</label>
+                <select id="mealTypeInput">
+                    <option>Home Meal</option>
+                    <option>Snack</option>
+                    <option>Fast Food</option>
+                    <option>Packaged Meal</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid-3 step1-second-row">
+            <div>
+                <label for="servingSize">Serving Size (g or mL):</label>
+                <input type="text" id="servingSize" />
+            </div>
+
+            <div>
+                <label for="servingEqualsInput">Serving Equals:</label>
+                <select id="servingEqualsInput">
+                    <option value="Number">Number</option>
+                    <option value="Fraction">Fraction</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="perQuantity">Per Quantity (per label):</label>
+                <input type="text" id="perQuantity" placeholder="Ex: 1, 2, 0.5" />
+            </div>
+        </div>
+
+        <!-- FRACTION BOX -->
+        <div id="fractionBox" class="fraction-box hidden">
+            <label class="fraction-label">Fraction to Decimal</label>
+
+            <div class="fraction-row">
+                <input type="text" id="fractionInput" placeholder="Ex: 1/3 or 2 1/4" />
+                <button id="convertFractionBtn" class="btn-secondary small-btn">Convert</button>
+            </div>
+
+            <div id="fractionResult" class="fraction-result"></div>
+        </div>
+
+        <h3>Nutrition Per Serving</h3>
+
+        <div class="grid-3">
+            <div>
+                <label for="calories">Calories:</label>
+                <input type="number" id="calories" />
+            </div>
+            <div>
+                <label for="fat">Fat (g):</label>
+                <input type="number" id="fat" />
+            </div>
+            <div>
+                <label for="sodium">Sodium (mg):</label>
+                <input type="number" id="sodium" />
+            </div>
+            <div>
+                <label for="carbs">Carbs (g):</label>
+                <input type="number" id="carbs" />
+            </div>
+            <div>
+                <label for="fiber">Fiber (g):</label>
+                <input type="number" id="fiber" />
+            </div>
+            <div>
+                <label for="sugar">Sugar (g):</label>
+                <input type="number" id="sugar" />
+            </div>
+            <div>
+                <label for="protein">Protein (g):</label>
+                <input type="number" id="protein" />
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- OCR: SCAN NUTRITION LABEL                                 -->
+    <!-- HYBRID LAYOUT - FRONT + BACK                              -->
+    <!-- ========================================================= -->
+    <div class="card ocr-card">
+        <h2>OCR: Scan Nutrition Label</h2>
+
+        <div class="grid-2">
+            <!-- FRONT IMAGE - FOOD NAME -->
+            <div>
+                <h3>Front: Food Name</h3>
+                <label for="ocrFrontInput">Upload front of package:</label>
+                <input type="file" id="ocrFrontInput" accept="image/*" />
+                <div id="ocrFrontStatus" class="ocr-status"></div>
+
+                <div class="ocr-preview-wrapper">
+                    <img id="ocrFrontPreview" class="ocr-preview" alt="Front preview" />
+                </div>
+            </div>
+
+            <!-- BACK IMAGE - NUTRITION FACTS -->
+            <div>
+                <h3>Back: Nutrition Facts</h3>
+                <label for="ocrBackInput">Upload nutrition label:</label>
+                <input type="file" id="ocrBackInput" accept="image/*" />
+                <button id="extractAllBtn" class="btn-primary ocr-all-btn" style="margin-top: 10px;">
+                    EXTRACT INFO
+                </button>
+                <div id="ocrBackStatus" class="ocr-status"></div>
+
+                <textarea id="ocrOutput" class="ocr-output" placeholder="Raw JSON nutrition output will appear here."></textarea>
+
+                <div class="ocr-preview-wrapper">
+                    <img id="ocrBackPreview" class="ocr-preview" alt="Back preview" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- STEP 2 - ENTER AMOUNT HAVING                              -->
+    <!-- ========================================================= -->
+    <div class="card">
+        <h2>Step 2: Enter Consumed Information</h2>
+
+<div class="step2-row">
+  <div class="step2-left">
+    <label for="amountHavingInput">Amount Having:</label>
+    <input
+      type="number"
+      id="amountHavingInput"
+      placeholder="Enter amount having"
+    />
+  </div>
+
+  <div class="step2-right">
+    <button id="addFoodBtn" class="btn-primary full-width">
+            ADD TO MEAL LOG
+    </button>
+  </div>
+</div>
+
+<div id="totalsRow" class="totals-row">
+  TOTAL CARBS: 0 g TOTAL FAT: 0 g TOTAL PROTEIN: 0 g
+</div>
+
+        <h2>Results</h2>
+        <div id="resultBox" class="results-box"></div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- AI GUIDANCE                                               -->
+    <!-- ========================================================= -->
+    <div class="card wide-card">
+        <h2>AI Guidance</h2>
+        <button id="runAiButton" class="btn-primary">Run AI Analysis</button>
+        <textarea id="aiNotes" class="ai-box"></textarea>
+                <div id="analysisSummary" class="ai-summary-block">
+                    <p class="ai-summary-line">
+                        <span class="ai-summary-label">Pre-Bolus:</span>
+                        <span id="aiPreBolusSummary">Waiting for BSL and analysis.</span>
+                    </p>
+                    <p class="ai-summary-line">
+                        <span class="ai-summary-label">Split Recommendation:</span>
+                        <span id="aiSplitRecSummary">N/A</span>
+                    </p>
+                    <p class="ai-summary-line">
+                        <span class="ai-summary-label">Suggested Percent:</span>
+                        <span id="aiSplitPercentSummary">N/A</span>
+                    </p>
+                    <p class="ai-summary-line">
+                        <span class="ai-summary-label">Split Duration:</span>
+                        <span id="aiSplitDurationSummary">N/A</span>
+                    </p>
+                    <p class="ai-summary-line">
+                        <span class="ai-summary-label">Reason:</span>
+                        <span id="aiSplitReasonSummary">N/A</span>
+                    </p>
+                    <p class="ai-summary-line">
+                        <span class="ai-summary-label">Meal Dose / Correction / Final Dose:</span>
+                        <span id="aiDoseSummary">Use your usual insulin-to-carb and correction formulas. This tool does not calculate insulin units.</span>
+                    </p>
+                </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- LOGGED FOOD TABLE                                         -->
+    <!-- ========================================================= -->
+    <div class="card">
+        <h2>Logged Food Items</h2>
+
+        <table class="food-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Size</th>
+                    <th>Calories</th>
+                    <th>Sodium</th>
+                    <th>Fat</th>
+                    <th>Carbs</th>
+                    <th>Fiber</th>
+                    <th>Sugar</th>
+                    <th>Protein</th>
+                    <th>Qty Having</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+
+            <tbody id="foodLogBody"></tbody>
+
+            <tfoot>
+                <tr id="totalsRow"></tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TIMELINE                                                  -->
+    <!-- ========================================================= -->
+    <div class="card wide-card predicted-chart-card">
+        <h2>Predicted Glucose Timeline</h2>
+        <canvas id="timelineChart" height="200"></canvas>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- HISTORY BUTTONS                                           -->
+    <!-- ========================================================= -->
+    <div class="history-buttons">
+        <button id="saveHistoryButton" class="btn-primary">Add to History Page</button>
+        <button id="viewHistoryBtn" type="button" class="btn-secondary">View History</button>
+    </div>
+
+    <div id="floatingSummary" class="floating-summary">
+        <p><strong>Totals:</strong> <span id="floatTotalsText">Carbs 0 g, Fat 0 g, Protein 0 g</span></p>
+        <p><strong>Pre-Bolus:</strong> <span id="floatPrebolusText">N/A</span></p>
+        <p><strong>Split:</strong> <span id="floatSplitText">N/A</span></p>
+    </div>
+
+</div>
+
+<!-- ========================================================= -->
+<!-- FLOATING EDIT CONFIRM BAR                                 -->
+<!-- ========================================================= -->
+<div id="editConfirmBar" class="edit-confirm hidden">
+    <span>You are editing an item</span>
+    <button id="saveEditBtn" class="btn-primary">Save Changes</button>
+    <button id="cancelEditBtn" class="btn-secondary">Cancel</button>
+</div>
+
+<!-- ========================================================= -->
+<!-- SCRIPTS                                                    -->
+<!-- ========================================================= -->
+<script src="ocr.js?v=3001"></script>
+<script src="ai.js?v=3001"></script>
+<script src="app.js?v=3001"></script>
+
+</body>
+</html>
