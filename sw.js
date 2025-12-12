@@ -6,7 +6,7 @@
    ✓ Supports: index, history, JS, CSS, icons, manifest
 ============================================================ */
 
-const CACHE_VERSION = "t1d-cache-v5";
+const CACHE_VERSION = "t1d-cache-v6";
 const ASSET_CACHE = CACHE_VERSION;
 
 // Files to cache offline

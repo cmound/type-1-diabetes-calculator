@@ -38,8 +38,10 @@ async function runFrontOcrAndFillName(file) {
     const status = document.getElementById("ocrFrontStatus");
     const preview = document.getElementById("ocrFrontPreview");
 
-    status.textContent = "OCR is disabled in the public version. Please enter values manually in Step 1.";
-    status.style.color = "#ff7360";
+    if (status) {
+        status.textContent = "OCR is disabled in the public version. Please enter values manually in Step 1.";
+        status.style.color = "#ff7360";
+    }
 
     // Hide preview
     if (preview) {
@@ -57,8 +59,10 @@ async function runBackOcrAndFillNutrition(file) {
     const status = document.getElementById("ocrBackStatus");
     const preview = document.getElementById("ocrBackPreview");
 
-    status.textContent = "OCR is disabled in the public version. Please enter values manually in Step 1.";
-    status.style.color = "#ff7360";
+    if (status) {
+        status.textContent = "OCR is disabled in the public version. Please enter values manually in Step 1.";
+        status.style.color = "#ff7360";
+    }
 
     // Hide preview
     if (preview) {

@@ -141,45 +141,6 @@
     </div>
 
     <!-- ========================================================= -->
-    <!-- OCR: SCAN NUTRITION LABEL                                 -->
-    <!-- HYBRID LAYOUT - FRONT + BACK                              -->
-    <!-- ========================================================= -->
-    <div class="card ocr-card">
-        <h2>OCR: Scan Nutrition Label</h2>
-
-        <div class="grid-2">
-            <!-- FRONT IMAGE - FOOD NAME -->
-            <div>
-                <h3>Front: Food Name</h3>
-                <label for="ocrFrontInput">Upload front of package:</label>
-                <input type="file" id="ocrFrontInput" accept="image/*" />
-                <div id="ocrFrontStatus" class="ocr-status"></div>
-
-                <div class="ocr-preview-wrapper">
-                    <img id="ocrFrontPreview" class="ocr-preview" alt="Front preview" />
-                </div>
-            </div>
-
-            <!-- BACK IMAGE - NUTRITION FACTS -->
-            <div>
-                <h3>Back: Nutrition Facts</h3>
-                <label for="ocrBackInput">Upload nutrition label:</label>
-                <input type="file" id="ocrBackInput" accept="image/*" />
-                <button id="extractAllBtn" class="btn-primary ocr-all-btn" style="margin-top: 10px;">
-                    EXTRACT INFO
-                </button>
-                <div id="ocrBackStatus" class="ocr-status"></div>
-
-                <textarea id="ocrOutput" class="ocr-output" placeholder="Raw JSON nutrition output will appear here."></textarea>
-
-                <div class="ocr-preview-wrapper">
-                    <img id="ocrBackPreview" class="ocr-preview" alt="Back preview" />
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================================= -->
     <!-- STEP 2 - ENTER AMOUNT HAVING                              -->
     <!-- ========================================================= -->
     <div class="card">
