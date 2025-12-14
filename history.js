@@ -91,8 +91,8 @@ function renderHistory() {
             <td>${entry.mealType || "-"}</td>
             <td>${entry.servingSize || "-"}</td>
             <td>${safe(entry.caloriesPerServing)}</td>
-            <td>${safe(entry.sodiumPerServing)}</td>
             <td>${safe(entry.fatPerServing)}</td>
+            <td>${safe(entry.sodiumPerServing)}</td>
             <td>${safe(entry.carbsPerServing)}</td>
             <td>${safe(entry.fiberPerServing)}</td>
             <td>${safe(entry.sugarPerServing)}</td>

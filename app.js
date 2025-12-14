@@ -501,8 +501,8 @@ function updateTable() {
             <td>${item.name}</td>
             <td>${item.servingSize}</td>
             <td>${Math.round(item.caloriesPerServing * mult)}</td>
-            <td>${Math.round(item.sodiumPerServing * mult)}</td>
             <td>${Math.round(item.fatPerServing * mult)}</td>
+            <td>${Math.round(item.sodiumPerServing * mult)}</td>
             <td>${Math.round(item.carbsPerServing * mult)}</td>
             <td>${Math.round(item.fiberPerServing * mult)}</td>
             <td>${Math.round(item.sugarPerServing * mult)}</td>
@@ -572,8 +572,8 @@ function updateTotalsAndSummary() {
             <td><strong>TOTAL</strong></td>
             <td>-</td>
             <td>${Math.round(totals.calories)}</td>
-            <td>${Math.round(totals.sodium)}</td>
             <td>${Math.round(totals.fat)}</td>
+            <td>${Math.round(totals.sodium)}</td>
             <td>${Math.round(totals.carbs)}</td>
             <td>${Math.round(totals.fiber)}</td>
             <td>${Math.round(totals.sugar)}</td>
@@ -652,6 +652,9 @@ if (!bslInput.value) {
         Split Duration: ${splitDuration}<br>
         Reason: ${reason}
     `;
+
+    // FIX 3: Update floating box pre-bolus to match
+    if (floatPrebolusText) floatPrebolusText.textContent = preBolus;
 
     logDebug("Results updated");
 }
@@ -1034,3 +1037,108 @@ quickButtons.forEach(btn => {
     updateResults();
     updateTimeline();
 })();
+
+// =============================================================
+// FIX 2 — FOOD NAME AUTOCOMPLETE FROM HISTORY
+// =============================================================
+
+// Create autocomplete dropdown container
+const autocompleteContainer = document.createElement("div");
+autocompleteContainer.id = "autocompleteDropdown";
+autocompleteContainer.style.cssText = `
+    position: absolute;
+    background: #1a2533;
+    border: 1px solid #3a4b61;
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+`;
+
+// Insert dropdown after food name input
+if (foodNameInput && foodNameInput.parentElement) {
+    foodNameInput.parentElement.style.position = "relative";
+    foodNameInput.parentElement.appendChild(autocompleteContainer);
+}
+
+// Handle food name input - show suggestions
+foodNameInput?.addEventListener("input", (e) => {
+    const query = e.target.value.trim().toLowerCase();
+    
+    if (!query || query.length < 2) {
+        autocompleteContainer.style.display = "none";
+        return;
+    }
+    
+    // Get unique food items from history
+    const matches = [];
+    const seenNames = new Set();
+    
+    historyData.forEach(item => {
+        const itemName = (item.name || "").toLowerCase();
+        if (itemName.includes(query) && !seenNames.has(item.name)) {
+            seenNames.add(item.name);
+            matches.push(item);
+        }
+    });
+    
+    if (matches.length === 0) {
+        autocompleteContainer.style.display = "none";
+        return;
+    }
+    
+    // Build dropdown items
+    autocompleteContainer.innerHTML = "";
+    matches.slice(0, 8).forEach(item => {
+        const div = document.createElement("div");
+        div.textContent = item.name;
+        div.style.cssText = `
+            padding: 10px 12px;
+            cursor: pointer;
+            color: #e8f0f6;
+            border-bottom: 1px solid #2d3b4d;
+        `;
+        div.addEventListener("mouseover", () => {
+            div.style.background = "#243447";
+        });
+        div.addEventListener("mouseout", () => {
+            div.style.background = "";
+        });
+        div.addEventListener("click", () => {
+            // Auto-fill Step 1 fields
+            foodNameInput.value = item.name;
+            mealTypeInput.value = item.mealType || "Home Meal";
+            servingSizeInput.value = item.servingSize || "";
+            perQuantityInput.value = item.perQuantity || 1;
+            caloriesInput.value = item.caloriesPerServing || "";
+            fatInput.value = item.fatPerServing || "";
+            sodiumInput.value = item.sodiumPerServing || "";
+            carbsInput.value = item.carbsPerServing || "";
+            fiberInput.value = item.fiberPerServing || "";
+            sugarInput.value = item.sugarPerServing || "";
+            proteinInput.value = item.proteinPerServing || "";
+            
+            // Hide dropdown
+            autocompleteContainer.style.display = "none";
+            
+            logDebug(`Auto-filled from history: ${item.name}`);
+        });
+        autocompleteContainer.appendChild(div);
+    });
+    
+    // Position and show dropdown
+    const rect = foodNameInput.getBoundingClientRect();
+    const parentRect = foodNameInput.parentElement.getBoundingClientRect();
+    autocompleteContainer.style.top = (foodNameInput.offsetTop + foodNameInput.offsetHeight) + "px";
+    autocompleteContainer.style.left = foodNameInput.offsetLeft + "px";
+    autocompleteContainer.style.width = foodNameInput.offsetWidth + "px";
+    autocompleteContainer.style.display = "block";
+});
+
+// Hide dropdown when clicking outside
+document.addEventListener("click", (e) => {
+    if (e.target !== foodNameInput && !autocompleteContainer.contains(e.target)) {
+        autocompleteContainer.style.display = "none";
+    }
+});
