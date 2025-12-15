@@ -311,6 +311,24 @@ textarea {
     font-weight: bold;
 }
 
+/* Left-align specific columns in Logged Food Items table */
+#loggedFoodTable th:nth-child(1),
+#loggedFoodTable td:nth-child(1) {
+    text-align: left;
+    padding-left: 12px;
+}
+
+/* Left-align Date & Time, Food Item, Meal Type in History table */
+#historyTable th:nth-child(1),
+#historyTable td:nth-child(1),
+#historyTable th:nth-child(2),
+#historyTable td:nth-child(2),
+#historyTable th:nth-child(3),
+#historyTable td:nth-child(3) {
+    text-align: left;
+    padding-left: 12px;
+}
+
 /* ===================================================================
    TIMELINE CHART
    =================================================================== */
