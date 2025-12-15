@@ -403,6 +403,59 @@ canvas {
 }
 
 /* ===================================================================
+   AI GUIDANCE QC LAYER
+   =================================================================== */
+.card-subsection {
+    margin-top: 16px;
+}
+
+.card-subtitle {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #d7e4f3;
+    font-size: 18px;
+}
+
+.ai-guidance-results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.ai-guidance-results-table th,
+.ai-guidance-results-table td {
+    border: 1px solid #1e293b;
+    padding: 6px 8px;
+    text-align: left;
+}
+
+.ai-guidance-results-table th {
+    background-color: #0b1727;
+    color: #d9e3ee;
+}
+
+.ai-guidance-results-table td {
+    background-color: #131d27;
+    color: #e8eef5;
+}
+
+.ai-guidance-results-table td select,
+.ai-guidance-results-table td input {
+    width: 100%;
+    font-size: 13px;
+}
+
+.dose-guidance-summary {
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.dose-guidance-summary p {
+    margin: 2px 0;
+}
+
+/* ===================================================================
    HISTORY PAGE BUTTONS
    =================================================================== */
 .history-buttons {
@@ -464,6 +517,14 @@ canvas {
 /* ===================================================================
    RESPONSIVE
    =================================================================== */
+
+/* Desktop: wider layout for larger screens */
+@media (min-width: 1200px) {
+    .page {
+        max-width: 1400px;
+    }
+}
+
 @media (max-width: 768px) {
     .grid-2,
     .grid-3 {

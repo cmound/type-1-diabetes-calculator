@@ -17,6 +17,34 @@ let currentTotals = {
     protein: 0
 };
 
+// AI Guidance QC State
+const aiGuidanceState = {
+    recommended: {
+        prebolus: 'N/A',
+        splitPercent: 'N/A',
+        splitDuration: 'N/A'
+    },
+    using: {
+        prebolus: 'N/A',
+        splitPercent: 'N/A',
+        splitDuration: 'N/A'
+    }
+};
+
+// AI Guidance QC State
+const aiGuidanceState = {
+    recommended: {
+        prebolus: 'N/A',
+        splitPercent: 'N/A',
+        splitDuration: 'N/A'
+    },
+    using: {
+        prebolus: 'N/A',
+        splitPercent: 'N/A',
+        splitDuration: 'N/A'
+    }
+};
+
 // Core inputs
 const bslInput = document.getElementById("bslInput");
 const foodNameInput = document.getElementById("foodNameInput");
@@ -736,8 +764,10 @@ function runAiAnalysis() {
             doseSpan.textContent = "Use your usual insulin-to-carb and correction formulas. This tool does not calculate insulin units.";
         }
         aiNotesBox.value = "Add the current BSL (mg/dL) at the top of the page, then click \"Run AI Analysis\" again.";
-        if (floatPrebolusText) floatPrebolusText.textContent = "ADD BSL to continue!";
-        if (floatSplitText) floatSplitText.textContent = mealProfile.splitRecommendation;
+        
+        // Update AI Guidance Results QC layer even when BSL is missing
+        updateAiGuidanceResults("ADD BSL to continue!", mealProfile.suggestedPercent, mealProfile.splitDuration);
+        
         return;
     }
 
@@ -776,6 +806,9 @@ if (prebolusSpan) prebolusSpan.textContent = prebolus;
     if (splitDurationSpan) splitDurationSpan.textContent = splitDuration;
     if (splitReasonSpan) splitReasonSpan.textContent = splitReason;
 
+    // Update AI Guidance Results QC layer
+    updateAiGuidanceResults(prebolus, splitPercent, splitDuration);
+
     if (doseSpan) {
         doseSpan.textContent =
             "Use your usual insulin-to-carb ratio to calculate a meal dose from " +
@@ -791,9 +824,6 @@ if (prebolusSpan) prebolusSpan.textContent = prebolus;
         `Reason: ${splitReason}\n\n` +
         `Dose note: ${doseSpan ? doseSpan.textContent : "Use your usual insulin formulas."}`;
 
-    if (floatPrebolusText) floatPrebolusText.textContent = prebolus;
-    if (floatSplitText) floatSplitText.textContent = splitRec;
-
     logDebug("AI analysis updated");
 }
 
@@ -804,6 +834,113 @@ bslInput?.addEventListener("input", () => {
 });
 
 runAiButton?.addEventListener("click", runAiAnalysis);
+
+// -------------------------------------------------------------
+// AI GUIDANCE QC LAYER
+// -------------------------------------------------------------
+
+// Update AI Guidance Results table with new recommendations
+function updateAiGuidanceResults(preBolusText, suggestedPercentText, splitDurationText) {
+    aiGuidanceState.recommended.prebolus = preBolusText || 'N/A';
+    aiGuidanceState.recommended.splitPercent = suggestedPercentText || 'N/A';
+    aiGuidanceState.recommended.splitDuration = splitDurationText || 'N/A';
+
+    const preRecEl = document.getElementById('aiPrebolusRecommended');
+    const splitRecEl = document.getElementById('aiSplitPercentRecommended');
+    const durRecEl = document.getElementById('aiSplitDurationRecommended');
+
+    if (preRecEl) preRecEl.textContent = aiGuidanceState.recommended.prebolus;
+    if (splitRecEl) splitRecEl.textContent = aiGuidanceState.recommended.splitPercent;
+    if (durRecEl) durRecEl.textContent = aiGuidanceState.recommended.splitDuration;
+
+    resetAiOverrideControls();
+    recomputeDoseGuidance();
+}
+
+// Reset all KEEP selects to "yes" and clear/disable override inputs
+function resetAiOverrideControls() {
+    const controls = [
+        { keepId: 'aiPrebolusKeep', overrideId: 'aiPrebolusOverride' },
+        { keepId: 'aiSplitPercentKeep', overrideId: 'aiSplitPercentOverride' },
+        { keepId: 'aiSplitDurationKeep', overrideId: 'aiSplitDurationOverride' }
+    ];
+
+    controls.forEach(({ keepId, overrideId }) => {
+        const keepEl = document.getElementById(keepId);
+        const overrideEl = document.getElementById(overrideId);
+        
+        if (keepEl) keepEl.value = 'yes';
+        if (overrideEl) {
+            overrideEl.value = '';
+            overrideEl.disabled = true;
+        }
+    });
+}
+
+// Choose between recommended and override value based on KEEP setting
+function chooseValue(keepId, overrideId, recommendedValue) {
+    const keepEl = document.getElementById(keepId);
+    const overrideEl = document.getElementById(overrideId);
+    const keep = keepEl ? keepEl.value : 'yes';
+    const overrideVal = overrideEl ? overrideEl.value.trim() : '';
+
+    if (keep === 'no' && overrideVal) {
+        return overrideVal;
+    }
+    return recommendedValue || 'N/A';
+}
+
+// Recompute dose guidance based on KEEP/override settings
+function recomputeDoseGuidance() {
+    const using = aiGuidanceState.using;
+    const rec = aiGuidanceState.recommended;
+
+    using.prebolus = chooseValue('aiPrebolusKeep', 'aiPrebolusOverride', rec.prebolus);
+    using.splitPercent = chooseValue('aiSplitPercentKeep', 'aiSplitPercentOverride', rec.splitPercent);
+    using.splitDuration = chooseValue('aiSplitDurationKeep', 'aiSplitDurationOverride', rec.splitDuration);
+
+    const preEl = document.getElementById('doseGuidancePrebolus');
+    const splitEl = document.getElementById('doseGuidanceSplitPercent');
+    const durEl = document.getElementById('doseGuidanceSplitDuration');
+
+    if (preEl) preEl.textContent = 'Pre-Bolus: ' + (using.prebolus || 'N/A');
+    if (splitEl) splitEl.textContent = 'Suggested Percent: ' + (using.splitPercent || 'N/A');
+    if (durEl) durEl.textContent = 'Split Duration: ' + (using.splitDuration || 'N/A');
+
+    updateFloatingSummaryFromDoseGuidance();
+}
+
+// Update floating summary box to reflect final "using" values
+function updateFloatingSummaryFromDoseGuidance() {
+    const using = aiGuidanceState.using;
+    
+    if (floatPrebolusText) {
+        const prebolusText = using.prebolus && using.prebolus !== 'N/A'
+            ? using.prebolus
+            : 'N/A';
+        floatPrebolusText.textContent = prebolusText;
+    }
+
+    if (floatSplitText) {
+        const splitPercentPart = using.splitPercent && using.splitPercent !== 'N/A'
+            ? using.splitPercent
+            : '';
+        const splitDurationPart = using.splitDuration && using.splitDuration !== 'N/A'
+            ? using.splitDuration
+            : '';
+
+        let splitLine = 'N/A';
+        if (splitPercentPart && splitDurationPart) {
+            splitLine = splitPercentPart + ' over ' + splitDurationPart;
+        } else if (splitPercentPart) {
+            splitLine = splitPercentPart;
+        } else if (splitDurationPart) {
+            splitLine = splitDurationPart;
+        }
+
+        floatSplitText.textContent = splitLine;
+    }
+}
 
 // OCR combined action - handled by ocr.js
 // extractAllBtn listener is defined in ocr.js
@@ -1036,6 +1173,38 @@ quickButtons.forEach(btn => {
     updateTotalsAndSummary();
     updateResults();
     updateTimeline();
+
+    // Set up AI Guidance QC layer event listeners
+    const aiControls = [
+        { keepId: 'aiPrebolusKeep', overrideId: 'aiPrebolusOverride' },
+        { keepId: 'aiSplitPercentKeep', overrideId: 'aiSplitPercentOverride' },
+        { keepId: 'aiSplitDurationKeep', overrideId: 'aiSplitDurationOverride' }
+    ];
+
+    aiControls.forEach(({ keepId, overrideId }) => {
+        const keepEl = document.getElementById(keepId);
+        const overrideEl = document.getElementById(overrideId);
+
+        if (keepEl) {
+            keepEl.addEventListener('change', () => {
+                if (overrideEl) {
+                    if (keepEl.value === 'yes') {
+                        overrideEl.value = '';
+                        overrideEl.disabled = true;
+                    } else {
+                        overrideEl.disabled = false;
+                    }
+                }
+                recomputeDoseGuidance();
+            });
+        }
+
+        if (overrideEl) {
+            overrideEl.addEventListener('input', () => {
+                recomputeDoseGuidance();
+            });
+        }
+    });
 })();
 
 // =============================================================

@@ -236,6 +236,80 @@
                         <span id="aiDoseSummary">Use your usual insulin-to-carb and correction formulas. This tool does not calculate insulin units.</span>
                     </p>
                 </div>
+
+        <div id="aiGuidanceResultsSection" class="card-subsection">
+            <div class="card-subtitle">AI Guidance Results</div>
+            <table class="ai-guidance-results-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Recommended</th>
+                        <th>Keep?</th>
+                        <th>Change To</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-metric="prebolus">
+                        <td>Pre-Bolus</td>
+                        <td id="aiPrebolusRecommended">N/A</td>
+                        <td>
+                            <select id="aiPrebolusKeep">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input
+                                id="aiPrebolusOverride"
+                                list="preBolusOptions"
+                                placeholder="Ex: 5–6 minutes"
+                                disabled />
+                        </td>
+                    </tr>
+                    <tr data-metric="splitPercent">
+                        <td>Suggested Percent</td>
+                        <td id="aiSplitPercentRecommended">N/A</td>
+                        <td>
+                            <select id="aiSplitPercentKeep">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input
+                                id="aiSplitPercentOverride"
+                                list="splitPercentOptions"
+                                placeholder="Ex: 30% / 70%"
+                                disabled />
+                        </td>
+                    </tr>
+                    <tr data-metric="splitDuration">
+                        <td>Split Duration</td>
+                        <td id="aiSplitDurationRecommended">N/A</td>
+                        <td>
+                            <select id="aiSplitDurationKeep">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input
+                                id="aiSplitDurationOverride"
+                                list="splitDurationOptions"
+                                placeholder="Ex: 1 hour 30 mins"
+                                disabled />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div id="doseGuidanceSummary" class="dose-guidance-summary">
+                <div class="card-subtitle">Using / Dose Guidance</div>
+                <p id="doseGuidancePrebolus">Pre-Bolus: N/A</p>
+                <p id="doseGuidanceSplitPercent">Suggested Percent: N/A</p>
+                <p id="doseGuidanceSplitDuration">Split Duration: N/A</p>
+            </div>
+        </div>
     </div>
 
     <!-- ========================================================= -->
@@ -277,6 +351,61 @@
 <script src="ocr.js?v=3001"></script>
 <script src="ai.js?v=3001"></script>
 <script src="app.js?v=3001"></script>
+
+<!-- ========================================================= -->
+<!-- DATALISTS FOR AI GUIDANCE OVERRIDES                       -->
+<!-- ========================================================= -->
+<datalist id="preBolusOptions">
+    <option value="0–3 minutes"></option>
+    <option value="3–5 minutes"></option>
+    <option value="5–8 minutes"></option>
+    <option value="8–10 minutes"></option>
+    <option value="10–12 minutes"></option>
+</datalist>
+
+<datalist id="splitPercentOptions">
+    <option value="100% up front"></option>
+    <option value="95% / 5%"></option>
+    <option value="90% / 10%"></option>
+    <option value="85% / 15%"></option>
+    <option value="80% / 20%"></option>
+    <option value="75% / 25%"></option>
+    <option value="70% / 30%"></option>
+    <option value="65% / 35%"></option>
+    <option value="60% / 40%"></option>
+    <option value="55% / 45%"></option>
+    <option value="50% / 50%"></option>
+    <option value="45% / 55%"></option>
+    <option value="40% / 60%"></option>
+    <option value="35% / 65%"></option>
+    <option value="30% / 70%"></option>
+    <option value="25% / 75%"></option>
+    <option value="20% / 80%"></option>
+    <option value="15% / 85%"></option>
+    <option value="10% / 90%"></option>
+    <option value="5% / 95%"></option>
+    <option value="0% up front / 100% later"></option>
+</datalist>
+
+<datalist id="splitDurationOptions">
+    <option value="45 mins"></option>
+    <option value="1 hour"></option>
+    <option value="1 hour 15 mins"></option>
+    <option value="1 hour 25 mins"></option>
+    <option value="1 hour 30 mins"></option>
+    <option value="1 hour 35 mins"></option>
+    <option value="1 hour 40 mins"></option>
+    <option value="1 hour 45 mins"></option>
+    <option value="2 hours 15 mins"></option>
+    <option value="2 hours 25 mins"></option>
+    <option value="2 hours 30 mins"></option>
+    <option value="2 hours 35 mins"></option>
+    <option value="2 hours 40 mins"></option>
+    <option value="2 hours 45 mins"></option>
+    <option value="3 hours 15 mins"></option>
+    <option value="3 hours 25 mins"></option>
+    <option value="3 hours 30 mins"></option>
+</datalist>
 
 </body>
 </html>
