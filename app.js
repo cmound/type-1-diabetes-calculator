@@ -31,20 +31,6 @@ const aiGuidanceState = {
     }
 };
 
-// AI Guidance QC State
-const aiGuidanceState = {
-    recommended: {
-        prebolus: 'N/A',
-        splitPercent: 'N/A',
-        splitDuration: 'N/A'
-    },
-    using: {
-        prebolus: 'N/A',
-        splitPercent: 'N/A',
-        splitDuration: 'N/A'
-    }
-};
-
 // Core inputs
 const bslInput = document.getElementById("bslInput");
 const foodNameInput = document.getElementById("foodNameInput");
@@ -841,6 +827,7 @@ runAiButton?.addEventListener("click", runAiAnalysis);
 
 // Update AI Guidance Results table with new recommendations
 function updateAiGuidanceResults(preBolusText, suggestedPercentText, splitDurationText) {
+    // Guard against missing AI guidance elements so the rest of the script continues to run
     aiGuidanceState.recommended.prebolus = preBolusText || 'N/A';
     aiGuidanceState.recommended.splitPercent = suggestedPercentText || 'N/A';
     aiGuidanceState.recommended.splitDuration = splitDurationText || 'N/A';
@@ -859,6 +846,7 @@ function updateAiGuidanceResults(preBolusText, suggestedPercentText, splitDurati
 
 // Reset all KEEP selects to "yes" and clear/disable override inputs
 function resetAiOverrideControls() {
+    // Guard against missing AI guidance QC elements
     const controls = [
         { keepId: 'aiPrebolusKeep', overrideId: 'aiPrebolusOverride' },
         { keepId: 'aiSplitPercentKeep', overrideId: 'aiSplitPercentOverride' },
@@ -892,6 +880,7 @@ function chooseValue(keepId, overrideId, recommendedValue) {
 
 // Recompute dose guidance based on KEEP/override settings
 function recomputeDoseGuidance() {
+    // Guard against missing Using / Dose Guidance elements
     const using = aiGuidanceState.using;
     const rec = aiGuidanceState.recommended;
 
@@ -912,6 +901,7 @@ function recomputeDoseGuidance() {
 
 // Update floating summary box to reflect final "using" values
 function updateFloatingSummaryFromDoseGuidance() {
+    // Guard against missing floating summary elements
     const using = aiGuidanceState.using;
     
     if (floatPrebolusText) {
@@ -1175,6 +1165,7 @@ quickButtons.forEach(btn => {
     updateTimeline();
 
     // Set up AI Guidance QC layer event listeners
+    // Guard against missing AI guidance elements so the rest of the app initialization continues
     const aiControls = [
         { keepId: 'aiPrebolusKeep', overrideId: 'aiPrebolusOverride' },
         { keepId: 'aiSplitPercentKeep', overrideId: 'aiSplitPercentOverride' },
